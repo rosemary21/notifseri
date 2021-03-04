@@ -1,0 +1,192 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" style="height: 100%">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--[if gte mso 9]>
+    <style type="text/css">
+        @media only screen and (min-device-width : 375px) and (max-device-width : 667px) {
+            table{
+                width: 90% !important;
+            }
+        }
+    </style>
+    <![endif]-->
+
+    <!--[if !mso]><!-->
+    <style type="text/css">
+        @media only screen and (min-device-width : 375px) and (max-device-width : 667px) {
+            font{
+                -webkit-text-size-adjust: none;
+                /*font-size: 9px !important;*/
+                font-size: 11px !important;
+            }
+            img{
+                width: 95px !important;
+                /*height: 64px !important;*/
+                float: right; !important;
+                margin-bottom: 5%; !important;
+            }
+            .customHeaderFont{
+                font-size: 12px !important;
+            }
+        }
+    </style>
+    <!--<![endif]-->
+</head>
+<body style="padding: 30px 0 30px 0 !important;">
+
+<!--Microsoft Outlook template begins below....-->
+
+<!--[if (gte mso 9)|(IE)]>
+<center>
+    <table width="70%" style="border-collapse: collapse !important;" cellspacing="2">
+        <tbody>
+        <tr>
+            <td align="left" width="80%" height="20">
+                <font face="Arial,sans-serif" color="#fff" size="4"><b></b></font>
+            </td>
+        </tr>
+        <tr>
+            <td bgcolor="#003057" align="left" width="80%" height="60">
+                <font face="Arial,sans-serif" color="#fff" size="4"><b>&nbsp;&nbsp;&nbsp;&nbsp;Loan post maturity due date 30 days after maturity (if customer still has outstanding)</b></font>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <p></p>
+
+    <table width="70%" style="border-collapse: collapse !important;" cellspacing="2">
+        <thead>
+        <tr>
+            <th width="40%"></th>
+            <th width="60%"></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td width="40%" height="42" bgcolor="#c2cbda">
+                <font face="Arial,sans-serif" color="#000000" size="3">Good day <b th:text="${customerName}">customer name</b></font>
+            </td>
+            <td width="60%" height="42">
+                <font face="Arial,sans-serif" color="#000000" size="3"></font>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <table width="70%" style="border-collapse: collapse !important;">
+        <tbody>
+        <tr>
+            <td width="70%" height="12"></td>
+        </tr>
+        <tr>
+            <td width="70%" height="33"><font face="Arial,sans-serif" color="#000000" size="3">Hope this mail finds you well.</font></td>
+        </tr>
+        <tr>
+            <td width="70%" height="33"><font face="Arial,sans-serif" color="#000000" size="3">This is to notify you that your facility with <b th:text="${companyName}">company name</b> matured on <b th:text="${maturityDate}">maturity date</b> and you are yet clear the balance. Please make payment immediately.</font></td>
+        </tr>
+        <tr>
+            <td width="70%" height="36"><font face="Arial,sans-serif" color="#000000" size="3">Your outstanding balance as at date is <b th:text="${outstandingBalance}">outstanding balance</b>.</font></td>
+        </tr>
+        <tr>
+            <td width="70%" height="36"><font face="Arial,sans-serif" color="#000000" size="3">If you intend making a direct transfer into our account, kindly use the bank details provided below and notify <b th:text="${companyName}">company name</b> of the payment. Please note that default charges accrue daily on all outstanding balances until full liquidation.</font></td>
+        </tr>
+        <tr>
+            <td width="70%" height="36"><font face="Arial,sans-serif" color="#000000" size="3"><br/>While making payments, please quote your loan ID <b th:text="${loanId}">loan id</b> for ease of reconciliation. <br/><br/>
+                <u>Please avoid the use of POS terminals and ATM for your loan repayments due to their limitation with transaction descriptions.</u></font>
+            </td>
+        </tr>
+        <tr>
+            <td width="70%" height="36">
+                <font face="Arial,sans-serif" color="#000000" size="3">We appreciate your relationship with us. For further assistance, please call <b th:text="${collectionOfficer}">collection officer</b> on <b th:text="${collectionPhoneNumber}">collection phone number</b> or email on <b th:text="${collectionEmail}">collection email</b>.</font>
+            </td>
+        </tr>
+        <tr>
+            <td width="70%" height="16"></td>
+        </tr>
+        <tr>
+            <td width="70%" height="36">
+                <font face="Arial,sans-serif" color="#000000" size="3">Our account detail is: <br/>
+                    Account Name:     <b th:text="${accountName}">account name</b> <br>
+                    Account Number:   <b th:text="${accountNumber}">account number</b> <br>
+                    Bank Name:        <b th:text="${bankName}">bank name</b>.
+                </font>
+            </td>
+        </tr>
+        <tr>
+            <td width="70%" height="8"></td>
+        </tr>
+        <tr>
+            <td width="70%" height="60">
+                <font face="Arial,sans-serif" color="#000000" size="3">Thank you for your understanding.</font>
+            </td>
+        </tr>
+        <tr>
+            <td width="70%" height="10"></td>
+        </tr>
+        <tr>
+            <td width="70%" height="60">
+                <font face="Arial,sans-serif" color="#000000" size="3">Creditville Collection Team</font>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</center>
+<![endif]-->
+
+<!--Non-Microsoft Outlook template begins below....-->
+
+<!--[if !mso]><!-->
+<center>
+    <!--<div style="width: 86%; display: inline-block">-->
+    <div style="width: 75%; display: inline-block">
+        <!--<div align="left" style="width: 70%; float: left; display: table; padding-top: 2%">-->
+        <div align="left" style="width: 90%; float: left; display: table; padding-top: 2%">
+            <div style="text-align: left; height: auto; width: 100%; padding-top: 4%; background-color: #003057; padding-left: 16px; padding-right: 4px; padding-bottom: 20px;float: left; display: inline-block">
+                <font style="font-size: 15px" face="Arial,sans-serif" color="#fff">
+                    <b>&nbsp;&nbsp;Loan post maturity due date 30 days after maturity (if customer still has outstanding)</b>
+                </font>
+            </div>
+            <div style="text-align: left; height: 50px; width: auto; float: left; display: inline-block; margin: 3% 0; background-color: #c2cbda; min-width: 35%">
+                <font style="font-size: 14px; line-height: 50px" face="Arial,sans-serif" color="#000">Good day <b th:text="${customerName}">customer name</b></font>
+            </div>
+            <div style="text-align: left; height: auto; width: 100%; float: left; display: inline-block">
+                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">Hope this mail finds you well.</font>
+            </div>
+            <div style="text-align: left; height: auto; width: 100%; padding-bottom: 1%; padding-top: 1%; float: left; display: inline-block">
+                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">This is to notify you that your facility with <b th:text="${companyName}">company name</b> matured on <b th:text="${maturityDate}">maturity date</b> and you are yet clear the balance. Please make payment immediately.</font>
+            </div>
+            <div style="text-align: left; height: auto; width: 100%; padding-bottom: 1%; padding-top: 1%; float: left; display: inline-block">
+                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">Your outstanding balance as at date is <b th:text="${outstandingBalance}">outstanding balance</b>.</font>
+            </div>
+            <div style="text-align: left; height: auto; width: 100%; padding-bottom: 1%; padding-top: 1%; float: left; display: inline-block">
+                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">If you intend making a direct transfer into our account, kindly use the bank details provided below and notify <b th:text="${companyName}">company name</b> of the payment. Please note that default charges accrue daily on all outstanding balances until full liquidation.</font>
+            </div>
+            <div style="text-align: left; height: auto; width: 100%; padding-bottom: 1%; padding-top: 1%; float: left; display: inline-block">
+                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">While making payments, please quote your loan ID <b th:text="${loanId}">loan id</b> for ease of reconciliation. <br/><br/>
+                    <u>Please avoid the use of POS terminals and ATM for your loan repayments due to their limitation with transaction descriptions.</u>
+                </font>
+            </div>
+            <div style="text-align: left; height: auto; width: 100%; padding-bottom: 1%; padding-top: 1%; float: left; display: inline-block">
+                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">We appreciate your relationship with us. For further assistance, please call <b th:text="${collectionOfficer}">collection officer</b> on <b th:text="${collectionPhoneNumber}">collection phone number</b> or email on <b th:text="${collectionEmail}">collection email</b>.</font>
+            </div>
+            <div style="text-align: left; height: auto; width: 100%; padding-bottom: 1%; padding-top: 1%; float: left; display: inline-block">
+                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">Our account detail is: <br/>
+                    Account Name:     <b th:text="${accountName}">account name</b> <br>
+                    Account Number:   <b th:text="${accountNumber}">account number</b> <br>
+                    Bank Name:        <b th:text="${bankName}">bank name</b>.
+                </font>
+            </div>
+            <div style="text-align: left; height: auto; width: 100%; padding-bottom: 1%; padding-top: 3%; float: left; display: inline-block">
+                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">Thank you for your understanding.</font>
+            </div>
+            <div style="text-align: left; height: auto; width: 100%; padding-bottom: 1%; padding-top: 3%; float: left; display: inline-block">
+                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">Creditville Collection Team</font>
+            </div>
+        </div>
+    </div>
+</center>
+<!--<![endif]-->
+</body>
+</html>

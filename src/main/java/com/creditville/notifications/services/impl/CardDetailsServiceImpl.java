@@ -1,0 +1,266 @@
+package com.creditville.notifications.services.impl;
+
+import com.creditville.notifications.exceptions.CustomCheckedException;
+import com.creditville.notifications.executor.HttpCallService;
+import com.creditville.notifications.instafin.req.RepayLoanReq;
+import com.creditville.notifications.instafin.service.LoanRepaymentService;
+import com.creditville.notifications.models.CardDetails;
+import com.creditville.notifications.models.CardTransactions;
+import com.creditville.notifications.models.DTOs.CardDetailsDto;
+import com.creditville.notifications.models.DTOs.CardTransactionsDto;
+import com.creditville.notifications.models.DTOs.ChargeDto;
+import com.creditville.notifications.repositories.CardDetailsRepository;
+import com.creditville.notifications.repositories.CardTransactionRepository;
+import com.creditville.notifications.services.CardDetailsService;
+import com.creditville.notifications.services.CardTransactionsService;
+import com.creditville.notifications.services.EmailService;
+import com.creditville.notifications.services.NotificationService;
+import com.creditville.notifications.utils.CardUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.ParseException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Service
+public class CardDetailsServiceImpl implements CardDetailsService {
+    @Autowired
+    private ObjectMapper objectMapper;
+    @Autowired
+    private HttpCallService httpCallService;
+    @Autowired
+    private CardDetailsRepository cardDetailsRepo;
+    @Autowired
+    private CardUtil cardUtil;
+    @Autowired
+    private CardTransactionsService ctService;
+    @Autowired
+    private LoanRepaymentService loanRepaymentService;
+
+    @Value("${paystack.base.url}")
+    private String psBaseUrl;
+    @Value("${paystack.charge.auth.url}")
+    private String psChargeAuthUrl;
+    @Value("${paystack.trans.verification.url}")
+    private String psTransVerification;
+
+    @Value("${mail.cardTokenizationFailureSubject}")
+    private String cardTokenizationFailureSubject;
+
+    @Value("${mail.cardTokenizationSuccessSubject}")
+    private String cardTokenizationSuccessSubject;
+
+    @Value("${mail.repaymentFailureSubject}")
+    private String repaymentFailureSubject;
+
+    @Value("${mail.repaymentSuccessSubject}")
+    private String repaymentSuccessSubject;
+
+    @Value("${app.cardTokenizationUrl}")
+    private String cardTokenizationUrl;
+
+    @Autowired
+    private NotificationService notificationService;
+
+    @Value("${app.defaultToName}")
+    private String tokenizationName;
+
+    @Value("${app.defaultToAddress}")
+    private String tokenizationEmail;
+
+    @Autowired
+    private CardTransactionRepository cardTransactionRepository;
+
+    @Autowired
+    private EmailService emailService;
+
+    @Override
+    public void saveCustomerCardDetails(CardDetails cardDetails) {
+        cardDetailsRepo.save(cardDetails);
+    }
+
+    @Override
+    public void cardAuthorization(String reference, String clientId) {
+        CardDetailsDto cdDto = new CardDetailsDto();
+        var authResp = verifyTransaction(reference);
+        cdDto.setPaystackResponse(authResp);
+        boolean isTokenized = false;
+        try {
+            var tranRespObj = cardUtil.getJsonObjResponse(authResp);
+            System.out.println("tranRespObj: "+tranRespObj);
+            if(null != tranRespObj && tranRespObj.containsKey("data")){
+                var dataObj =(JSONObject) tranRespObj.get("data");
+                var customerObj = (JSONObject) dataObj.get("customer");
+                var authObj = (JSONObject) dataObj.get("authorization");
+
+                cdDto.setAmount(new BigDecimal(dataObj.get("amount").toString()));
+                cdDto.setStatus(dataObj.get("status").toString());
+                cdDto.setReference(dataObj.get("reference").toString());
+                cdDto.setChannel(dataObj.get("channel").toString());
+
+                cdDto.setFirstName(cardUtil.checkNullStr(customerObj.get("first_name").toString()));
+                cdDto.setLastName(cardUtil.checkNullStr(customerObj.get("last_name").toString()));
+                cdDto.setEmail(customerObj.get("email").toString());
+
+                cdDto.setAuthorizationCode(authObj.get("authorization_code").toString());
+                cdDto.setSignature(authObj.get("signature").toString());
+
+                cdDto.setClientId(clientId);
+
+                saveCustomerCardDetails(convertCardDetailsDtoToEntity(cdDto));
+                System.out.println("ENTRY cardAuthorization: >>>>>>>>> SAVED <<<<<<<<<<");
+                isTokenized = true;
+            }
+            String clientEmail = cdDto.getEmail();
+            String clientName = cdDto.getFirstName() + " " + cdDto.getLastName();
+            Map<String, String> notificationData = new HashMap<>();
+            notificationData.put("toName", tokenizationName);
+            notificationData.put("toAddress", tokenizationEmail);
+            notificationData.put("clientEmail", clientEmail);
+            notificationData.put("clientId", cdDto.getClientId());
+            notificationData.put("clientName", clientName);
+            try {
+                String subject = isTokenized ? cardTokenizationSuccessSubject : cardTokenizationFailureSubject;
+                String templateLocation = isTokenized ? "email/card-successfully-tokenized" : "email/card-not-tokenized";
+                notificationService.sendEmailNotification(subject, notificationData, templateLocation);
+            }catch (CustomCheckedException cce) {
+                cce.printStackTrace();
+                System.out.println("An error occurred while trying to notify team of tokenization status");
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void cardRecurringCharges(String email, BigDecimal amount, String loanId, LocalDate currentDate, String clientID) {
+        ChargeDto chargeDto = new ChargeDto();
+        CardTransactionsDto ctDTO = new CardTransactionsDto();
+        RepayLoanReq repayLoanReq = new RepayLoanReq();
+        boolean repaymentStatus = true;
+
+        var cardDetails = cardDetailsRepo.findByClientIdAndEmail(clientID, email);
+        String errorMessage = null;
+        if(null == cardDetails){
+            System.out.println("Card is not tokenized".toUpperCase());
+            repaymentStatus = false;
+        }else {
+            try {
+                CardTransactions existingTransaction = cardTransactionRepository.findByCardDetailsAndStatusInAndLastUpdate(cardDetails, Collections.singletonList("success"), currentDate);
+                if (existingTransaction == null) {
+                    chargeDto.setAmount(amount);
+                    chargeDto.setAuthorization_code(cardDetails.getAuthorizationCode());
+                    chargeDto.setEmail(email);
+
+                    var chargeResp = chargeCard(chargeDto);
+
+                    ctDTO.setPaystackResponse(chargeResp);
+
+                    var chargeRespObj = cardUtil.getJsonObjResponse(chargeResp);
+                    System.out.println("ENTRY -> recurringCharges response: " + chargeRespObj);
+                    if (null != chargeRespObj && chargeRespObj.containsKey("data")) {
+                        var dataObj = (JSONObject) chargeRespObj.get("data");
+                        var authObj = (JSONObject) dataObj.get("authorization");
+
+                        ctDTO.setAmount(new BigDecimal(dataObj.get("amount").toString()));
+                        ctDTO.setCurrency(dataObj.get("currency").toString());
+                        ctDTO.setTransactionDate(dataObj.get("transaction_date").toString());
+                        ctDTO.setStatus(dataObj.get("status").toString());
+                        ctDTO.setReference(dataObj.get("reference").toString());
+
+                        ctDTO.setCardType(authObj.get("card_type").toString());
+
+                        ctDTO.setCardDetails(cardDetails);
+
+                        ctService.saveCardTransaction(ctDTO);
+
+                        //repay Loan
+                        repayLoanReq.setAccountID(loanId);
+                        repayLoanReq.setAmount(amount);
+                        repayLoanReq.setPaymentMethodName("Cash");
+                        repayLoanReq.setTransactionBranchID("CVLHQB");
+                        repayLoanReq.setRepaymentDate(currentDate.toString());
+                        repayLoanReq.setNotes("Card loan repayment");
+                        var repaymentResp = loanRepaymentService.makeLoanRepayment(repayLoanReq);
+                        if (null == repaymentResp) {
+                            repaymentStatus = false;
+                            errorMessage = chargeRespObj.get("message").toString();
+                        }else {
+                            if(repaymentResp.trim().equals("")) {
+                                repaymentStatus = false;
+                                errorMessage = chargeRespObj.get("message").toString();
+                            }
+                        }
+                    }else repaymentStatus = false;
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        Map<String, String> notificationData = new HashMap<>();
+        notificationData.put("toName", tokenizationName);
+//        notificationData.put("toAddress", tokenizationEmail);
+        notificationData.put("toAddress", email);
+        notificationData.put("loanId", loanId);
+        notificationData.put("todayDate", LocalDate.now().toString());
+        notificationData.put("failureMessage", errorMessage);
+        notificationData.put("paymentDate", currentDate.toString());
+        String mailSubject = repaymentStatus ? repaymentSuccessSubject : repaymentFailureSubject;
+        String templateLocation = repaymentStatus ? "email/repayment-success" : "email/repayment-failure";
+        if(!emailService.alreadySentOutEmailToday(email, tokenizationName, mailSubject, currentDate)) {
+            try {
+                notificationService.sendEmailNotification(mailSubject, notificationData, templateLocation);
+            } catch (CustomCheckedException cce) {
+                cce.printStackTrace();
+                System.out.println("An error occurred while trying to notify team of repayment status");
+            }
+        }
+    }
+
+
+    @Override
+    public String chargeCard(ChargeDto chargeDto) {
+        String chargeResp = null;
+        try {
+            var payload = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(chargeDto);
+            System.out.println("ENTRY -> recurringCharges payload: "+ payload);
+            chargeResp = httpCallService.httpPaystackCall(psBaseUrl+psChargeAuthUrl, payload);
+            System.out.println("chargeResp: "+chargeResp);
+
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return chargeResp;
+    }
+
+    @Override
+    public String verifyTransaction(String reference) {
+        System.out.println("reference: "+reference);
+        var transResp = httpCallService.httpPaystackCall(psBaseUrl+psTransVerification+reference, null);
+        System.out.println("transResp: "+transResp);
+        return transResp;
+    }
+
+    private CardDetails convertCardDetailsDtoToEntity(CardDetailsDto cdDto){
+        return cardUtil.modelMapper().map(cdDto, CardDetails.class);
+    }
+
+    private CardDetailsDto convertCardDetailsEntityTODTO(CardDetails cardDetails){
+        return cardUtil.modelMapper().map(cardDetails,CardDetailsDto.class);
+    }
+
+    @Override
+    public List<CardDetails> getAllCardDetails(Integer pageNo, Integer pageSize) {
+        return cardDetailsRepo.findAllByStatusIn(Collections.singletonList("success"), PageRequest.of(pageNo, pageSize)).getContent();
+    }
+}
