@@ -23,11 +23,7 @@ class NotificationsApplicationTests {
     void currencyFormatTest() {
         System.out.println(NumberFormat.getCurrencyInstance(new Locale("en", "NG"))
                 .format(new BigDecimal("10000")));
-        try {
-            System.out.println("Year: " + dateUtil.getYearByDate("1995-02-22T00:00:00.000+01:00"));
-        }catch (CustomCheckedException cce) {
-            cce.printStackTrace();
-        }
+        System.out.println("Year: " + dateUtil.getYearByDate("2021-03-12T00:00:00.000+01:00"));
     }
 
 }

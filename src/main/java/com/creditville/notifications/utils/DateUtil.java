@@ -17,7 +17,7 @@ import java.util.Locale;
  */
 @Service
 public class DateUtil {
-    public Calendar convertDateToCalendar(String dateToConvert) {
+    private Calendar convertDateToCalendar(String dateToConvert) {
         var newDate = dateToConvert.substring(0,23);
         DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.ENGLISH);
         LocalDate date = LocalDate.parse(newDate, inputFormatter);

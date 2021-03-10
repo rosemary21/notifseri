@@ -182,7 +182,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                 notificationData.put("customerName", customer.getName());
                                                 notificationData.put("paymentMonth", dateUtil.getMonthByDate(thisMonthInstalment.getObligatoryPaymentDate()));
                                                 notificationData.put("paymentDate", obligatoryPaymentDate.toString());
-                                                notificationData.put("paymentYear", Integer.toString(dateUtil.getYearByDate(obligatoryPaymentDate.toString())));
+                                                notificationData.put("paymentYear", Integer.toString(dateUtil.getYearByDate(thisMonthInstalment.getObligatoryPaymentDate())));
 //                                                notificationData.put("rentalAmount", thisMonthInstalment.getCurrentState().getPrincipalDueAmount().toString());
                                                 notificationData.put("rentalAmount", currencyUtil.getFormattedCurrency(rentalAmount));
                                                 notificationData.put("collectionOfficer", coN);
@@ -304,7 +304,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                 notificationData.put("customerName", customer.getName());
                                                 notificationData.put("paymentMonth", dateUtil.getMonthByDate(fortyEightHoursInstalment.getObligatoryPaymentDate()));
                                                 notificationData.put("paymentDate", obligatoryPaymentDate.toString());
-                                                notificationData.put("paymentYear", Integer.toString(dateUtil.getYearByDate(obligatoryPaymentDate.toString())));
+                                                notificationData.put("paymentYear", Integer.toString(dateUtil.getYearByDate(fortyEightHoursInstalment.getObligatoryPaymentDate())));
 //                                                notificationData.put("rentalAmount", fortyEightHoursInstalment.getCurrentState().getPrincipalDueAmount().toString());
                                                 notificationData.put("rentalAmount", currencyUtil.getFormattedCurrency(rentalAmount));
                                                 notificationData.put("collectionOfficer", coN);
@@ -427,7 +427,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                 notificationData.put("customerName", customer.getName());
                                                 notificationData.put("paymentMonth", dateUtil.getMonthByDate(todayInstalment.getObligatoryPaymentDate()));
                                                 notificationData.put("paymentDate", obligatoryPaymentDate.toString());
-                                                notificationData.put("paymentYear", Integer.toString(dateUtil.getYearByDate(obligatoryPaymentDate.toString())));
+                                                notificationData.put("paymentYear", Integer.toString(dateUtil.getYearByDate(todayInstalment.getObligatoryPaymentDate())));
 //                                                notificationData.put("rentalAmount", todayInstalment.getCurrentState().getPrincipalDueAmount().toString());
                                                 notificationData.put("rentalAmount", currencyUtil.getFormattedCurrency(rentalAmount));
                                                 notificationData.put("collectionOfficer", coN);
