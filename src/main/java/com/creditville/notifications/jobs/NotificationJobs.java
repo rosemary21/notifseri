@@ -83,15 +83,13 @@ public class NotificationJobs {
     }
 
 //    @Async("schedulePool6")
-//    @Scheduled(cron = "${app.schedule.chequeLodgement}")
-    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
+    @Scheduled(cron = "${app.schedule.chequeLodgement}")
+//    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
     public void chequeLodgementNotification() {
         if(chequeLodgementEnabled)
             dispatcherService.performChequeLodgementOperation();
         else log.info("Schedule for cheque lodgement has reached it's schedule time but notification is disabled from configuration".toUpperCase());
     }
-
-    //todo notification for Card
 
     @Scheduled(cron = "${app.schedule.recurringCharges}")
 //    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
