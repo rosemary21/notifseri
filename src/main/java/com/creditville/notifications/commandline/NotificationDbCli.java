@@ -3,7 +3,9 @@ package com.creditville.notifications.commandline;
 import com.creditville.notifications.exceptions.CustomCheckedException;
 import com.creditville.notifications.models.response.*;
 import com.creditville.notifications.services.ClientService;
+import com.creditville.notifications.services.CollectionOfficerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -20,8 +22,32 @@ public class NotificationDbCli implements CommandLineRunner {
 //    @Autowired
 //    private ClientService clientService;
 
+    @Autowired
+    private CollectionOfficerService collectionOfficerService;
+
+    @Value("${app.collectionOfficer}")
+    private String collectionOfficerName;
+
+    @Value("${app.collectionPhoneNumber}")
+    private String collectionPhoneNumber;
+
+    @Value("${app.collectionEmail}")
+    private String collectionOfficerEmail;
+
     @Override
     public void run(String... args) throws Exception {
+        if(collectionOfficerService.getAllCollectionOfficers().isEmpty()) {
+            collectionOfficerService.createNew("Abuja", "Adewonuola Adebayo", "adewonuola.adebayo@creditville.ng", "08036468906");
+            collectionOfficerService.createNew("Port Harcourt", "Ruth Falade", "ruth.falade@creditville.ng", "08138808861");
+            collectionOfficerService.createNew("Lagos Mainland", "Saheed Kolawole", "saheed.kolawole@creditville.ng", "08024533917");
+            collectionOfficerService.createNew("Enugu", "Ruth Falade", "ruth.falade@creditville.ng", "08138808861");
+            collectionOfficerService.createNew("Onitsha", "Saheed Kolawole", "saheed.kolawole@creditville.ng", "08024533917");
+            collectionOfficerService.createNew("Lagos Island", "Adewonuola Adebayo", "adewonuola.adebayo@creditville.ng", "08036468906");
+            collectionOfficerService.createNew("CVL_Touchgold", "Adewonuola Adebayo", "adewonuola.adebayo@creditville.ng", "08036468906");
+            collectionOfficerService.createNew("Benin City", "Saheed Kolawole", "saheed.kolawole@creditville.ng", "08024533917");
+            collectionOfficerService.createNew("SSU", "Adewonuola Adebayo", "adewonuola.adebayo@creditville.ng", "08036468906");
+            collectionOfficerService.createNew("Head Office Branch", "Adewonuola Adebayo", "adewonuola.adebayo@creditville.ng", "08036468906");
+        }
 //        try {
 //            for(Client client : clientService.fetchClients()) {
 //                LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());

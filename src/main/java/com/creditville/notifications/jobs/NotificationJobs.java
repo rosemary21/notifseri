@@ -83,8 +83,8 @@ public class NotificationJobs {
     }
 
 //    @Async("schedulePool6")
-    @Scheduled(cron = "${app.schedule.chequeLodgement}")
-//    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
+//    @Scheduled(cron = "${app.schedule.chequeLodgement}")
+    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
     public void chequeLodgementNotification() {
         if(chequeLodgementEnabled)
             dispatcherService.performChequeLodgementOperation();

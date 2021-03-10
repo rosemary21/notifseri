@@ -235,7 +235,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
             var payload = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(chargeDto);
             System.out.println("ENTRY -> recurringCharges payload: "+ payload);
             chargeResp = httpCallService.httpPaystackCall(psBaseUrl+psChargeAuthUrl, payload);
-            System.out.println("chargeResp: "+chargeResp);
+//            System.out.println("chargeResp: "+chargeResp);
 
         } catch (JsonProcessingException e) {
             e.printStackTrace();
@@ -247,7 +247,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
     public String verifyTransaction(String reference) {
         System.out.println("reference: "+reference);
         var transResp = httpCallService.httpPaystackCall(psBaseUrl+psTransVerification+reference, null);
-        System.out.println("transResp: "+transResp);
+//        System.out.println("transResp: "+transResp);
         return transResp;
     }
 

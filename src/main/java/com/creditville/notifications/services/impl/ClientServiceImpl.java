@@ -50,7 +50,7 @@ public class ClientServiceImpl implements ClientService {
             String payload = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(searchClients);
             System.out.println("Payload: "+ payload);
             String searchClientsResp = httpCallService.doBasicPost((baseUrl + searchClientsUrl), payload);
-            System.out.println("Search clients response : "+ searchClientsResp);
+//            System.out.println("Search clients response : "+ searchClientsResp);
             com.creditville.notifications.models.response.SearchClients searchClientsResponse = objectMapper.readValue(searchClientsResp, com.creditville.notifications.models.response.SearchClients.class);
             return searchClientsResponse.getClients();
         } catch (JsonProcessingException e) {
@@ -66,7 +66,7 @@ public class ClientServiceImpl implements ClientService {
             String payload = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(searchClients);
             System.out.println("Payload: "+ payload);
             String searchClientsResp = httpCallService.doBasicPost((baseUrl + searchClientsUrl), payload);
-            System.out.println("Search clients response : "+ searchClientsResp);
+//            System.out.println("Search clients response : "+ searchClientsResp);
             com.creditville.notifications.models.response.SearchClients searchClientsResponse = objectMapper.readValue(searchClientsResp, com.creditville.notifications.models.response.SearchClients.class);
             return searchClientsResponse.getClients();
         } catch (JsonProcessingException e) {
@@ -90,7 +90,7 @@ public class ClientServiceImpl implements ClientService {
             String payload = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(lookupClient);
             System.out.println("Payload: "+ payload);
             String lookUpClientResp = httpCallService.doBasicPost((baseUrl + lookupClientUrl), payload);
-            System.out.println("Lookup client response : "+ lookUpClientResp);
+//            System.out.println("Lookup client response : "+ lookUpClientResp);
             return objectMapper.readValue(lookUpClientResp, LookUpClient.class);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
@@ -105,7 +105,7 @@ public class ClientServiceImpl implements ClientService {
             String payload = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(lookupLoan);
             System.out.println("Payload: "+ payload);
             String lookUpLoanAccountResp = httpCallService.doBasicPost((baseUrl + lookupLoanUrl), payload);
-            System.out.println("Lookup loan account response : "+ lookUpLoanAccountResp);
+//            System.out.println("Lookup loan account response : "+ lookUpLoanAccountResp);
             com.creditville.notifications.models.response.LookupLoan lookUpLoanResponse = objectMapper.readValue(lookUpLoanAccountResp, com.creditville.notifications.models.response.LookupLoan.class);
             return lookUpLoanResponse.getAccount();
         } catch (JsonProcessingException e) {

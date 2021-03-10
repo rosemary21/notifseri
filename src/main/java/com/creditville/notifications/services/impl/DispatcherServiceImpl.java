@@ -1,15 +1,13 @@
 package com.creditville.notifications.services.impl;
 
 import com.creditville.notifications.exceptions.CustomCheckedException;
+import com.creditville.notifications.models.BranchManager;
+import com.creditville.notifications.models.CollectionOfficer;
 import com.creditville.notifications.models.response.*;
-import com.creditville.notifications.services.ClientService;
-import com.creditville.notifications.services.DispatcherService;
-import com.creditville.notifications.services.EmailService;
-import com.creditville.notifications.services.NotificationService;
+import com.creditville.notifications.services.*;
 import com.creditville.notifications.utils.CurrencyUtil;
 import com.creditville.notifications.utils.DateUtil;
 import com.creditville.notifications.models.CardDetails;
-import com.creditville.notifications.services.CardDetailsService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -63,7 +61,7 @@ public class DispatcherServiceImpl implements DispatcherService {
     private String chequeLodgementSubject;
 
     @Value("${app.collectionOfficer}")
-    private String collectionOfficer;
+    private String defaultCollectionOfficer;
 
     @Value("${app.collectionPhoneNumber}")
     private String collectionPhoneNumber;
@@ -98,6 +96,12 @@ public class DispatcherServiceImpl implements DispatcherService {
     @Autowired
     private CurrencyUtil currencyUtil;
 
+    @Autowired
+    private CollectionOfficerService collectionOfficerService;
+
+    @Autowired
+    private BranchManagerService branchManagerService;
+
     @Override
     public void performDueRentalOperation() {
         try {
@@ -108,6 +112,8 @@ public class DispatcherServiceImpl implements DispatcherService {
                 List<Client> clients = clientService.fetchClients(lastExternalId);
                 if(!clients.isEmpty()) {
                     for(Client client : clients) {
+                        CollectionOfficer collectionOfficer = collectionOfficerService.getCollectionOfficer(client.getBranch());
+                        BranchManager branchManager = branchManagerService.getBranchManager(client.getBranch());
                         LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());
                         List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
                                 .stream()
@@ -117,7 +123,7 @@ public class DispatcherServiceImpl implements DispatcherService {
 //                Since there can be only one open client loan at a time, check if the list is empty, if not, get the first element...
                         if(!openClientLoanList.isEmpty()) {
                             LookUpClientLoan clientLoan = openClientLoanList.get(0);
-                            System.out.println("Open client loan is: " + clientLoan.getId() + ". Status: " + clientLoan.getStatus());
+//                            System.out.println("Open client loan is: " + clientLoan.getId() + ". Status: " + clientLoan.getStatus());
                             LookUpLoanAccount lookUpLoanAccount = clientService.lookupLoanAccount(clientLoan.getId());
 //                            String modeOfRepayment = lookUpLoanAccount.getLoanAccount().getOptionalFields().getModeOfRepayment() == null ?
 //                                    "" :
@@ -130,7 +136,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                                             .filter(lookUpLoanInstalment -> dateUtil.isPaymentDateGtOrEqToday(lookUpLoanInstalment.getObligatoryPaymentDate()))
                                             .collect(Collectors.toList());
                                     if (!loanInstalmentsGtOrEqToday.isEmpty()) {
-                                        System.out.println(">= ");
+//                                        System.out.println(">= ");
                                         List<LookUpLoanInstalment> lookUpLoanInstalments = loanInstalmentsGtOrEqToday
                                                 .stream()
                                                 .filter(lookUpLoanInstalment -> dateUtil.isPaymentDateWithinCurrentMonth(lookUpLoanInstalment.getObligatoryPaymentDate()))
@@ -147,6 +153,29 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                     obligatoryPaymentDate
                                             )) {
                                                 Map<String, String> notificationData = new HashMap<>();
+                                                String coN;
+                                                String coE;
+                                                String coP;
+                                                if(collectionOfficer == null) {
+                                                    coN = defaultCollectionOfficer;
+                                                    coE = collectionEmail;
+                                                    coP = collectionPhoneNumber;
+                                                }else {
+                                                    coN = collectionOfficer.getOfficerName();
+                                                    coE = collectionOfficer.getOfficerEmail();
+                                                    coP = collectionOfficer.getOfficerPhoneNo();
+                                                }
+                                                String brmN = "";
+                                                String brmE = "";
+                                                String brmPh = "";
+                                                Boolean hasBranchManager = true;
+                                                if(branchManager == null) {
+                                                    hasBranchManager = false;
+                                                }else {
+                                                    brmN = branchManager.getOfficerName();
+                                                    brmE = branchManager.getOfficerEmail();
+                                                    brmPh = branchManager.getOfficerPhoneNo();
+                                                }
                                                 BigDecimal rentalAmount = thisMonthInstalment.getCurrentState().getPrincipalDueAmount().add(thisMonthInstalment.getCurrentState().getInterestDueAmount());
                                                 notificationData.put("toName", useDefaultMailInfo ? defaultToName : customer.getName());
                                                 notificationData.put("toAddress", toAddress);
@@ -155,9 +184,13 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                 notificationData.put("paymentDate", obligatoryPaymentDate.toString());
 //                                                notificationData.put("rentalAmount", thisMonthInstalment.getCurrentState().getPrincipalDueAmount().toString());
                                                 notificationData.put("rentalAmount", currencyUtil.getFormattedCurrency(rentalAmount));
-                                                notificationData.put("collectionOfficer", collectionOfficer);
-                                                notificationData.put("collectionPhoneNumber", collectionPhoneNumber);
-                                                notificationData.put("collectionEmail", collectionEmail);
+                                                notificationData.put("collectionOfficer", coN);
+                                                notificationData.put("collectionPhoneNumber", coP);
+                                                notificationData.put("collectionEmail", coE);
+                                                notificationData.put("hasBranchManager", hasBranchManager.toString());
+                                                notificationData.put("branchManagerName", brmN);
+                                                notificationData.put("branchManagerPhoneNumber", brmPh);
+                                                notificationData.put("branchManagerEmail", brmE);
                                                 notificationData.put("companyName", companyName);
                                                 notificationData.put("loanId", clientLoan.getId());
                                                 notificationData.put("accountName", accountName);
@@ -200,6 +233,8 @@ public class DispatcherServiceImpl implements DispatcherService {
                 List<Client> clients = clientService.fetchClients(lastExternalId);
                 if (!clients.isEmpty()) {
                     for (Client client : clients) {
+                        CollectionOfficer collectionOfficer = collectionOfficerService.getCollectionOfficer(client.getBranch());
+                        BranchManager branchManager = branchManagerService.getBranchManager(client.getBranch());
                         LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());
                         List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
                                 .stream()
@@ -209,7 +244,7 @@ public class DispatcherServiceImpl implements DispatcherService {
 //                Since there can be only one open client loan at a time, check if the list is empty, if not, get the first element...
                         if (!openClientLoanList.isEmpty()) {
                             LookUpClientLoan clientLoan = openClientLoanList.get(0);
-                            System.out.println("Open client loan is: " + clientLoan.getId() + ". Status: " + clientLoan.getStatus());
+//                            System.out.println("Open client loan is: " + clientLoan.getId() + ". Status: " + clientLoan.getStatus());
                             LookUpLoanAccount lookUpLoanAccount = clientService.lookupLoanAccount(clientLoan.getId());
 //                            String modeOfRepayment = lookUpLoanAccount.getLoanAccount().getOptionalFields().getModeOfRepayment() == null ?
 //                                    "" :
@@ -228,7 +263,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                 .collect(Collectors.toList());
                                         LookUpLoanInstalment fortyEightHoursInstalment = !lookUpLoanInstalments.isEmpty() ? lookUpLoanInstalments.get(0) : null;
                                         if (fortyEightHoursInstalment != null) {
-                                            System.out.println("Forty Eight: " + fortyEightHoursInstalment.getObligatoryPaymentDate());
+//                                            System.out.println("Forty Eight: " + fortyEightHoursInstalment.getObligatoryPaymentDate());
                                             Client customer = lookUpClient.getClient();
                                             LocalDate obligatoryPaymentDate = dateUtil.convertDateToLocalDate(fortyEightHoursInstalment.getObligatoryPaymentDate());
                                             String toAddress = useDefaultMailInfo ? defaultToAddress : customer.getEmail();
@@ -239,6 +274,29 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                     obligatoryPaymentDate
                                             )) {
                                                 Map<String, String> notificationData = new HashMap<>();
+                                                String coN;
+                                                String coE;
+                                                String coP;
+                                                if(collectionOfficer == null) {
+                                                    coN = defaultCollectionOfficer;
+                                                    coE = collectionEmail;
+                                                    coP = collectionPhoneNumber;
+                                                }else {
+                                                    coN = collectionOfficer.getOfficerName();
+                                                    coE = collectionOfficer.getOfficerEmail();
+                                                    coP = collectionOfficer.getOfficerPhoneNo();
+                                                }
+                                                String brmN = "";
+                                                String brmE = "";
+                                                String brmPh = "";
+                                                Boolean hasBranchManager = true;
+                                                if(branchManager == null) {
+                                                    hasBranchManager = false;
+                                                }else {
+                                                    brmN = branchManager.getOfficerName();
+                                                    brmE = branchManager.getOfficerEmail();
+                                                    brmPh = branchManager.getOfficerPhoneNo();
+                                                }
                                                 BigDecimal rentalAmount = fortyEightHoursInstalment.getCurrentState().getPrincipalDueAmount().add(fortyEightHoursInstalment.getCurrentState().getInterestDueAmount());
                                                 notificationData.put("toName", useDefaultMailInfo ? defaultToName : customer.getName());
                                                 notificationData.put("toAddress", toAddress);
@@ -247,9 +305,13 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                 notificationData.put("paymentDate", obligatoryPaymentDate.toString());
 //                                                notificationData.put("rentalAmount", fortyEightHoursInstalment.getCurrentState().getPrincipalDueAmount().toString());
                                                 notificationData.put("rentalAmount", currencyUtil.getFormattedCurrency(rentalAmount));
-                                                notificationData.put("collectionOfficer", collectionOfficer);
-                                                notificationData.put("collectionPhoneNumber", collectionPhoneNumber);
-                                                notificationData.put("collectionEmail", collectionEmail);
+                                                notificationData.put("collectionOfficer", coN);
+                                                notificationData.put("collectionPhoneNumber", coP);
+                                                notificationData.put("collectionEmail", coE);
+                                                notificationData.put("hasBranchManager", hasBranchManager.toString());
+                                                notificationData.put("branchManagerName", brmN);
+                                                notificationData.put("branchManagerPhoneNumber", brmPh);
+                                                notificationData.put("branchManagerEmail", brmE);
                                                 notificationData.put("companyName", companyName);
                                                 notificationData.put("loanId", clientLoan.getId());
                                                 notificationData.put("accountName", accountName);
@@ -293,6 +355,8 @@ public class DispatcherServiceImpl implements DispatcherService {
                 List<Client> clients = clientService.fetchClients(lastExternalId);
                 if (!clients.isEmpty()) {
                     for (Client client : clients) {
+                        CollectionOfficer collectionOfficer = collectionOfficerService.getCollectionOfficer(client.getBranch());
+                        BranchManager branchManager = branchManagerService.getBranchManager(client.getBranch());
                         LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());
                         List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
                                 .stream()
@@ -302,7 +366,7 @@ public class DispatcherServiceImpl implements DispatcherService {
 //                Since there can be only one open client loan at a time, check if the list is empty, if not, get the first element...
                         if (!openClientLoanList.isEmpty()) {
                             LookUpClientLoan clientLoan = openClientLoanList.get(0);
-                            System.out.println("Open client loan is: " + clientLoan.getId() + ". Status: " + clientLoan.getStatus());
+//                            System.out.println("Open client loan is: " + clientLoan.getId() + ". Status: " + clientLoan.getStatus());
                             LookUpLoanAccount lookUpLoanAccount = clientService.lookupLoanAccount(clientLoan.getId());
 //                            String modeOfRepayment = lookUpLoanAccount.getLoanAccount().getOptionalFields().getModeOfRepayment() == null ?
 //                                    "" :
@@ -321,7 +385,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                 .collect(Collectors.toList());
                                         LookUpLoanInstalment todayInstalment = !lookUpLoanInstalments.isEmpty() ? lookUpLoanInstalments.get(0) : null;
                                         if (todayInstalment != null) {
-                                            System.out.println("Forty Eight: " + todayInstalment.getObligatoryPaymentDate());
+//                                            System.out.println("Forty Eight: " + todayInstalment.getObligatoryPaymentDate());
                                             Client customer = lookUpClient.getClient();
                                             LocalDate obligatoryPaymentDate = dateUtil.convertDateToLocalDate(todayInstalment.getObligatoryPaymentDate());
                                             String toAddress = useDefaultMailInfo ? defaultToAddress : customer.getEmail();
@@ -332,6 +396,29 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                     obligatoryPaymentDate
                                             )) {
                                                 Map<String, String> notificationData = new HashMap<>();
+                                                String coN;
+                                                String coE;
+                                                String coP;
+                                                if(collectionOfficer == null) {
+                                                    coN = defaultCollectionOfficer;
+                                                    coE = collectionEmail;
+                                                    coP = collectionPhoneNumber;
+                                                }else {
+                                                    coN = collectionOfficer.getOfficerName();
+                                                    coE = collectionOfficer.getOfficerEmail();
+                                                    coP = collectionOfficer.getOfficerPhoneNo();
+                                                }
+                                                String brmN = "";
+                                                String brmE = "";
+                                                String brmPh = "";
+                                                Boolean hasBranchManager = true;
+                                                if(branchManager == null) {
+                                                    hasBranchManager = false;
+                                                }else {
+                                                    brmN = branchManager.getOfficerName();
+                                                    brmE = branchManager.getOfficerEmail();
+                                                    brmPh = branchManager.getOfficerPhoneNo();
+                                                }
                                                 BigDecimal rentalAmount = todayInstalment.getCurrentState().getPrincipalDueAmount().add(todayInstalment.getCurrentState().getInterestDueAmount());
                                                 notificationData.put("toName", useDefaultMailInfo ? defaultToName : customer.getName());
                                                 notificationData.put("toAddress", toAddress);
@@ -340,9 +427,13 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                 notificationData.put("paymentDate", obligatoryPaymentDate.toString());
 //                                                notificationData.put("rentalAmount", todayInstalment.getCurrentState().getPrincipalDueAmount().toString());
                                                 notificationData.put("rentalAmount", currencyUtil.getFormattedCurrency(rentalAmount));
-                                                notificationData.put("collectionOfficer", collectionOfficer);
-                                                notificationData.put("collectionPhoneNumber", collectionPhoneNumber);
-                                                notificationData.put("collectionEmail", collectionEmail);
+                                                notificationData.put("collectionOfficer", coN);
+                                                notificationData.put("collectionPhoneNumber", coP);
+                                                notificationData.put("collectionEmail", coE);
+                                                notificationData.put("hasBranchManager", hasBranchManager.toString());
+                                                notificationData.put("branchManagerName", brmN);
+                                                notificationData.put("branchManagerPhoneNumber", brmPh);
+                                                notificationData.put("branchManagerEmail", brmE);
                                                 notificationData.put("companyName", companyName);
                                                 notificationData.put("loanId", clientLoan.getId());
                                                 notificationData.put("accountName", accountName);
@@ -386,6 +477,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                 List<Client> clients = clientService.fetchClients(lastExternalId);
                 if (!clients.isEmpty()) {
                     for (Client client : clients) {
+                        CollectionOfficer collectionOfficer = collectionOfficerService.getCollectionOfficer(client.getBranch());
                         LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());
                         List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
                                 .stream()
@@ -395,7 +487,7 @@ public class DispatcherServiceImpl implements DispatcherService {
 //                Since there can be only one open client loan at a time, check if the list is empty, if not, get the first element...
                         if (!openClientLoanList.isEmpty()) {
                             LookUpClientLoan clientLoan = openClientLoanList.get(0);
-                            System.out.println("Open client loan is: " + clientLoan.getId() + ". Status: " + clientLoan.getStatus());
+//                            System.out.println("Open client loan is: " + clientLoan.getId() + ". Status: " + clientLoan.getStatus());
                             LookUpLoanAccount lookUpLoanAccount = clientService.lookupLoanAccount(clientLoan.getId());
                             List<LookUpLoanInstalment> loanInstalments = lookUpLoanAccount.getLoanAccount().getInstalments();
                             if (!loanInstalments.isEmpty()) {
@@ -414,7 +506,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                                         int noOfArrears = 0;
                                         BigDecimal valueOfArrears = BigDecimal.ZERO;
                                         for (LookUpLoanInstalment lookUpLoanInstalment : loanInstalmentsInArrears) {
-                                            System.out.println("Arrears: " + lookUpLoanInstalment.getObligatoryPaymentDate());
+//                                            System.out.println("Arrears: " + lookUpLoanInstalment.getObligatoryPaymentDate());
                                             LookUpLoanInstalmentCurrentState currentState = lookUpLoanInstalment.getCurrentState();
                                             valueOfArrears = valueOfArrears.add(currentState.getPrincipalDueAmount());
                                             valueOfArrears = valueOfArrears.add(currentState.getInterestDueAmount());
@@ -430,15 +522,27 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                 null
                                         )) {
                                             Map<String, String> notificationData = new HashMap<>();
+                                            String coN;
+                                            String coE;
+                                            String coP;
+                                            if(collectionOfficer == null) {
+                                                coN = defaultCollectionOfficer;
+                                                coE = collectionEmail;
+                                                coP = collectionPhoneNumber;
+                                            }else {
+                                                coN = collectionOfficer.getOfficerName();
+                                                coE = collectionOfficer.getOfficerEmail();
+                                                coP = collectionOfficer.getOfficerPhoneNo();
+                                            }
                                             notificationData.put("toName", useDefaultMailInfo ? defaultToName : customer.getName());
                                             notificationData.put("toAddress", toAddress);
                                             notificationData.put("customerName", customer.getName());
                                             notificationData.put("noOfArrears", String.valueOf(noOfArrears));
 //                                            notificationData.put("valueOfArrears", valueOfArrears.toString());
                                             notificationData.put("valueOfArrears", currencyUtil.getFormattedCurrency(valueOfArrears));
-                                            notificationData.put("collectionOfficer", collectionOfficer);
-                                            notificationData.put("collectionPhoneNumber", collectionPhoneNumber);
-                                            notificationData.put("collectionEmail", collectionEmail);
+                                            notificationData.put("collectionOfficer", coN);
+                                            notificationData.put("collectionPhoneNumber", coP);
+                                            notificationData.put("collectionEmail", coE);
                                             notificationData.put("companyName", companyName);
                                             notificationData.put("loanId", clientLoan.getId());
                                             notificationData.put("accountName", accountName);
@@ -481,6 +585,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                 List<Client> clients = clientService.fetchClients(lastExternalId);
                 if (!clients.isEmpty()) {
                     for (Client client : clients) {
+                        CollectionOfficer collectionOfficer = collectionOfficerService.getCollectionOfficer(client.getBranch());
                         LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());
                         List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
                                 .stream()
@@ -490,7 +595,7 @@ public class DispatcherServiceImpl implements DispatcherService {
 //                Since there can be only one open client loan at a time, check if the list is empty, if not, get the first element...
                         if (!openClientLoanList.isEmpty()) {
                             LookUpClientLoan clientLoan = openClientLoanList.get(0);
-                            System.out.println("Open client loan is: " + clientLoan.getId() + ". Status: " + clientLoan.getStatus());
+//                            System.out.println("Open client loan is: " + clientLoan.getId() + ". Status: " + clientLoan.getStatus());
                             LookUpLoanAccount lookUpLoanAccount = clientService.lookupLoanAccount(clientLoan.getId());
                             List<LookUpLoanInstalment> loanInstalments = lookUpLoanAccount.getLoanAccount().getInstalments();
                             if (!loanInstalments.isEmpty()) {
@@ -517,6 +622,18 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                     obligatoryPaymentDate
                                             )) {
                                                 Map<String, String> notificationData = new HashMap<>();
+                                                String coN;
+                                                String coE;
+                                                String coP;
+                                                if(collectionOfficer == null) {
+                                                    coN = defaultCollectionOfficer;
+                                                    coE = collectionEmail;
+                                                    coP = collectionPhoneNumber;
+                                                }else {
+                                                    coN = collectionOfficer.getOfficerName();
+                                                    coE = collectionOfficer.getOfficerEmail();
+                                                    coP = collectionOfficer.getOfficerPhoneNo();
+                                                }
                                                 BigDecimal outstandingBalance = latestInstalment.getCurrentState().getPrincipalDueAmount().add(latestInstalment.getCurrentState().getInterestDueAmount());
                                                 notificationData.put("toName", useDefaultMailInfo ? defaultToName : customer.getName());
                                                 notificationData.put("toAddress", toAddress);
@@ -524,9 +641,9 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                 notificationData.put("maturityDate", dateUtil.convertDateToLocalDate(latestInstalment.getObligatoryPaymentDate()).toString());
 //                                                notificationData.put("outstandingBalance", latestInstalment.getCurrentState().getPrincipalDueAmount().toString());
                                                 notificationData.put("outstandingBalance", currencyUtil.getFormattedCurrency(outstandingBalance));
-                                                notificationData.put("collectionOfficer", collectionOfficer);
-                                                notificationData.put("collectionPhoneNumber", collectionPhoneNumber);
-                                                notificationData.put("collectionEmail", collectionEmail);
+                                                notificationData.put("collectionOfficer", coN);
+                                                notificationData.put("collectionPhoneNumber", coP);
+                                                notificationData.put("collectionEmail", coE);
                                                 notificationData.put("companyName", companyName);
                                                 notificationData.put("loanId", clientLoan.getId());
                                                 notificationData.put("accountName", accountName);
@@ -570,6 +687,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                 List<Client> clients = clientService.fetchClients(lastExternalId);
                 if (!clients.isEmpty()) {
                     for (Client client : clients) {
+                        CollectionOfficer collectionOfficer = collectionOfficerService.getCollectionOfficer(client.getBranch());
                         LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());
                         List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
                                 .stream()
@@ -579,7 +697,7 @@ public class DispatcherServiceImpl implements DispatcherService {
 //                Since there can be only one open client loan at a time, check if the list is empty, if not, get the first element...
                         if (!openClientLoanList.isEmpty()) {
                             LookUpClientLoan clientLoan = openClientLoanList.get(0);
-                            System.out.println("Open client loan is: " + clientLoan.getId() + ". Status: " + clientLoan.getStatus());
+//                            System.out.println("Open client loan is: " + clientLoan.getId() + ". Status: " + clientLoan.getStatus());
                             LookUpLoanAccount lookUpLoanAccount = clientService.lookupLoanAccount(clientLoan.getId());
                             String modeOfRepayment = lookUpLoanAccount.getLoanAccount().getOptionalFields().getModeOfRepayment() == null ?
                                     "" :
@@ -608,6 +726,18 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                     obligatoryPaymentDate
                                             )) {
                                                 Map<String, String> notificationData = new HashMap<>();
+                                                String coN;
+                                                String coE;
+                                                String coP;
+                                                if(collectionOfficer == null) {
+                                                    coN = defaultCollectionOfficer;
+                                                    coE = collectionEmail;
+                                                    coP = collectionPhoneNumber;
+                                                }else {
+                                                    coN = collectionOfficer.getOfficerName();
+                                                    coE = collectionOfficer.getOfficerEmail();
+                                                    coP = collectionOfficer.getOfficerPhoneNo();
+                                                }
                                                 BigDecimal rentalAmount = thisMonthInstalment.getCurrentState().getPrincipalDueAmount().add(thisMonthInstalment.getCurrentState().getInterestDueAmount());
                                                 notificationData.put("toName", useDefaultMailInfo ? defaultToName : customer.getName());
                                                 notificationData.put("toAddress", toAddress);
@@ -616,9 +746,9 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                 notificationData.put("paymentDate", obligatoryPaymentDate.toString());
 //                                                notificationData.put("rentalAmount", thisMonthInstalment.getCurrentState().getPrincipalDueAmount().toString());
                                                 notificationData.put("rentalAmount", currencyUtil.getFormattedCurrency(rentalAmount));
-                                                notificationData.put("collectionOfficer", collectionOfficer);
-                                                notificationData.put("collectionPhoneNumber", collectionPhoneNumber);
-                                                notificationData.put("collectionEmail", collectionEmail);
+                                                notificationData.put("collectionOfficer", coN);
+                                                notificationData.put("collectionPhoneNumber", coP);
+                                                notificationData.put("collectionEmail", coE);
                                                 notificationData.put("companyName", companyName);
                                                 notificationData.put("loanId", clientLoan.getId());
                                                 notificationData.put("accountName", accountName);
@@ -728,7 +858,7 @@ public class DispatcherServiceImpl implements DispatcherService {
 //                Since there can be only one open client loan at a time, check if the list is empty, if not, get the first element...
                             if (!openClientLoanList.isEmpty()) {
                                 LookUpClientLoan clientLoan = openClientLoanList.get(0);
-                                System.out.println("Open client loan is: " + clientLoan.getId() + ". Status: " + clientLoan.getStatus());
+//                                System.out.println("Open client loan is: " + clientLoan.getId() + ". Status: " + clientLoan.getStatus());
                                 LookUpLoanAccount lookUpLoanAccount = clientService.lookupLoanAccount(clientLoan.getId());
                                 String modeOfRepayment = lookUpLoanAccount.getLoanAccount().getOptionalFields().getModeOfRepayment() == null ?
                                         "" :
@@ -746,9 +876,9 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                     .filter(lookUpLoanInstalment -> dateUtil.isPaymentDateToday(lookUpLoanInstalment.getObligatoryPaymentDate()))
                                                     .collect(Collectors.toList());
                                             LookUpLoanInstalment dueDateInstalment = !lookUpLoanInstalments.isEmpty() ? lookUpLoanInstalments.get(0) : null;
-                                            System.out.println("Loan due date installment is: " + dueDateInstalment);
+//                                            System.out.println("Loan due date installment is: " + dueDateInstalment);
                                             if (dueDateInstalment != null) {
-                                                System.out.println("Loan due date installment date is: " + dueDateInstalment.getObligatoryPaymentDate());
+//                                                System.out.println("Loan due date installment date is: " + dueDateInstalment.getObligatoryPaymentDate());
                                                 Client customer = lookUpClient.getClient();
                                                 LocalDate obligatoryPaymentDate = dateUtil.convertDateToLocalDate(dueDateInstalment.getObligatoryPaymentDate());
                                                 String toAddress = customer.getEmail();

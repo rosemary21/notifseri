@@ -2,7 +2,9 @@ package com.creditville.notifications.services;
 
 import com.creditville.notifications.exceptions.CustomCheckedException;
 import com.creditville.notifications.models.ExcludedEmail;
+import com.creditville.notifications.models.requests.SendEmailRequest;
 import com.creditville.notifications.services.impl.NotificationServiceImpl;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.util.List;
 import java.util.Map;
@@ -12,6 +14,10 @@ import java.util.Map;
  */
 public interface NotificationService {
     void sendEmailNotification(String subject, Map<String, String> notificationData, String templateLocation) throws CustomCheckedException;
+
+    void sendEmailNotification(SendEmailRequest sendEmailRequest) throws CustomCheckedException;
+
+    void sendEmailBroadcastNotification(SendEmailRequest sendEmailRequest) throws CustomCheckedException;
 
     NotificationServiceImpl.NotificationStatistics getCurrentNotificationStatistics();
 

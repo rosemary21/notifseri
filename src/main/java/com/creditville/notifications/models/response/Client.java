@@ -15,4 +15,5 @@ public class Client implements Serializable {
     private String name;
     private String email;
     private String clientStatus;
+    private String branch;
 }

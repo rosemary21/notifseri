@@ -64,7 +64,6 @@ public class DateUtil {
         paymentDateCalendarWithAddedDays.set(Calendar.MINUTE, 0);
         paymentDateCalendarWithAddedDays.set(Calendar.SECOND, 0);
         paymentDateCalendarWithAddedDays.set(Calendar.MILLISECOND, 0);
-        paymentDateCalendarWithAddedDays.add(Calendar.DATE, numberOfDays);
 
         Calendar calendarForTodayWithAddedDays = Calendar.getInstance();
         calendarForTodayWithAddedDays.set(Calendar.HOUR_OF_DAY, 0);

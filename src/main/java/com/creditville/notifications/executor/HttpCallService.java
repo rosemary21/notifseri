@@ -28,7 +28,7 @@ public class HttpCallService {
     private String instafinBasicAuthPassword;
 
     public String httpPostCall(String url,String payload){
-        logger.info("ENTRY -> Endpoint: {}",url);
+//        logger.info("ENTRY -> Endpoint: {}",url);
         HttpResponse<String> httpResponse = null;
         try {
             httpResponse = Unirest.post(url)
@@ -44,7 +44,7 @@ public class HttpCallService {
     }
 
     public String doBasicPost(String url, String payload) throws CustomCheckedException {
-        logger.info("ENTRY -> Endpoint: {}", url);
+//        logger.info("ENTRY -> Endpoint: {}", url);
         HttpResponse<String> httpResponse;
         try {
             httpResponse = Unirest.post(url)

@@ -29,7 +29,7 @@ public class LoanRepaymentServiceImpl implements LoanRepaymentService {
             var payload = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(repayLoanReq);
             System.out.println("payload: "+payload);
             var repayLoanResp = httpCallService.doBasicPost(baseUrl+loanRepayUrl,payload);
-            System.out.println("repayLoanResp: "+repayLoanResp);
+//            System.out.println("repayLoanResp: "+repayLoanResp);
             return repayLoanResp;
 
         } catch (JsonProcessingException | CustomCheckedException e) {

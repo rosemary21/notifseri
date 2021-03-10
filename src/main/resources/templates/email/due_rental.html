@@ -84,11 +84,16 @@
             <td width="70%" height="33"><font face="Arial,sans-serif" color="#000000" size="3">Hope this mail finds you well.</font></td>
         </tr>
         <tr>
-            <td width="70%" height="33"><font face="Arial,sans-serif" color="#000000" size="3">This is to notify you that your <b th:text="${paymentMonth}">payment month</b> instalment will be due payable on <b th:text="${paymentDate}">payment date</b>. Kindly fund your bank account with your rental amount of <b th:text="${rentalAmount}">rental amount</b> to accommodate the repayment as we present your payment instrument.</font></td>
+            <td width="70%" height="33"><font face="Arial,sans-serif" color="#000000" size="3">This is to notify you that your <b th:text="${paymentMonth}">payment month</b> instalment will be due payable on <b th:text="${paymentDate}">payment date</b>. Kindly fund your bank account with your instalment amount of <b th:text="${rentalAmount}">rental amount</b> to accommodate the repayment as we present your payment instrument.</font></td>
         </tr>
         <tr>
             <td width="70%" height="36">
                 <font face="Arial,sans-serif" color="#000000" size="3">We appreciate your relationship with us. For further assistance, please call <b th:text="${collectionOfficer}">collection officer</b> on <b th:text="${collectionPhoneNumber}">collection phone number</b> or email on <b th:text="${collectionEmail}">collection email</b>.</font>
+            </td>
+        </tr>
+        <tr>
+            <td width="70%" height="36" th:if="${hasBranchManager == 'true'}">
+                <font face="Arial,sans-serif" color="#000000" size="3">You can also reach the branch Manager <b th:text="${branchManagerName}">Branch Manager name</b> on <b th:text="${branchManagerPhoneNumber}">Branch Manager Phone No</b> or email on <b th:text="${branchManagerEmail}">Branch Manager email address</b>.</font>
             </td>
         </tr>
         <tr>
@@ -152,10 +157,13 @@
                 <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">Hope this mail finds you well.</font>
             </div>
             <div style="text-align: left; height: auto; width: 100%; padding-bottom: 1%; padding-top: 1%; float: left; display: inline-block">
-                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">This is to notify you that your <b th:text="${paymentMonth}">payment month</b> instalment will be due payable on <b th:text="${paymentDate}">payment date</b>. Kindly fund your bank account with your rental amount of <b th:text="${rentalAmount}">rental amount</b> to accommodate the repayment as we present your payment instrument.</font>
+                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">This is to notify you that your <b th:text="${paymentMonth}">payment month</b> instalment will be due payable on <b th:text="${paymentDate}">payment date</b>. Kindly fund your bank account with your instalment amount of <b th:text="${rentalAmount}">rental amount</b> to accommodate the repayment as we present your payment instrument.</font>
             </div>
             <div style="text-align: left; height: auto; width: 100%; padding-bottom: 1%; padding-top: 1%; float: left; display: inline-block">
                 <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">We appreciate your relationship with us. For further assistance, please call <b th:text="${collectionOfficer}">collection officer</b> on <b th:text="${collectionPhoneNumber}">collection phone number</b> or email on <b th:text="${collectionEmail}">collection email</b>.</font>
+            </div>
+            <div style="text-align: left; height: auto; width: 100%; padding-bottom: 1%; padding-top: 1%; float: left; display: inline-block" th:if="${hasBranchManager == 'true'}">
+                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">You can also reach the branch Manager <b th:text="${branchManagerName}">Branch Manager name</b> on <b th:text="${branchManagerPhoneNumber}">Branch Manager Phone No</b> or email on <b th:text="${branchManagerEmail}">Branch Manager email address</b>.</font>
             </div>
             <div style="text-align: left; height: auto; width: 100%; padding-bottom: 1%; padding-top: 1%; float: left; display: inline-block">
                 <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">If you intend making a direct transfer into our account , kindly use the bank details below and notify <b th:text="${companyName}">company name</b> to avoid wrongful presentation of your payment instrument.</font>

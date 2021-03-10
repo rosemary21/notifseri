@@ -3,11 +3,15 @@ package com.creditville.notifications.services.impl;
 //import creditville.ng.creditvillecore.core.models.forms.AddToExceptionListForm;
 import com.creditville.notifications.exceptions.CustomCheckedException;
 import com.creditville.notifications.models.ExcludedEmail;
+import com.creditville.notifications.models.requests.SendEmailRequest;
 import com.creditville.notifications.repositories.EmailAuditRepository;
 import com.creditville.notifications.repositories.ExcludedEmailRepository;
 import com.creditville.notifications.repositories.FailedEmailRepository;
 import com.creditville.notifications.services.EmailService;
 import com.creditville.notifications.services.NotificationService;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,8 +25,8 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by Chuks on 02/07/2021.
@@ -89,7 +93,7 @@ public class NotificationServiceImpl implements NotificationService {
                 .to(notificationData.get("toName"), notificationData.get("toAddress"))
                 .withSubject(subject)
                 .withHTMLText(content).buildEmail();
-        System.out.println("Email: "+ email.getHTMLText());
+//        System.out.println("Email: "+ email.getHTMLText());
         if(notificationsEnabled) {
             try {
                 if(!emailService.isEmailExcluded(notificationData.get("toAddress"))) {
@@ -103,6 +107,120 @@ public class NotificationServiceImpl implements NotificationService {
             }
         }
         else throw new CustomCheckedException("Oops! Unable to dispatch notifications at the moment as it is disabled from config");
+    }
+
+    @Override
+    public void sendEmailNotification(SendEmailRequest sendEmailRequest) throws CustomCheckedException {
+        Context context = new Context();
+        ObjectNode mailData = sendEmailRequest.getMailData();
+        if(mailData.isEmpty())
+            throw new CustomCheckedException("Mail data cannot be empty");
+        if(!mailData.has("toAddress"))
+            throw new CustomCheckedException("To address is required to send an email notification");
+        if(sendEmailRequest.getMailTemplate().trim().equals("")) throw new CustomCheckedException("Mail template cannot be empty");
+        if(sendEmailRequest.getMailSubject().trim().equals("")) throw new CustomCheckedException("Mail subject cannot be empty");
+        Iterator<Map.Entry<String, JsonNode>> jsonNodeIterator = mailData.fields();
+        while(jsonNodeIterator.hasNext()) {
+            Map.Entry<String, JsonNode> jsonNode = jsonNodeIterator.next();
+            context.setVariable(jsonNode.getKey(), jsonNode.getValue().textValue());
+        }
+        String templateLocation = this.getTemplateLocation(sendEmailRequest.getMailTemplate());
+        String content = templateEngine.process(templateLocation, context);
+        if(mailData.get("toAddress") == null) throw new CustomCheckedException("To address cannot be null");
+        String toAddresses = mailData.get("toAddress").textValue();
+        List<String> toAddressList = new ArrayList<>();
+        if(toAddresses.contains(",")) {
+            String[] parts = toAddresses.split(",");
+            toAddressList = Arrays.stream(parts).collect(Collectors.toList());
+        }else toAddressList.add(toAddresses);
+
+        JsonNode ccAddress = mailData.get("ccAddress");
+        String ccAddresses = ccAddress != null ? ccAddress.textValue() : null;
+        List<String> ccAddressList = new ArrayList<>();
+        if(ccAddress != null) {
+            if (ccAddresses.contains(",")) {
+                String[] parts = ccAddresses.split(",");
+                ccAddressList = Arrays.stream(parts).collect(Collectors.toList());
+            } else ccAddressList.add(ccAddresses);
+        }
+
+        JsonNode bccAddress = mailData.get("bccAddress");
+        String bccAddresses = bccAddress != null ? bccAddress.textValue() : null;
+        List<String> bccAddressList = new ArrayList<>();
+        if(bccAddress != null) {
+            if (bccAddresses.contains(",")) {
+                String[] parts = bccAddresses.split(",");
+                bccAddressList = Arrays.stream(parts).collect(Collectors.toList());
+            } else bccAddressList.add(bccAddresses);
+        }
+
+        Email email = EmailBuilder.startingBlank()
+                .from(senderName, senderEmail)
+                .to(null, toAddressList)
+                .cc(null, ccAddressList)
+                .bcc(null, bccAddressList)
+                .withSubject(sendEmailRequest.getMailSubject())
+                .withHTMLText(content).buildEmail();
+//        System.out.println("Email: "+ email.getHTMLText());
+        if(notificationsEnabled) {
+            try {
+                if(!emailService.isEmailExcluded(mailData.get("toAddress").textValue())) {
+                    mailer.sendMail(email, async);
+                    emailService.auditSuccessfulEmail(mailData, sendEmailRequest.getMailSubject());
+                }
+            }catch (Exception ex) {
+                emailService.saveFailedEmail(mailData, sendEmailRequest.getMailSubject(), email.getHTMLText(), ex.getMessage());
+                System.out.println("Email sending failed: "+ ex.getMessage());
+                throw new CustomCheckedException("Email sending failed");
+            }
+        }
+        else throw new CustomCheckedException("Oops! Unable to dispatch notifications at the moment as it is disabled from config");
+    }
+
+    @Override
+    public void sendEmailBroadcastNotification(SendEmailRequest sendEmailRequest) throws CustomCheckedException {
+        Context context = new Context();
+        ObjectNode mailData = sendEmailRequest.getMailData();
+        if(mailData.isEmpty())
+            throw new CustomCheckedException("Mail data cannot be empty");
+        if(sendEmailRequest.getMailTemplate().trim().equals("")) throw new CustomCheckedException("Mail template cannot be empty");
+        if(sendEmailRequest.getMailSubject().trim().equals("")) throw new CustomCheckedException("Mail subject cannot be empty");
+        context.setVariable("mailSubject", sendEmailRequest.getMailSubject());
+        context.setVariable("customMessage", sendEmailRequest.getMailMessage());
+        Iterator<Map.Entry<String, JsonNode>> jsonNodeIterator = mailData.fields();
+        while(jsonNodeIterator.hasNext()) {
+            Map.Entry<String, JsonNode> jsonNode = jsonNodeIterator.next();
+            context.setVariable(jsonNode.getKey(), jsonNode.getValue().textValue());
+        }
+        if(mailData.get("toAddress") == null) throw new CustomCheckedException("To address cannot be null");
+        String toAddresses = mailData.get("toAddress").textValue();
+        List<String> toAddressList = new ArrayList<>();
+        if(toAddresses.contains(",")) {
+            String[] parts = toAddresses.split(",");
+            toAddressList = Arrays.stream(parts).collect(Collectors.toList());
+        }else toAddressList.add(toAddresses);
+        for(String customer :  toAddressList) {
+            String templateLocation = this.getTemplateLocation(sendEmailRequest.getMailTemplate());
+            String content = templateEngine.process(templateLocation, context);
+            Email email = EmailBuilder.startingBlank()
+                    .from(senderName, senderEmail)
+                    .to(null, customer)
+                    .withSubject(sendEmailRequest.getMailSubject())
+                    .withHTMLText(content).buildEmail();
+            if(notificationsEnabled) {
+                try {
+                    if(!emailService.isEmailExcluded(mailData.get("toAddress").textValue())) {
+                        mailer.sendMail(email, async);
+                        emailService.auditSuccessfulEmail(mailData, sendEmailRequest.getMailSubject());
+                    }
+                }catch (Exception ex) {
+                    emailService.saveFailedEmail(mailData, sendEmailRequest.getMailSubject(), email.getHTMLText(), ex.getMessage());
+                    System.out.println("Email sending failed: "+ ex.getMessage());
+                    throw new CustomCheckedException("Email sending failed");
+                }
+            }
+            else throw new CustomCheckedException("Oops! Unable to dispatch notifications at the moment as it is disabled from config");
+        }
     }
 
     @Getter
@@ -121,6 +239,39 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public List<ExcludedEmail> getMailExceptionList() {
         return excludedEmailRepository.findAll();
+    }
+
+    private String getTemplateLocation(String templateName) throws CustomCheckedException {
+        switch (templateName) {
+            case "cardTokenization":
+                return "email/card-tokenization";
+            case "cardTokenized":
+                return "email/card-successfully-tokenized";
+            case "cardNotTokenized":
+                return "email/card-not-tokenized";
+            case "repaymentFailure":
+                return "email/repayment-failure";
+            case "repaymentSuccess":
+                return "email/repayment-success";
+            case "dispatchedMails":
+                return "email/dispatched-mails";
+            case "passwordReset":
+                return "email/password-reset";
+            case "userCreated":
+                return "email/user-created";
+            case "dueRental":
+                return "email/due_rental";
+            case "arrears":
+                return "email/arrears";
+            case "chequeLodgement":
+                return "email/cheque_lodgement";
+            case "postMaturity":
+                return "email/post_maturity";
+            case "custom":
+                return "email/custom-message";
+            default:
+                throw new CustomCheckedException("Invalid template name provided");
+        }
     }
 
 //    @Override
