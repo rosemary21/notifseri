@@ -112,8 +112,8 @@ public class DispatcherServiceImpl implements DispatcherService {
                 List<Client> clients = clientService.fetchClients(lastExternalId);
                 if(!clients.isEmpty()) {
                     for(Client client : clients) {
-                        CollectionOfficer collectionOfficer = collectionOfficerService.getCollectionOfficer(client.getBranch());
-                        BranchManager branchManager = branchManagerService.getBranchManager(client.getBranch());
+                        CollectionOfficer collectionOfficer = collectionOfficerService.getCollectionOfficer(client.getBranchName());
+                        BranchManager branchManager = branchManagerService.getBranchManager(client.getBranchName());
                         LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());
                         List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
                                 .stream()
@@ -233,8 +233,8 @@ public class DispatcherServiceImpl implements DispatcherService {
                 List<Client> clients = clientService.fetchClients(lastExternalId);
                 if (!clients.isEmpty()) {
                     for (Client client : clients) {
-                        CollectionOfficer collectionOfficer = collectionOfficerService.getCollectionOfficer(client.getBranch());
-                        BranchManager branchManager = branchManagerService.getBranchManager(client.getBranch());
+                        CollectionOfficer collectionOfficer = collectionOfficerService.getCollectionOfficer(client.getBranchName());
+                        BranchManager branchManager = branchManagerService.getBranchManager(client.getBranchName());
                         LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());
                         List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
                                 .stream()
@@ -355,8 +355,8 @@ public class DispatcherServiceImpl implements DispatcherService {
                 List<Client> clients = clientService.fetchClients(lastExternalId);
                 if (!clients.isEmpty()) {
                     for (Client client : clients) {
-                        CollectionOfficer collectionOfficer = collectionOfficerService.getCollectionOfficer(client.getBranch());
-                        BranchManager branchManager = branchManagerService.getBranchManager(client.getBranch());
+                        CollectionOfficer collectionOfficer = collectionOfficerService.getCollectionOfficer(client.getBranchName());
+                        BranchManager branchManager = branchManagerService.getBranchManager(client.getBranchName());
                         LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());
                         List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
                                 .stream()
@@ -477,7 +477,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                 List<Client> clients = clientService.fetchClients(lastExternalId);
                 if (!clients.isEmpty()) {
                     for (Client client : clients) {
-                        CollectionOfficer collectionOfficer = collectionOfficerService.getCollectionOfficer(client.getBranch());
+                        CollectionOfficer collectionOfficer = collectionOfficerService.getCollectionOfficer(client.getBranchName());
                         LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());
                         List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
                                 .stream()
@@ -585,7 +585,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                 List<Client> clients = clientService.fetchClients(lastExternalId);
                 if (!clients.isEmpty()) {
                     for (Client client : clients) {
-                        CollectionOfficer collectionOfficer = collectionOfficerService.getCollectionOfficer(client.getBranch());
+                        CollectionOfficer collectionOfficer = collectionOfficerService.getCollectionOfficer(client.getBranchName());
                         LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());
                         List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
                                 .stream()
@@ -687,7 +687,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                 List<Client> clients = clientService.fetchClients(lastExternalId);
                 if (!clients.isEmpty()) {
                     for (Client client : clients) {
-                        CollectionOfficer collectionOfficer = collectionOfficerService.getCollectionOfficer(client.getBranch());
+                        CollectionOfficer collectionOfficer = collectionOfficerService.getCollectionOfficer(client.getBranchName());
                         LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());
                         List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
                                 .stream()
