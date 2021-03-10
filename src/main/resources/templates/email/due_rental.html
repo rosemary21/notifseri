@@ -84,7 +84,7 @@
             <td width="70%" height="33"><font face="Arial,sans-serif" color="#000000" size="3">Hope this mail finds you well.</font></td>
         </tr>
         <tr>
-            <td width="70%" height="33"><font face="Arial,sans-serif" color="#000000" size="3">This is to notify you that your <b th:text="${paymentMonth}">payment month</b> instalment will be due payable on <b th:text="${paymentDate}">payment date</b>. Kindly fund your bank account with your instalment amount of <b th:text="${rentalAmount}">rental amount</b> to accommodate the repayment as we present your payment instrument.</font></td>
+            <td width="70%" height="33"><font face="Arial,sans-serif" color="#000000" size="3">This is to notify you that your <b th:text="${paymentMonth}">payment month</b> <b th:text="${paymentYear}">year</b> instalment will be due payable on <b th:text="${paymentDate}">payment date</b>. Kindly fund your bank account with your instalment amount of <b th:text="${rentalAmount}">rental amount</b> to accommodate the repayment as we present your payment instrument.</font></td>
         </tr>
         <tr>
             <td width="70%" height="36">
@@ -97,11 +97,17 @@
             </td>
         </tr>
         <tr>
-            <td width="70%" height="36"><font face="Arial,sans-serif" color="#000000" size="3">If you intend making a direct transfer into our account , kindly use the bank details below 48 hours before the <b th:text="${paymentDate}">payment date</b> and notify <b th:text="${companyName}">company name</b> to avoid wrongful presentation of your payment instrument.</font></td>
+            <td width="70%" height="36"><font face="Arial,sans-serif" color="#000000" size="3">If you intend making a direct transfer into our account, kindly use the bank details below 48 hours before the <b th:text="${paymentDate}">payment date</b> and notify <b th:text="${companyName}">company name</b> to avoid wrongful presentation of your payment instrument.</font></td>
         </tr>
         <tr>
-            <td width="70%" height="36"><font face="Arial,sans-serif" color="#000000" size="3">Please endeavour to quote your loan ID <b th:text="${loanId}">loan id</b> on every payment made via an alternative channel, for ease of reconciliation. <br/>
-                <u>Please avoid the use of POS terminals and ATM for your loan repayments due to their limitation with transaction descriptions.</u></font>
+            <td width="70%" height="36">
+                <font face="Arial,sans-serif" color="#000000" size="3">Please endeavour to quote your loan ID <b th:text="${loanId}">loan id</b> on every payment made via an alternative channel, for ease of reconciliation.</font>
+            </td>
+        </tr>
+        <tr>
+            <td width="70%" height="36"><font face="Arial,sans-serif" color="#000000" size="3">
+                <u>Please avoid the use of POS terminals and ATM for your loan repayments due to their limitation with transaction descriptions.</u>
+            </font>
             </td>
         </tr>
         <tr>
@@ -109,7 +115,7 @@
         </tr>
         <tr>
             <td width="70%" height="36">
-                <font face="Arial,sans-serif" color="#000000" size="3">Our account detail is: <br/>
+                <font face="Arial,sans-serif" color="#000000" size="3">
                     Account Name:     <b th:text="${accountName}">account name</b> <br>
                     Account Number:   <b th:text="${accountNumber}">account number</b> <br>
                     Bank Name:        <b th:text="${bankName}">bank name</b>.
@@ -157,7 +163,7 @@
                 <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">Hope this mail finds you well.</font>
             </div>
             <div style="text-align: left; height: auto; width: 100%; padding-bottom: 1%; padding-top: 1%; float: left; display: inline-block">
-                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">This is to notify you that your <b th:text="${paymentMonth}">payment month</b> instalment will be due payable on <b th:text="${paymentDate}">payment date</b>. Kindly fund your bank account with your instalment amount of <b th:text="${rentalAmount}">rental amount</b> to accommodate the repayment as we present your payment instrument.</font>
+                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">This is to notify you that your <b th:text="${paymentMonth}">payment month</b> <b th:text="${paymentYear}">year</b> instalment will be due payable on <b th:text="${paymentDate}">payment date</b>. Kindly fund your bank account with your instalment amount of <b th:text="${rentalAmount}">rental amount</b> to accommodate the repayment as we present your payment instrument.</font>
             </div>
             <div style="text-align: left; height: auto; width: 100%; padding-bottom: 1%; padding-top: 1%; float: left; display: inline-block">
                 <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">We appreciate your relationship with us. For further assistance, please call <b th:text="${collectionOfficer}">collection officer</b> on <b th:text="${collectionPhoneNumber}">collection phone number</b> or email on <b th:text="${collectionEmail}">collection email</b>.</font>
@@ -166,15 +172,18 @@
                 <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">You can also reach the branch Manager <b th:text="${branchManagerName}">Branch Manager name</b> on <b th:text="${branchManagerPhoneNumber}">Branch Manager Phone No</b> or email on <b th:text="${branchManagerEmail}">Branch Manager email address</b>.</font>
             </div>
             <div style="text-align: left; height: auto; width: 100%; padding-bottom: 1%; padding-top: 1%; float: left; display: inline-block">
-                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">If you intend making a direct transfer into our account , kindly use the bank details below and notify <b th:text="${companyName}">company name</b> to avoid wrongful presentation of your payment instrument.</font>
+                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">If you intend making a direct transfer into our account, kindly use the bank details below 48 hours before the <b th:text="${paymentDate}">payment date</b> and notify <b th:text="${companyName}">company name</b> to avoid wrongful presentation of your payment instrument.</font>
             </div>
             <div style="text-align: left; height: auto; width: 100%; padding-bottom: 1%; padding-top: 1%; float: left; display: inline-block">
-                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">Please endeavour to quote your loan ID <b th:text="${loanId}">loan id</b> on every payment made via an alternative channel, for ease of reconciliation. <br/>
+                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">Please endeavour to quote your loan ID <b th:text="${loanId}">loan id</b> on every payment made via an alternative channel, for ease of reconciliation.</font>
+            </div>
+            <div style="text-align: left; height: auto; width: 100%; padding-bottom: 1%; padding-top: 1%; float: left; display: inline-block">
+                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">
                     <u>Please avoid the use of POS terminals and ATM for your loan repayments due to their limitation with transaction descriptions.</u>
                 </font>
             </div>
             <div style="text-align: left; height: auto; width: 100%; padding-bottom: 1%; padding-top: 1%; float: left; display: inline-block">
-                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">Our account detail is: <br/>
+                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">
                     Account Name:     <b th:text="${accountName}">account name</b> <br>
                     Account Number:   <b th:text="${accountNumber}">account number</b> <br>
                     Bank Name:        <b th:text="${bankName}">bank name</b>.

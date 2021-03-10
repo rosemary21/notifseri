@@ -133,6 +133,11 @@ public class DateUtil {
         return getMonthStringByIntIdentifier(paymentDateMonth);
     }
 
+    public int getYearByDate(String paymentDate) {
+        Calendar calendar = this.convertDateToCalendar(paymentDate);
+        return calendar.get(Calendar.YEAR);
+    }
+
     private String getMonthStringByIntIdentifier(int month) throws CustomCheckedException {
         switch (month) {
             case 0:
