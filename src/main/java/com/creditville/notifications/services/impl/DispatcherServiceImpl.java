@@ -112,19 +112,20 @@ public class DispatcherServiceImpl implements DispatcherService {
                 List<Client> clients = clientService.fetchClients(lastExternalId);
                 if(!clients.isEmpty()) {
                     for(Client client : clients) {
-                        CollectionOfficer collectionOfficer = collectionOfficerService.getCollectionOfficer(client.getBranchName());
-                        BranchManager branchManager = branchManagerService.getBranchManager(client.getBranchName());
-                        LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());
-                        List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
-                                .stream()
+                        try {
+                            CollectionOfficer collectionOfficer = collectionOfficerService.getCollectionOfficer(client.getBranchName());
+                            BranchManager branchManager = branchManagerService.getBranchManager(client.getBranchName());
+                            LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());
+                            List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
+                                    .stream()
 //                                .filter(cl -> !cl.getStatus().equalsIgnoreCase("CLOSED"))
-                                .filter(cl -> cl.getStatus().equalsIgnoreCase("ACTIVE") || cl.getStatus().equalsIgnoreCase("IN_ARREARS"))
-                                .collect(Collectors.toList());
+                                    .filter(cl -> cl.getStatus().equalsIgnoreCase("ACTIVE") || cl.getStatus().equalsIgnoreCase("IN_ARREARS"))
+                                    .collect(Collectors.toList());
 //                Since there can be only one open client loan at a time, check if the list is empty, if not, get the first element...
-                        if(!openClientLoanList.isEmpty()) {
-                            LookUpClientLoan clientLoan = openClientLoanList.get(0);
+                            if (!openClientLoanList.isEmpty()) {
+                                LookUpClientLoan clientLoan = openClientLoanList.get(0);
 //                            System.out.println("Open client loan is: " + clientLoan.getId() + ". Status: " + clientLoan.getStatus());
-                            LookUpLoanAccount lookUpLoanAccount = clientService.lookupLoanAccount(clientLoan.getId());
+                                LookUpLoanAccount lookUpLoanAccount = clientService.lookupLoanAccount(clientLoan.getId());
 //                            String modeOfRepayment = lookUpLoanAccount.getLoanAccount().getOptionalFields().getModeOfRepayment() == null ?
 //                                    "" :
 //                                    lookUpLoanAccount.getLoanAccount().getOptionalFields().getModeOfRepayment();
@@ -156,11 +157,11 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                 String coN;
                                                 String coE;
                                                 String coP;
-                                                if(collectionOfficer == null) {
+                                                if (collectionOfficer == null) {
                                                     coN = defaultCollectionOfficer;
                                                     coE = collectionEmail;
                                                     coP = collectionPhoneNumber;
-                                                }else {
+                                                } else {
                                                     coN = collectionOfficer.getOfficerName();
                                                     coE = collectionOfficer.getOfficerEmail();
                                                     coP = collectionOfficer.getOfficerPhoneNo();
@@ -169,9 +170,9 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                 String brmE = "";
                                                 String brmPh = "";
                                                 Boolean hasBranchManager = true;
-                                                if(branchManager == null) {
+                                                if (branchManager == null) {
                                                     hasBranchManager = false;
-                                                }else {
+                                                } else {
                                                     brmN = branchManager.getOfficerName();
                                                     brmE = branchManager.getOfficerEmail();
                                                     brmPh = branchManager.getOfficerPhoneNo();
@@ -210,6 +211,10 @@ public class DispatcherServiceImpl implements DispatcherService {
                                     }
                                 }
 //                            }
+                            }
+                        }catch (Exception ex) {
+                            ex.printStackTrace();
+                            failedCounter++;
                         }
                     }
                     Client lastClient = clients.get((clients.size() - 1));
@@ -234,19 +239,20 @@ public class DispatcherServiceImpl implements DispatcherService {
                 List<Client> clients = clientService.fetchClients(lastExternalId);
                 if (!clients.isEmpty()) {
                     for (Client client : clients) {
-                        CollectionOfficer collectionOfficer = collectionOfficerService.getCollectionOfficer(client.getBranchName());
-                        BranchManager branchManager = branchManagerService.getBranchManager(client.getBranchName());
-                        LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());
-                        List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
-                                .stream()
+                        try {
+                            CollectionOfficer collectionOfficer = collectionOfficerService.getCollectionOfficer(client.getBranchName());
+                            BranchManager branchManager = branchManagerService.getBranchManager(client.getBranchName());
+                            LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());
+                            List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
+                                    .stream()
 //                                .filter(cl -> !cl.getStatus().equalsIgnoreCase("CLOSED"))
-                                .filter(cl -> cl.getStatus().equalsIgnoreCase("ACTIVE") || cl.getStatus().equalsIgnoreCase("IN_ARREARS"))
-                                .collect(Collectors.toList());
+                                    .filter(cl -> cl.getStatus().equalsIgnoreCase("ACTIVE") || cl.getStatus().equalsIgnoreCase("IN_ARREARS"))
+                                    .collect(Collectors.toList());
 //                Since there can be only one open client loan at a time, check if the list is empty, if not, get the first element...
-                        if (!openClientLoanList.isEmpty()) {
-                            LookUpClientLoan clientLoan = openClientLoanList.get(0);
+                            if (!openClientLoanList.isEmpty()) {
+                                LookUpClientLoan clientLoan = openClientLoanList.get(0);
 //                            System.out.println("Open client loan is: " + clientLoan.getId() + ". Status: " + clientLoan.getStatus());
-                            LookUpLoanAccount lookUpLoanAccount = clientService.lookupLoanAccount(clientLoan.getId());
+                                LookUpLoanAccount lookUpLoanAccount = clientService.lookupLoanAccount(clientLoan.getId());
 //                            String modeOfRepayment = lookUpLoanAccount.getLoanAccount().getOptionalFields().getModeOfRepayment() == null ?
 //                                    "" :
 //                                    lookUpLoanAccount.getLoanAccount().getOptionalFields().getModeOfRepayment();
@@ -278,11 +284,11 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                 String coN;
                                                 String coE;
                                                 String coP;
-                                                if(collectionOfficer == null) {
+                                                if (collectionOfficer == null) {
                                                     coN = defaultCollectionOfficer;
                                                     coE = collectionEmail;
                                                     coP = collectionPhoneNumber;
-                                                }else {
+                                                } else {
                                                     coN = collectionOfficer.getOfficerName();
                                                     coE = collectionOfficer.getOfficerEmail();
                                                     coP = collectionOfficer.getOfficerPhoneNo();
@@ -291,9 +297,9 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                 String brmE = "";
                                                 String brmPh = "";
                                                 Boolean hasBranchManager = true;
-                                                if(branchManager == null) {
+                                                if (branchManager == null) {
                                                     hasBranchManager = false;
-                                                }else {
+                                                } else {
                                                     brmN = branchManager.getOfficerName();
                                                     brmE = branchManager.getOfficerEmail();
                                                     brmPh = branchManager.getOfficerPhoneNo();
@@ -333,6 +339,10 @@ public class DispatcherServiceImpl implements DispatcherService {
                                     }
                                 }
 //                            }
+                            }
+                        }catch (Exception ex) {
+                            ex.printStackTrace();
+                            failedCounter++;
                         }
                     }
                     Client lastClient = clients.get((clients.size() - 1));
@@ -357,19 +367,20 @@ public class DispatcherServiceImpl implements DispatcherService {
                 List<Client> clients = clientService.fetchClients(lastExternalId);
                 if (!clients.isEmpty()) {
                     for (Client client : clients) {
-                        CollectionOfficer collectionOfficer = collectionOfficerService.getCollectionOfficer(client.getBranchName());
-                        BranchManager branchManager = branchManagerService.getBranchManager(client.getBranchName());
-                        LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());
-                        List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
-                                .stream()
+                        try {
+                            CollectionOfficer collectionOfficer = collectionOfficerService.getCollectionOfficer(client.getBranchName());
+                            BranchManager branchManager = branchManagerService.getBranchManager(client.getBranchName());
+                            LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());
+                            List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
+                                    .stream()
 //                                .filter(cl -> !cl.getStatus().equalsIgnoreCase("CLOSED"))
-                                .filter(cl -> cl.getStatus().equalsIgnoreCase("ACTIVE") || cl.getStatus().equalsIgnoreCase("IN_ARREARS"))
-                                .collect(Collectors.toList());
+                                    .filter(cl -> cl.getStatus().equalsIgnoreCase("ACTIVE") || cl.getStatus().equalsIgnoreCase("IN_ARREARS"))
+                                    .collect(Collectors.toList());
 //                Since there can be only one open client loan at a time, check if the list is empty, if not, get the first element...
-                        if (!openClientLoanList.isEmpty()) {
-                            LookUpClientLoan clientLoan = openClientLoanList.get(0);
+                            if (!openClientLoanList.isEmpty()) {
+                                LookUpClientLoan clientLoan = openClientLoanList.get(0);
 //                            System.out.println("Open client loan is: " + clientLoan.getId() + ". Status: " + clientLoan.getStatus());
-                            LookUpLoanAccount lookUpLoanAccount = clientService.lookupLoanAccount(clientLoan.getId());
+                                LookUpLoanAccount lookUpLoanAccount = clientService.lookupLoanAccount(clientLoan.getId());
 //                            String modeOfRepayment = lookUpLoanAccount.getLoanAccount().getOptionalFields().getModeOfRepayment() == null ?
 //                                    "" :
 //                                    lookUpLoanAccount.getLoanAccount().getOptionalFields().getModeOfRepayment();
@@ -401,11 +412,11 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                 String coN;
                                                 String coE;
                                                 String coP;
-                                                if(collectionOfficer == null) {
+                                                if (collectionOfficer == null) {
                                                     coN = defaultCollectionOfficer;
                                                     coE = collectionEmail;
                                                     coP = collectionPhoneNumber;
-                                                }else {
+                                                } else {
                                                     coN = collectionOfficer.getOfficerName();
                                                     coE = collectionOfficer.getOfficerEmail();
                                                     coP = collectionOfficer.getOfficerPhoneNo();
@@ -414,9 +425,9 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                 String brmE = "";
                                                 String brmPh = "";
                                                 Boolean hasBranchManager = true;
-                                                if(branchManager == null) {
+                                                if (branchManager == null) {
                                                     hasBranchManager = false;
-                                                }else {
+                                                } else {
                                                     brmN = branchManager.getOfficerName();
                                                     brmE = branchManager.getOfficerEmail();
                                                     brmPh = branchManager.getOfficerPhoneNo();
@@ -456,6 +467,10 @@ public class DispatcherServiceImpl implements DispatcherService {
                                     }
                                 }
 //                            }
+                            }
+                        }catch (Exception ex) {
+                            ex.printStackTrace();
+                            failedCounter++;
                         }
                     }
                     Client lastClient = clients.get((clients.size() - 1));
@@ -480,90 +495,95 @@ public class DispatcherServiceImpl implements DispatcherService {
                 List<Client> clients = clientService.fetchClients(lastExternalId);
                 if (!clients.isEmpty()) {
                     for (Client client : clients) {
-                        CollectionOfficer collectionOfficer = collectionOfficerService.getCollectionOfficer(client.getBranchName());
-                        LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());
-                        List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
-                                .stream()
+                        try {
+                            CollectionOfficer collectionOfficer = collectionOfficerService.getCollectionOfficer(client.getBranchName());
+                            LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());
+                            List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
+                                    .stream()
 //                                .filter(cl -> !cl.getStatus().equalsIgnoreCase("CLOSED"))
-                                .filter(cl -> cl.getStatus().equalsIgnoreCase("ACTIVE") || cl.getStatus().equalsIgnoreCase("IN_ARREARS"))
-                                .collect(Collectors.toList());
+                                    .filter(cl -> cl.getStatus().equalsIgnoreCase("ACTIVE") || cl.getStatus().equalsIgnoreCase("IN_ARREARS"))
+                                    .collect(Collectors.toList());
 //                Since there can be only one open client loan at a time, check if the list is empty, if not, get the first element...
-                        if (!openClientLoanList.isEmpty()) {
-                            LookUpClientLoan clientLoan = openClientLoanList.get(0);
+                            if (!openClientLoanList.isEmpty()) {
+                                LookUpClientLoan clientLoan = openClientLoanList.get(0);
 //                            System.out.println("Open client loan is: " + clientLoan.getId() + ". Status: " + clientLoan.getStatus());
-                            LookUpLoanAccount lookUpLoanAccount = clientService.lookupLoanAccount(clientLoan.getId());
-                            List<LookUpLoanInstalment> loanInstalments = lookUpLoanAccount.getLoanAccount().getInstalments();
-                            if (!loanInstalments.isEmpty()) {
-                                List<LookUpLoanInstalment> loanInstalmentsLtToday = loanInstalments
-                                        .stream()
-                                        .filter(lookUpLoanInstalment -> dateUtil.isPaymentDateLtToday(lookUpLoanInstalment.getObligatoryPaymentDate()))
-                                        .collect(Collectors.toList());
-                                if (!loanInstalmentsLtToday.isEmpty()) {
-                                    LookUpLoanInstalment latestInstalment = loanInstalmentsLtToday.get((loanInstalmentsLtToday.size() - 1));
-                                    if (latestInstalment.getCurrentState().getPrincipalDueAmount().compareTo(BigDecimal.ZERO) > 0) {
+                                LookUpLoanAccount lookUpLoanAccount = clientService.lookupLoanAccount(clientLoan.getId());
+                                List<LookUpLoanInstalment> loanInstalments = lookUpLoanAccount.getLoanAccount().getInstalments();
+                                if (!loanInstalments.isEmpty()) {
+                                    List<LookUpLoanInstalment> loanInstalmentsLtToday = loanInstalments
+                                            .stream()
+                                            .filter(lookUpLoanInstalment -> dateUtil.isPaymentDateLtToday(lookUpLoanInstalment.getObligatoryPaymentDate()))
+                                            .collect(Collectors.toList());
+                                    if (!loanInstalmentsLtToday.isEmpty()) {
+                                        LookUpLoanInstalment latestInstalment = loanInstalmentsLtToday.get((loanInstalmentsLtToday.size() - 1));
+                                        if (latestInstalment.getCurrentState().getPrincipalDueAmount().compareTo(BigDecimal.ZERO) > 0) {
 //                                    Customer is owing. Calculate arrears...
-                                        List<LookUpLoanInstalment> loanInstalmentsInArrears = loanInstalmentsLtToday
-                                                .stream()
-                                                .filter(lookUpLoanInstalment -> (lookUpLoanInstalment.getCurrentState().getPrincipalDueAmount().compareTo(BigDecimal.ZERO) > 0))
-                                                .collect(Collectors.toList());
-                                        int noOfArrears = 0;
-                                        BigDecimal valueOfArrears = BigDecimal.ZERO;
-                                        for (LookUpLoanInstalment lookUpLoanInstalment : loanInstalmentsInArrears) {
+                                            List<LookUpLoanInstalment> loanInstalmentsInArrears = loanInstalmentsLtToday
+                                                    .stream()
+                                                    .filter(lookUpLoanInstalment -> (lookUpLoanInstalment.getCurrentState().getPrincipalDueAmount().compareTo(BigDecimal.ZERO) > 0))
+                                                    .collect(Collectors.toList());
+                                            int noOfArrears = 0;
+                                            BigDecimal valueOfArrears = BigDecimal.ZERO;
+                                            for (LookUpLoanInstalment lookUpLoanInstalment : loanInstalmentsInArrears) {
 //                                            System.out.println("Arrears: " + lookUpLoanInstalment.getObligatoryPaymentDate());
-                                            LookUpLoanInstalmentCurrentState currentState = lookUpLoanInstalment.getCurrentState();
-                                            valueOfArrears = valueOfArrears.add(currentState.getPrincipalDueAmount());
-                                            valueOfArrears = valueOfArrears.add(currentState.getInterestDueAmount());
-                                            noOfArrears++;
-                                        }
-
-                                        Client customer = lookUpClient.getClient();
-                                        String toAddress = useDefaultMailInfo ? defaultToAddress : customer.getEmail();
-                                        if (!emailService.alreadySentOutEmailToday(
-                                                toAddress,
-                                                customer.getName(),
-                                                arrearsSubject,
-                                                null
-                                        )) {
-                                            Map<String, String> notificationData = new HashMap<>();
-                                            String coN;
-                                            String coE;
-                                            String coP;
-                                            if(collectionOfficer == null) {
-                                                coN = defaultCollectionOfficer;
-                                                coE = collectionEmail;
-                                                coP = collectionPhoneNumber;
-                                            }else {
-                                                coN = collectionOfficer.getOfficerName();
-                                                coE = collectionOfficer.getOfficerEmail();
-                                                coP = collectionOfficer.getOfficerPhoneNo();
+                                                LookUpLoanInstalmentCurrentState currentState = lookUpLoanInstalment.getCurrentState();
+                                                valueOfArrears = valueOfArrears.add(currentState.getPrincipalDueAmount());
+                                                valueOfArrears = valueOfArrears.add(currentState.getInterestDueAmount());
+                                                noOfArrears++;
                                             }
-                                            notificationData.put("toName", useDefaultMailInfo ? defaultToName : customer.getName());
-                                            notificationData.put("toAddress", toAddress);
-                                            notificationData.put("customerName", customer.getName());
-                                            notificationData.put("noOfArrears", String.valueOf(noOfArrears));
+
+                                            Client customer = lookUpClient.getClient();
+                                            String toAddress = useDefaultMailInfo ? defaultToAddress : customer.getEmail();
+                                            if (!emailService.alreadySentOutEmailToday(
+                                                    toAddress,
+                                                    customer.getName(),
+                                                    arrearsSubject,
+                                                    null
+                                            )) {
+                                                Map<String, String> notificationData = new HashMap<>();
+                                                String coN;
+                                                String coE;
+                                                String coP;
+                                                if (collectionOfficer == null) {
+                                                    coN = defaultCollectionOfficer;
+                                                    coE = collectionEmail;
+                                                    coP = collectionPhoneNumber;
+                                                } else {
+                                                    coN = collectionOfficer.getOfficerName();
+                                                    coE = collectionOfficer.getOfficerEmail();
+                                                    coP = collectionOfficer.getOfficerPhoneNo();
+                                                }
+                                                notificationData.put("toName", useDefaultMailInfo ? defaultToName : customer.getName());
+                                                notificationData.put("toAddress", toAddress);
+                                                notificationData.put("customerName", customer.getName());
+                                                notificationData.put("noOfArrears", String.valueOf(noOfArrears));
 //                                            notificationData.put("valueOfArrears", valueOfArrears.toString());
-                                            notificationData.put("valueOfArrears", currencyUtil.getFormattedCurrency(valueOfArrears));
-                                            notificationData.put("collectionOfficer", coN);
-                                            notificationData.put("collectionPhoneNumber", coP);
-                                            notificationData.put("collectionEmail", coE);
-                                            notificationData.put("companyName", companyName);
-                                            notificationData.put("loanId", clientLoan.getId());
-                                            notificationData.put("accountName", accountName);
-                                            notificationData.put("accountNumber", accountNumber);
-                                            notificationData.put("bankName", bankName);
-                                            totalMailCounter++;
-                                            try {
-                                                notificationService.sendEmailNotification(arrearsSubject, notificationData, "email/arrears");
-                                            } catch (CustomCheckedException cce) {
-                                                cce.printStackTrace();
+                                                notificationData.put("valueOfArrears", currencyUtil.getFormattedCurrency(valueOfArrears));
+                                                notificationData.put("collectionOfficer", coN);
+                                                notificationData.put("collectionPhoneNumber", coP);
+                                                notificationData.put("collectionEmail", coE);
+                                                notificationData.put("companyName", companyName);
+                                                notificationData.put("loanId", clientLoan.getId());
+                                                notificationData.put("accountName", accountName);
+                                                notificationData.put("accountNumber", accountNumber);
+                                                notificationData.put("bankName", bankName);
+                                                totalMailCounter++;
+                                                try {
+                                                    notificationService.sendEmailNotification(arrearsSubject, notificationData, "email/arrears");
+                                                } catch (CustomCheckedException cce) {
+                                                    cce.printStackTrace();
 //                                    An error occurred while trying to send out notification, notify infotech of total failed and store failed mails in the db for retrial. Min of 3 retrials...
-                                                failedCounter++;
-                                                log.info("Failed to send out mail to: " + customer.getName() + ". See reason: " + cce.getMessage());
+                                                    failedCounter++;
+                                                    log.info("Failed to send out mail to: " + customer.getName() + ". See reason: " + cce.getMessage());
+                                                }
                                             }
                                         }
                                     }
                                 }
                             }
+                        }catch (Exception ex) {
+                            ex.printStackTrace();
+                            failedCounter++;
                         }
                     }
                     Client lastClient = clients.get((clients.size() - 1));
@@ -588,84 +608,89 @@ public class DispatcherServiceImpl implements DispatcherService {
                 List<Client> clients = clientService.fetchClients(lastExternalId);
                 if (!clients.isEmpty()) {
                     for (Client client : clients) {
-                        CollectionOfficer collectionOfficer = collectionOfficerService.getCollectionOfficer(client.getBranchName());
-                        LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());
-                        List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
-                                .stream()
+                        try {
+                            CollectionOfficer collectionOfficer = collectionOfficerService.getCollectionOfficer(client.getBranchName());
+                            LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());
+                            List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
+                                    .stream()
 //                                .filter(cl -> !cl.getStatus().equalsIgnoreCase("CLOSED"))
-                                .filter(cl -> cl.getStatus().equalsIgnoreCase("ACTIVE") || cl.getStatus().equalsIgnoreCase("IN_ARREARS"))
-                                .collect(Collectors.toList());
+                                    .filter(cl -> cl.getStatus().equalsIgnoreCase("ACTIVE") || cl.getStatus().equalsIgnoreCase("IN_ARREARS"))
+                                    .collect(Collectors.toList());
 //                Since there can be only one open client loan at a time, check if the list is empty, if not, get the first element...
-                        if (!openClientLoanList.isEmpty()) {
-                            LookUpClientLoan clientLoan = openClientLoanList.get(0);
+                            if (!openClientLoanList.isEmpty()) {
+                                LookUpClientLoan clientLoan = openClientLoanList.get(0);
 //                            System.out.println("Open client loan is: " + clientLoan.getId() + ". Status: " + clientLoan.getStatus());
-                            LookUpLoanAccount lookUpLoanAccount = clientService.lookupLoanAccount(clientLoan.getId());
-                            List<LookUpLoanInstalment> loanInstalments = lookUpLoanAccount.getLoanAccount().getInstalments();
-                            if (!loanInstalments.isEmpty()) {
-                                List<LookUpLoanInstalment> loanInstalmentsGtToday = loanInstalments
-                                        .stream()
-                                        .filter(lookUpLoanInstalment -> dateUtil.isPaymentDateGtToday(lookUpLoanInstalment.getObligatoryPaymentDate()))
-                                        .collect(Collectors.toList());
-                                if (loanInstalmentsGtToday.isEmpty()) {
-                                    List<LookUpLoanInstalment> loanInstalmentsLtOrEqToday = loanInstalments
+                                LookUpLoanAccount lookUpLoanAccount = clientService.lookupLoanAccount(clientLoan.getId());
+                                List<LookUpLoanInstalment> loanInstalments = lookUpLoanAccount.getLoanAccount().getInstalments();
+                                if (!loanInstalments.isEmpty()) {
+                                    List<LookUpLoanInstalment> loanInstalmentsGtToday = loanInstalments
                                             .stream()
-                                            .filter(lookUpLoanInstalment -> dateUtil.isPaymentDateLtOrEqToday(lookUpLoanInstalment.getObligatoryPaymentDate()))
+                                            .filter(lookUpLoanInstalment -> dateUtil.isPaymentDateGtToday(lookUpLoanInstalment.getObligatoryPaymentDate()))
                                             .collect(Collectors.toList());
-                                    if (!loanInstalmentsLtOrEqToday.isEmpty()) {
-                                        LookUpLoanInstalment latestInstalment = loanInstalmentsLtOrEqToday.get((loanInstalmentsLtOrEqToday.size() - 1));
-                                        if (latestInstalment.getCurrentState().getPrincipalDueAmount().compareTo(BigDecimal.ZERO) > 0) {
+                                    if (loanInstalmentsGtToday.isEmpty()) {
+                                        List<LookUpLoanInstalment> loanInstalmentsLtOrEqToday = loanInstalments
+                                                .stream()
+                                                .filter(lookUpLoanInstalment -> dateUtil.isPaymentDateLtOrEqToday(lookUpLoanInstalment.getObligatoryPaymentDate()))
+                                                .collect(Collectors.toList());
+                                        if (!loanInstalmentsLtOrEqToday.isEmpty()) {
+                                            LookUpLoanInstalment latestInstalment = loanInstalmentsLtOrEqToday.get((loanInstalmentsLtOrEqToday.size() - 1));
+                                            if (latestInstalment.getCurrentState().getPrincipalDueAmount().compareTo(BigDecimal.ZERO) > 0) {
 //                                    Customer is owing but maturity date exceeded...
-                                            Client customer = lookUpClient.getClient();
-                                            LocalDate obligatoryPaymentDate = dateUtil.convertDateToLocalDate(latestInstalment.getObligatoryPaymentDate());
-                                            String toAddress = useDefaultMailInfo ? defaultToAddress : customer.getEmail();
-                                            if (!emailService.alreadySentOutEmailToday(
-                                                    toAddress,
-                                                    customer.getName(),
-                                                    arrearsSubject,
-                                                    obligatoryPaymentDate
-                                            )) {
-                                                Map<String, String> notificationData = new HashMap<>();
-                                                String coN;
-                                                String coE;
-                                                String coP;
-                                                if(collectionOfficer == null) {
-                                                    coN = defaultCollectionOfficer;
-                                                    coE = collectionEmail;
-                                                    coP = collectionPhoneNumber;
-                                                }else {
-                                                    coN = collectionOfficer.getOfficerName();
-                                                    coE = collectionOfficer.getOfficerEmail();
-                                                    coP = collectionOfficer.getOfficerPhoneNo();
-                                                }
-                                                BigDecimal outstandingBalance = latestInstalment.getCurrentState().getPrincipalDueAmount().add(latestInstalment.getCurrentState().getInterestDueAmount());
-                                                notificationData.put("toName", useDefaultMailInfo ? defaultToName : customer.getName());
-                                                notificationData.put("toAddress", toAddress);
-                                                notificationData.put("customerName", customer.getName());
-                                                notificationData.put("maturityDate", dateUtil.convertDateToLocalDate(latestInstalment.getObligatoryPaymentDate()).toString());
+                                                Client customer = lookUpClient.getClient();
+                                                LocalDate obligatoryPaymentDate = dateUtil.convertDateToLocalDate(latestInstalment.getObligatoryPaymentDate());
+                                                String toAddress = useDefaultMailInfo ? defaultToAddress : customer.getEmail();
+                                                if (!emailService.alreadySentOutEmailToday(
+                                                        toAddress,
+                                                        customer.getName(),
+                                                        arrearsSubject,
+                                                        obligatoryPaymentDate
+                                                )) {
+                                                    Map<String, String> notificationData = new HashMap<>();
+                                                    String coN;
+                                                    String coE;
+                                                    String coP;
+                                                    if (collectionOfficer == null) {
+                                                        coN = defaultCollectionOfficer;
+                                                        coE = collectionEmail;
+                                                        coP = collectionPhoneNumber;
+                                                    } else {
+                                                        coN = collectionOfficer.getOfficerName();
+                                                        coE = collectionOfficer.getOfficerEmail();
+                                                        coP = collectionOfficer.getOfficerPhoneNo();
+                                                    }
+                                                    BigDecimal outstandingBalance = latestInstalment.getCurrentState().getPrincipalDueAmount().add(latestInstalment.getCurrentState().getInterestDueAmount());
+                                                    notificationData.put("toName", useDefaultMailInfo ? defaultToName : customer.getName());
+                                                    notificationData.put("toAddress", toAddress);
+                                                    notificationData.put("customerName", customer.getName());
+                                                    notificationData.put("maturityDate", dateUtil.convertDateToLocalDate(latestInstalment.getObligatoryPaymentDate()).toString());
 //                                                notificationData.put("outstandingBalance", latestInstalment.getCurrentState().getPrincipalDueAmount().toString());
-                                                notificationData.put("outstandingBalance", currencyUtil.getFormattedCurrency(outstandingBalance));
-                                                notificationData.put("collectionOfficer", coN);
-                                                notificationData.put("collectionPhoneNumber", coP);
-                                                notificationData.put("collectionEmail", coE);
-                                                notificationData.put("companyName", companyName);
-                                                notificationData.put("loanId", clientLoan.getId());
-                                                notificationData.put("accountName", accountName);
-                                                notificationData.put("accountNumber", accountNumber);
-                                                notificationData.put("bankName", bankName);
-                                                totalMailCounter++;
-                                                try {
-                                                    notificationService.sendEmailNotification(postMaturitySubject, notificationData, "email/post_maturity");
-                                                } catch (CustomCheckedException cce) {
-                                                    cce.printStackTrace();
+                                                    notificationData.put("outstandingBalance", currencyUtil.getFormattedCurrency(outstandingBalance));
+                                                    notificationData.put("collectionOfficer", coN);
+                                                    notificationData.put("collectionPhoneNumber", coP);
+                                                    notificationData.put("collectionEmail", coE);
+                                                    notificationData.put("companyName", companyName);
+                                                    notificationData.put("loanId", clientLoan.getId());
+                                                    notificationData.put("accountName", accountName);
+                                                    notificationData.put("accountNumber", accountNumber);
+                                                    notificationData.put("bankName", bankName);
+                                                    totalMailCounter++;
+                                                    try {
+                                                        notificationService.sendEmailNotification(postMaturitySubject, notificationData, "email/post_maturity");
+                                                    } catch (CustomCheckedException cce) {
+                                                        cce.printStackTrace();
 //                                    An error occurred while trying to send out notification, notify infotech of total failed and store failed mails in the db for retrial. Min of 3 retrials...
-                                                    failedCounter++;
-                                                    log.info("Failed to send out mail to: " + customer.getName() + ". See reason: " + cce.getMessage());
+                                                        failedCounter++;
+                                                        log.info("Failed to send out mail to: " + customer.getName() + ". See reason: " + cce.getMessage());
+                                                    }
                                                 }
                                             }
                                         }
                                     }
                                 }
                             }
+                        }catch (Exception ex) {
+                            ex.printStackTrace();
+                            failedCounter++;
                         }
                     }
                     Client lastClient = clients.get((clients.size() - 1));
@@ -690,86 +715,91 @@ public class DispatcherServiceImpl implements DispatcherService {
                 List<Client> clients = clientService.fetchClients(lastExternalId);
                 if (!clients.isEmpty()) {
                     for (Client client : clients) {
-                        CollectionOfficer collectionOfficer = collectionOfficerService.getCollectionOfficer(client.getBranchName());
-                        LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());
-                        List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
-                                .stream()
+                        try {
+                            CollectionOfficer collectionOfficer = collectionOfficerService.getCollectionOfficer(client.getBranchName());
+                            LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());
+                            List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
+                                    .stream()
 //                                .filter(cl -> !cl.getStatus().equalsIgnoreCase("CLOSED"))
-                                .filter(cl -> cl.getStatus().equalsIgnoreCase("ACTIVE") || cl.getStatus().equalsIgnoreCase("IN_ARREARS"))
-                                .collect(Collectors.toList());
+                                    .filter(cl -> cl.getStatus().equalsIgnoreCase("ACTIVE") || cl.getStatus().equalsIgnoreCase("IN_ARREARS"))
+                                    .collect(Collectors.toList());
 //                Since there can be only one open client loan at a time, check if the list is empty, if not, get the first element...
-                        if (!openClientLoanList.isEmpty()) {
-                            LookUpClientLoan clientLoan = openClientLoanList.get(0);
+                            if (!openClientLoanList.isEmpty()) {
+                                LookUpClientLoan clientLoan = openClientLoanList.get(0);
 //                            System.out.println("Open client loan is: " + clientLoan.getId() + ". Status: " + clientLoan.getStatus());
-                            LookUpLoanAccount lookUpLoanAccount = clientService.lookupLoanAccount(clientLoan.getId());
-                            String modeOfRepayment = lookUpLoanAccount.getLoanAccount().getOptionalFields().getModeOfRepayment() == null ?
-                                    "" :
-                                    lookUpLoanAccount.getLoanAccount().getOptionalFields().getModeOfRepayment();
-                            if (modeOfRepayment.equalsIgnoreCase(chequeModeOfRepaymentKey)) {
-                                List<LookUpLoanInstalment> loanInstalments = lookUpLoanAccount.getLoanAccount().getInstalments();
-                                if (!loanInstalments.isEmpty()) {
-                                    List<LookUpLoanInstalment> loanInstalmentsGtOrEqToday = loanInstalments
-                                            .stream()
-                                            .filter(lookUpLoanInstalment -> dateUtil.isPaymentDateGtOrEqToday(lookUpLoanInstalment.getObligatoryPaymentDate()))
-                                            .collect(Collectors.toList());
-                                    if (!loanInstalmentsGtOrEqToday.isEmpty()) {
-                                        List<LookUpLoanInstalment> lookUpLoanInstalments = loanInstalmentsGtOrEqToday
+                                LookUpLoanAccount lookUpLoanAccount = clientService.lookupLoanAccount(clientLoan.getId());
+                                String modeOfRepayment = lookUpLoanAccount.getLoanAccount().getOptionalFields().getModeOfRepayment() == null ?
+                                        "" :
+                                        lookUpLoanAccount.getLoanAccount().getOptionalFields().getModeOfRepayment();
+                                if (modeOfRepayment.equalsIgnoreCase(chequeModeOfRepaymentKey)) {
+                                    List<LookUpLoanInstalment> loanInstalments = lookUpLoanAccount.getLoanAccount().getInstalments();
+                                    if (!loanInstalments.isEmpty()) {
+                                        List<LookUpLoanInstalment> loanInstalmentsGtOrEqToday = loanInstalments
                                                 .stream()
-                                                .filter(lookUpLoanInstalment -> dateUtil.isPaymentDateWithinDaysNumber(lookUpLoanInstalment.getObligatoryPaymentDate(), 7))
+                                                .filter(lookUpLoanInstalment -> dateUtil.isPaymentDateGtOrEqToday(lookUpLoanInstalment.getObligatoryPaymentDate()))
                                                 .collect(Collectors.toList());
-                                        LookUpLoanInstalment thisMonthInstalment = !lookUpLoanInstalments.isEmpty() ? lookUpLoanInstalments.get(0) : null;
-                                        if (thisMonthInstalment != null) {
-                                            Client customer = lookUpClient.getClient();
-                                            LocalDate obligatoryPaymentDate = dateUtil.convertDateToLocalDate(thisMonthInstalment.getObligatoryPaymentDate());
-                                            String toAddress = useDefaultMailInfo ? defaultToAddress : customer.getEmail();
-                                            if (!emailService.alreadySentOutEmailToday(
-                                                    toAddress,
-                                                    customer.getName(),
-                                                    doRentalSubject,
-                                                    obligatoryPaymentDate
-                                            )) {
-                                                Map<String, String> notificationData = new HashMap<>();
-                                                String coN;
-                                                String coE;
-                                                String coP;
-                                                if(collectionOfficer == null) {
-                                                    coN = defaultCollectionOfficer;
-                                                    coE = collectionEmail;
-                                                    coP = collectionPhoneNumber;
-                                                }else {
-                                                    coN = collectionOfficer.getOfficerName();
-                                                    coE = collectionOfficer.getOfficerEmail();
-                                                    coP = collectionOfficer.getOfficerPhoneNo();
-                                                }
-                                                BigDecimal rentalAmount = thisMonthInstalment.getCurrentState().getPrincipalDueAmount().add(thisMonthInstalment.getCurrentState().getInterestDueAmount());
-                                                notificationData.put("toName", useDefaultMailInfo ? defaultToName : customer.getName());
-                                                notificationData.put("toAddress", toAddress);
-                                                notificationData.put("customerName", customer.getName());
-                                                notificationData.put("paymentMonth", dateUtil.getMonthByDate(thisMonthInstalment.getObligatoryPaymentDate()));
-                                                notificationData.put("paymentDate", obligatoryPaymentDate.toString());
+                                        if (!loanInstalmentsGtOrEqToday.isEmpty()) {
+                                            List<LookUpLoanInstalment> lookUpLoanInstalments = loanInstalmentsGtOrEqToday
+                                                    .stream()
+                                                    .filter(lookUpLoanInstalment -> dateUtil.isPaymentDateWithinDaysNumber(lookUpLoanInstalment.getObligatoryPaymentDate(), 7))
+                                                    .collect(Collectors.toList());
+                                            LookUpLoanInstalment thisMonthInstalment = !lookUpLoanInstalments.isEmpty() ? lookUpLoanInstalments.get(0) : null;
+                                            if (thisMonthInstalment != null) {
+                                                Client customer = lookUpClient.getClient();
+                                                LocalDate obligatoryPaymentDate = dateUtil.convertDateToLocalDate(thisMonthInstalment.getObligatoryPaymentDate());
+                                                String toAddress = useDefaultMailInfo ? defaultToAddress : customer.getEmail();
+                                                if (!emailService.alreadySentOutEmailToday(
+                                                        toAddress,
+                                                        customer.getName(),
+                                                        doRentalSubject,
+                                                        obligatoryPaymentDate
+                                                )) {
+                                                    Map<String, String> notificationData = new HashMap<>();
+                                                    String coN;
+                                                    String coE;
+                                                    String coP;
+                                                    if (collectionOfficer == null) {
+                                                        coN = defaultCollectionOfficer;
+                                                        coE = collectionEmail;
+                                                        coP = collectionPhoneNumber;
+                                                    } else {
+                                                        coN = collectionOfficer.getOfficerName();
+                                                        coE = collectionOfficer.getOfficerEmail();
+                                                        coP = collectionOfficer.getOfficerPhoneNo();
+                                                    }
+                                                    BigDecimal rentalAmount = thisMonthInstalment.getCurrentState().getPrincipalDueAmount().add(thisMonthInstalment.getCurrentState().getInterestDueAmount());
+                                                    notificationData.put("toName", useDefaultMailInfo ? defaultToName : customer.getName());
+                                                    notificationData.put("toAddress", toAddress);
+                                                    notificationData.put("customerName", customer.getName());
+                                                    notificationData.put("paymentMonth", dateUtil.getMonthByDate(thisMonthInstalment.getObligatoryPaymentDate()));
+                                                    notificationData.put("paymentDate", obligatoryPaymentDate.toString());
 //                                                notificationData.put("rentalAmount", thisMonthInstalment.getCurrentState().getPrincipalDueAmount().toString());
-                                                notificationData.put("rentalAmount", currencyUtil.getFormattedCurrency(rentalAmount));
-                                                notificationData.put("collectionOfficer", coN);
-                                                notificationData.put("collectionPhoneNumber", coP);
-                                                notificationData.put("collectionEmail", coE);
-                                                notificationData.put("companyName", companyName);
-                                                notificationData.put("loanId", clientLoan.getId());
-                                                notificationData.put("accountName", accountName);
-                                                notificationData.put("accountNumber", accountNumber);
-                                                notificationData.put("bankName", bankName);
-                                                totalMailCounter++;
-                                                try {
-                                                    notificationService.sendEmailNotification(chequeLodgementSubject, notificationData, "email/cheque_lodgement");
-                                                } catch (CustomCheckedException cce) {
-                                                    cce.printStackTrace();
-                                                    failedCounter++;
-                                                    log.info("Failed to send out mail to: " + customer.getName() + ". See reason: " + cce.getMessage());
+                                                    notificationData.put("rentalAmount", currencyUtil.getFormattedCurrency(rentalAmount));
+                                                    notificationData.put("collectionOfficer", coN);
+                                                    notificationData.put("collectionPhoneNumber", coP);
+                                                    notificationData.put("collectionEmail", coE);
+                                                    notificationData.put("companyName", companyName);
+                                                    notificationData.put("loanId", clientLoan.getId());
+                                                    notificationData.put("accountName", accountName);
+                                                    notificationData.put("accountNumber", accountNumber);
+                                                    notificationData.put("bankName", bankName);
+                                                    totalMailCounter++;
+                                                    try {
+                                                        notificationService.sendEmailNotification(chequeLodgementSubject, notificationData, "email/cheque_lodgement");
+                                                    } catch (CustomCheckedException cce) {
+                                                        cce.printStackTrace();
+                                                        failedCounter++;
+                                                        log.info("Failed to send out mail to: " + customer.getName() + ". See reason: " + cce.getMessage());
+                                                    }
                                                 }
                                             }
                                         }
                                     }
                                 }
                             }
+                        }catch (Exception ex) {
+                            ex.printStackTrace();
+                            failedCounter++;
                         }
                     }
                     Client lastClient = clients.get((clients.size() - 1));
