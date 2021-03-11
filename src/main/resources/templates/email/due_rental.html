@@ -84,7 +84,13 @@
             <td width="70%" height="33"><font face="Arial,sans-serif" color="#000000" size="3">Hope this mail finds you well.</font></td>
         </tr>
         <tr>
+            <td width="70%" height="8"></td>
+        </tr>
+        <tr>
             <td width="70%" height="33"><font face="Arial,sans-serif" color="#000000" size="3">This is to notify you that your <b th:text="${paymentMonth}">payment month</b> <b th:text="${paymentYear}">year</b> instalment will be due payable on <b th:text="${paymentDate}">payment date</b>. Kindly fund your bank account with your instalment amount of <b th:text="${rentalAmount}">rental amount</b> to accommodate the repayment as we present your payment instrument.</font></td>
+        </tr>
+        <tr>
+            <td width="70%" height="8"></td>
         </tr>
         <tr>
             <td width="70%" height="36">
@@ -92,17 +98,29 @@
             </td>
         </tr>
         <tr>
+            <td width="70%" height="8"></td>
+        </tr>
+        <tr>
             <td width="70%" height="36" th:if="${hasBranchManager == 'true'}">
                 <font face="Arial,sans-serif" color="#000000" size="3">You can also reach the branch Manager <b th:text="${branchManagerName}">Branch Manager name</b> on <b th:text="${branchManagerPhoneNumber}">Branch Manager Phone No</b> or email on <b th:text="${branchManagerEmail}">Branch Manager email address</b>.</font>
             </td>
         </tr>
         <tr>
+            <td width="70%" height="8"></td>
+        </tr>
+        <tr>
             <td width="70%" height="36"><font face="Arial,sans-serif" color="#000000" size="3">If you intend making a direct transfer into our account, kindly use the bank details below 48 hours before the <b th:text="${paymentDate}">payment date</b> and notify <b th:text="${companyName}">company name</b> to avoid wrongful presentation of your payment instrument.</font></td>
+        </tr>
+        <tr>
+            <td width="70%" height="8"></td>
         </tr>
         <tr>
             <td width="70%" height="36">
                 <font face="Arial,sans-serif" color="#000000" size="3">Please endeavour to quote your loan ID <b th:text="${loanId}">loan id</b> on every payment made via an alternative channel, for ease of reconciliation.</font>
             </td>
+        </tr>
+        <tr>
+            <td width="70%" height="8"></td>
         </tr>
         <tr>
             <td width="70%" height="36"><font face="Arial,sans-serif" color="#000000" size="3">
@@ -123,7 +141,7 @@
             </td>
         </tr>
         <tr>
-            <td width="70%" height="8"></td>
+            <td width="70%" height="16"></td>
         </tr>
         <tr>
             <td width="70%" height="60">
@@ -131,7 +149,7 @@
             </td>
         </tr>
         <tr>
-            <td width="70%" height="10"></td>
+            <td width="70%" height="16"></td>
         </tr>
         <tr>
             <td width="70%" height="60">
