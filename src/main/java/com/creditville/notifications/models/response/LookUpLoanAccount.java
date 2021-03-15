@@ -12,4 +12,5 @@ import java.io.Serializable;
 @Setter
 public class LookUpLoanAccount implements Serializable {
     private LookupLoanLoanAccount loanAccount;
+    private Client client;
 }

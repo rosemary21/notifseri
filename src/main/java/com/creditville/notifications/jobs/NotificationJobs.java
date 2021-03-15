@@ -1,6 +1,7 @@
 package com.creditville.notifications.jobs;
 
 import com.creditville.notifications.services.DispatcherService;
+import com.creditville.notifications.services.PartialDebitService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,6 +37,12 @@ public class NotificationJobs {
     
     @Value("${app.schedule.recurringCharges.enabled}")
     private Boolean recurringChargesEnabled;
+
+    @Value("${app.schedule.partialDebit.enabled}")
+    private Boolean partialDebitEnabled;
+
+    @Autowired
+    private PartialDebitService partialDebitService;
 
 //    @Async("schedulePool1")
     @Scheduled(cron = "${app.schedule.dueRentalOne}")
@@ -97,5 +104,13 @@ public class NotificationJobs {
         if(recurringChargesEnabled)
             dispatcherService.performRecurringChargesOperation();
         else log.info("Schedule for recurring charges has reached it's schedule time but notification is disabled from configuration".toUpperCase());
+    }
+
+    @Scheduled(cron = "${app.schedule.partialDebit}")
+//    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
+    public void partialDebitOperation() {
+        if(partialDebitEnabled)
+            partialDebitService.performPartialDebitOp();
+        else log.info("Schedule for partial debit operation has reached it's schedule time but is operation is disabled from configuration".toUpperCase());
     }
 }

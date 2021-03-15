@@ -2,6 +2,7 @@ package com.creditville.notifications.services;
 
 import com.creditville.notifications.models.CardDetails;
 import com.creditville.notifications.models.DTOs.ChargeDto;
+import com.creditville.notifications.models.DTOs.PartialDebitDto;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -13,6 +14,8 @@ public interface CardDetailsService {
     public void cardAuthorization(String response, String clientId);
 
     public void cardRecurringCharges(String email, BigDecimal amount, String loanId, LocalDate currentDate, String clientID);
+
+    String makePartialDebit(PartialDebitDto partialDebitDto);
 
     public String chargeCard(ChargeDto chargeDto);
 

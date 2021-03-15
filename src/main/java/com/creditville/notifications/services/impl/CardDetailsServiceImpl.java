@@ -9,12 +9,12 @@ import com.creditville.notifications.models.CardTransactions;
 import com.creditville.notifications.models.DTOs.CardDetailsDto;
 import com.creditville.notifications.models.DTOs.CardTransactionsDto;
 import com.creditville.notifications.models.DTOs.ChargeDto;
+import com.creditville.notifications.models.DTOs.PartialDebitDto;
+import com.creditville.notifications.models.PartialDebit;
+import com.creditville.notifications.models.PartialDebitAttempt;
 import com.creditville.notifications.repositories.CardDetailsRepository;
 import com.creditville.notifications.repositories.CardTransactionRepository;
-import com.creditville.notifications.services.CardDetailsService;
-import com.creditville.notifications.services.CardTransactionsService;
-import com.creditville.notifications.services.EmailService;
-import com.creditville.notifications.services.NotificationService;
+import com.creditville.notifications.services.*;
 import com.creditville.notifications.utils.CardUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -69,6 +69,9 @@ public class CardDetailsServiceImpl implements CardDetailsService {
     @Value("${app.cardTokenizationUrl}")
     private String cardTokenizationUrl;
 
+    @Value("${paystack.partial.debit.url}")
+    private String partialDebitUrl;
+
     @Autowired
     private NotificationService notificationService;
 
@@ -83,6 +86,9 @@ public class CardDetailsServiceImpl implements CardDetailsService {
 
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private PartialDebitService partialDebitService;
 
     @Override
     public void saveCustomerCardDetails(CardDetails cardDetails) {
@@ -142,6 +148,91 @@ public class CardDetailsServiceImpl implements CardDetailsService {
         }
     }
 
+//    @Override
+//    public void cardRecurringCharges(String email, BigDecimal amount, String loanId, LocalDate currentDate, String clientID) {
+//        ChargeDto chargeDto = new ChargeDto();
+//        CardTransactionsDto ctDTO = new CardTransactionsDto();
+//        RepayLoanReq repayLoanReq = new RepayLoanReq();
+//        boolean repaymentStatus = true;
+//
+//        var cardDetails = cardDetailsRepo.findByClientIdAndEmail(clientID, email);
+//        String errorMessage = null;
+//        if(null == cardDetails){
+//            System.out.println("Card is not tokenized".toUpperCase());
+//            repaymentStatus = false;
+//        }else {
+//            try {
+//                CardTransactions existingTransaction = cardTransactionRepository.findByCardDetailsAndStatusInAndLastUpdate(cardDetails, Collections.singletonList("success"), currentDate);
+//                if (existingTransaction == null) {
+//                    chargeDto.setAmount(amount);
+//                    chargeDto.setAuthorization_code(cardDetails.getAuthorizationCode());
+//                    chargeDto.setEmail(email);
+//
+//                    var chargeResp = chargeCard(chargeDto);
+//
+//                    ctDTO.setPaystackResponse(chargeResp);
+//
+//                    var chargeRespObj = cardUtil.getJsonObjResponse(chargeResp);
+//                    System.out.println("ENTRY -> recurringCharges response: " + chargeRespObj);
+//                    if (null != chargeRespObj && chargeRespObj.containsKey("data")) {
+//                        var dataObj = (JSONObject) chargeRespObj.get("data");
+//                        var authObj = (JSONObject) dataObj.get("authorization");
+//
+//                        ctDTO.setAmount(new BigDecimal(dataObj.get("amount").toString()));
+//                        ctDTO.setCurrency(dataObj.get("currency").toString());
+//                        ctDTO.setTransactionDate(dataObj.get("transaction_date").toString());
+//                        ctDTO.setStatus(dataObj.get("status").toString());
+//                        ctDTO.setReference(dataObj.get("reference").toString());
+//
+//                        ctDTO.setCardType(authObj.get("card_type").toString());
+//
+//                        ctDTO.setCardDetails(cardDetails);
+//
+//                        ctService.saveCardTransaction(ctDTO);
+//
+//                        //repay Loan
+//                        repayLoanReq.setAccountID(loanId);
+//                        repayLoanReq.setAmount(amount);
+//                        repayLoanReq.setPaymentMethodName("Cash");
+//                        repayLoanReq.setTransactionBranchID("CVLHQB");
+//                        repayLoanReq.setRepaymentDate(currentDate.toString());
+//                        repayLoanReq.setNotes("Card loan repayment");
+//                        var repaymentResp = loanRepaymentService.makeLoanRepayment(repayLoanReq);
+//                        if (null == repaymentResp) {
+//                            repaymentStatus = false;
+//                            errorMessage = chargeRespObj.get("message").toString();
+//                        }else {
+//                            if(repaymentResp.trim().equals("")) {
+//                                repaymentStatus = false;
+//                                errorMessage = chargeRespObj.get("message").toString();
+//                            }
+//                        }
+//                    }else repaymentStatus = false;
+//                }
+//            } catch (ParseException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//        Map<String, String> notificationData = new HashMap<>();
+//        notificationData.put("toName", tokenizationName);
+////        notificationData.put("toAddress", tokenizationEmail);
+//        notificationData.put("toAddress", email);
+//        notificationData.put("loanId", loanId);
+//        notificationData.put("todayDate", LocalDate.now().toString());
+//        notificationData.put("failureMessage", errorMessage);
+//        notificationData.put("paymentDate", currentDate.toString());
+//        String mailSubject = repaymentStatus ? repaymentSuccessSubject : repaymentFailureSubject;
+//        String templateLocation = repaymentStatus ? "email/repayment-success" : "email/repayment-failure";
+//        if(!emailService.alreadySentOutEmailToday(email, tokenizationName, mailSubject, currentDate)) {
+//            try {
+//                notificationService.sendEmailNotification(mailSubject, notificationData, templateLocation);
+//            } catch (CustomCheckedException cce) {
+//                cce.printStackTrace();
+//                System.out.println("An error occurred while trying to notify team of repayment status");
+//            }
+//        }
+//    }
+
     @Override
     public void cardRecurringCharges(String email, BigDecimal amount, String loanId, LocalDate currentDate, String clientID) {
         ChargeDto chargeDto = new ChargeDto();
@@ -158,55 +249,129 @@ public class CardDetailsServiceImpl implements CardDetailsService {
             try {
                 CardTransactions existingTransaction = cardTransactionRepository.findByCardDetailsAndStatusInAndLastUpdate(cardDetails, Collections.singletonList("success"), currentDate);
                 if (existingTransaction == null) {
-                    chargeDto.setAmount(amount);
-                    chargeDto.setAuthorization_code(cardDetails.getAuthorizationCode());
-                    chargeDto.setEmail(email);
+                    if(amount.compareTo(BigDecimal.ZERO) > 0) {
+                        chargeDto.setAmount(amount);
+                        chargeDto.setAuthorization_code(cardDetails.getAuthorizationCode());
+                        chargeDto.setEmail(email);
 
-                    var chargeResp = chargeCard(chargeDto);
+                        var chargeResp = chargeCard(chargeDto);
 
-                    ctDTO.setPaystackResponse(chargeResp);
+                        ctDTO.setPaystackResponse(chargeResp);
 
-                    var chargeRespObj = cardUtil.getJsonObjResponse(chargeResp);
-                    System.out.println("ENTRY -> recurringCharges response: " + chargeRespObj);
-                    if (null != chargeRespObj && chargeRespObj.containsKey("data")) {
-                        var dataObj = (JSONObject) chargeRespObj.get("data");
-                        var authObj = (JSONObject) dataObj.get("authorization");
+                        var chargeRespObj = cardUtil.getJsonObjResponse(chargeResp);
+                        System.out.println("ENTRY -> recurringCharges response: " + chargeRespObj);
+                        if (null != chargeRespObj && chargeRespObj.containsKey("data")) {
+                            var dataObj = (JSONObject) chargeRespObj.get("data");
+                            var authObj = (JSONObject) dataObj.get("authorization");
 
-                        ctDTO.setAmount(new BigDecimal(dataObj.get("amount").toString()));
-                        ctDTO.setCurrency(dataObj.get("currency").toString());
-                        ctDTO.setTransactionDate(dataObj.get("transaction_date").toString());
-                        ctDTO.setStatus(dataObj.get("status").toString());
-                        ctDTO.setReference(dataObj.get("reference").toString());
+                            ctDTO.setAmount(new BigDecimal(dataObj.get("amount").toString()));
+                            ctDTO.setCurrency(dataObj.get("currency").toString());
+                            ctDTO.setTransactionDate(dataObj.get("transaction_date").toString());
+                            ctDTO.setStatus(dataObj.get("status").toString());
+                            ctDTO.setReference(dataObj.get("reference").toString());
 
-                        ctDTO.setCardType(authObj.get("card_type").toString());
+                            ctDTO.setCardType(authObj.get("card_type").toString());
 
-                        ctDTO.setCardDetails(cardDetails);
+                            ctDTO.setCardDetails(cardDetails);
 
-                        ctService.saveCardTransaction(ctDTO);
+                            ctService.saveCardTransaction(ctDTO);
 
-                        //repay Loan
-                        repayLoanReq.setAccountID(loanId);
-                        repayLoanReq.setAmount(amount);
-                        repayLoanReq.setPaymentMethodName("Cash");
-                        repayLoanReq.setTransactionBranchID("CVLHQB");
-                        repayLoanReq.setRepaymentDate(currentDate.toString());
-                        repayLoanReq.setNotes("Card loan repayment");
-                        var repaymentResp = loanRepaymentService.makeLoanRepayment(repayLoanReq);
-                        if (null == repaymentResp) {
-                            repaymentStatus = false;
-                            errorMessage = chargeRespObj.get("message").toString();
-                        }else {
-                            if(repaymentResp.trim().equals("")) {
+                            //repay Loan
+                            repayLoanReq.setAccountID(loanId);
+                            repayLoanReq.setAmount(amount);
+                            repayLoanReq.setPaymentMethodName("Cash");
+                            repayLoanReq.setTransactionBranchID("CVLHQB");
+                            repayLoanReq.setRepaymentDate(currentDate.toString());
+                            repayLoanReq.setNotes("Card loan repayment");
+                            var repaymentResp = loanRepaymentService.makeLoanRepayment(repayLoanReq);
+                            if (null == repaymentResp) {
                                 repaymentStatus = false;
                                 errorMessage = chargeRespObj.get("message").toString();
+                            } else {
+                                if (repaymentResp.trim().equals("")) {
+                                    repaymentStatus = false;
+                                    errorMessage = chargeRespObj.get("message").toString();
+                                }
                             }
+                        } else {
+//                        Charge failed...
+                            if (chargeRespObj != null) {
+                                if (chargeRespObj.get("message") != null && chargeRespObj.get("message").toString().equalsIgnoreCase("insufficient funds")) {
+//                                Charge failed due to insufficient funds. Attempt partial debit...
+                                    PartialDebit partialDebit = partialDebitService.getPartialDebit(
+                                            chargeDto.getAuthorization_code(),
+                                            chargeDto.getAmount(),
+                                            chargeDto.getEmail());
+                                    boolean isNewPdRecord = false;
+                                    boolean maxAttemptsReached = false;
+                                    if (partialDebit == null) isNewPdRecord = true;
+                                    else {
+//                                        Check that partial debit attempts has not exceeded maximum (4)
+                                        if(partialDebitService.getPartialDebitAttempt(partialDebit, LocalDate.now()).getTotalNoOfAttempts() == 4)
+                                            maxAttemptsReached = true;
+                                    }
+                                    if(!maxAttemptsReached) {
+                                        String pdResp = this.makePartialDebit(new PartialDebitDto(
+                                                chargeDto.getAuthorization_code(),
+                                                chargeDto.getAmount(),
+                                                chargeDto.getEmail()));
+                                        if (pdResp != null) {
+                                            JSONObject pdRespObj = cardUtil.getJsonObjResponse(pdResp);
+                                            if (pdRespObj != null) {
+                                                JSONObject data = cardUtil.getJsonObjResponse(pdRespObj.get("data").toString());
+                                                if (data.get("status").toString().equalsIgnoreCase("success")) {
+//                                            Partial debit successful...
+                                                    BigDecimal pdAmount = new BigDecimal(data.get("amount").toString());
+//                                            Make loan repayment...
+                                                    repayLoanReq.setAccountID(loanId);
+                                                    repayLoanReq.setAmount(pdAmount);
+                                                    repayLoanReq.setPaymentMethodName("Cash");
+                                                    repayLoanReq.setTransactionBranchID("CVLHQB");
+                                                    repayLoanReq.setRepaymentDate(currentDate.toString());
+                                                    repayLoanReq.setNotes("Card loan repayment");
+                                                    var repaymentResp = loanRepaymentService.makeLoanRepayment(repayLoanReq);
+                                                    if (null == repaymentResp) {
+                                                        repaymentStatus = false;
+                                                        errorMessage = pdRespObj.get("message").toString();
+                                                    } else {
+                                                        if (repaymentResp.trim().equals("")) {
+                                                            repaymentStatus = false;
+                                                            errorMessage = pdRespObj.get("message").toString();
+                                                        } else {
+//                                                    Repayment successful...
+                                                            if (isNewPdRecord)
+                                                                partialDebitService.savePartialDebit(chargeDto.getAuthorization_code(), loanId, chargeDto.getAmount(), chargeDto.getEmail(), currentDate);
+                                                            else {
+                                                                PartialDebitAttempt partialDebitAttempt = partialDebitService.getPartialDebitAttempt(partialDebit, LocalDate.now());
+                                                                int totalAttempts = partialDebitAttempt.getTotalNoOfAttempts();
+                                                                int totalAttemptsInc = (totalAttempts + 1);
+                                                                partialDebitAttempt.setTotalNoOfAttempts(totalAttemptsInc);
+                                                                partialDebitService.savePartialDebitAttempt(partialDebitAttempt);
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            } else repaymentStatus = false;
                         }
-                    }else repaymentStatus = false;
+                    }else {
+//                        Customer is no longer owing...
+                        PartialDebit partialDebit = partialDebitService.getPartialDebit(
+                                chargeDto.getAuthorization_code(),
+                                chargeDto.getAmount(),
+                                chargeDto.getEmail()
+                        );
+                        partialDebitService.deletePartialDebitRecord(partialDebit.getId());
+                    }
                 }
             } catch (ParseException e) {
                 e.printStackTrace();
             }
         }
+
         Map<String, String> notificationData = new HashMap<>();
         notificationData.put("toName", tokenizationName);
 //        notificationData.put("toAddress", tokenizationEmail);
@@ -225,6 +390,20 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                 System.out.println("An error occurred while trying to notify team of repayment status");
             }
         }
+    }
+
+    @Override
+    public String makePartialDebit(PartialDebitDto partialDebitDto) {
+        String resp = null;
+        try {
+            var payload = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(partialDebitDto);
+            System.out.println("ENTRY -> makePartialDebit payload: "+ payload);
+            resp = httpCallService.httpPaystackCall(psBaseUrl+partialDebitUrl, payload);
+            System.out.println("ENTRY -> makePartialDebit resp: "+resp);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return resp;
     }
 
 
