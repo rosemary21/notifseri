@@ -18,6 +18,7 @@ import com.creditville.notifications.services.*;
 import com.creditville.notifications.utils.CardUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 public class CardDetailsServiceImpl implements CardDetailsService {
     @Autowired
@@ -325,10 +327,10 @@ public class CardDetailsServiceImpl implements CardDetailsService {
 //                                            Make loan repayment...
                                                     repayLoanReq.setAccountID(loanId);
                                                     repayLoanReq.setAmount(pdAmount);
-                                                    repayLoanReq.setPaymentMethodName("Cash");
+                                                    repayLoanReq.setPaymentMethodName("PAYSTACK_PAYMENT_METHOD");
                                                     repayLoanReq.setTransactionBranchID("CVLHQB");
                                                     repayLoanReq.setRepaymentDate(currentDate.toString());
-                                                    repayLoanReq.setNotes("Card loan repayment");
+                                                    repayLoanReq.setNotes("Paystack Card loan repayment");
                                                     var repaymentResp = loanRepaymentService.makeLoanRepayment(repayLoanReq);
                                                     if (null == repaymentResp) {
                                                         repaymentStatus = false;

@@ -157,7 +157,7 @@ public class PartialDebitServiceImpl implements PartialDebitService {
                                         repayLoanReq.setPaymentMethodName("Cash");
                                         repayLoanReq.setTransactionBranchID("CVLHQB");
                                         repayLoanReq.setRepaymentDate(LocalDate.now().toString());
-                                        repayLoanReq.setNotes("Card loan repayment");
+                                        repayLoanReq.setNotes("Paystack Card loan repayment");
                                         var repaymentResp = loanRepaymentService.makeLoanRepayment(repayLoanReq);
                                         if (null == repaymentResp) {
                                             repaymentStatus = false;
