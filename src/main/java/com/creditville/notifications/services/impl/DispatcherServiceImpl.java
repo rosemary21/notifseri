@@ -917,9 +917,11 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                 String toAddress = customer.getEmail();
                                                 BigDecimal totalDue = dueDateInstalment.getCurrentState().getPrincipalDueAmount()
                                                         .add(dueDateInstalment.getCurrentState().getInterestDueAmount());
+                                                BigDecimal newTotalDue = totalDue.multiply(new BigDecimal(100));
 //                                            String toAddress = useDefaultMailInfo ? defaultToAddress : customer.getEmail();
 //                                            Perform recurring charge...
-                                                cardDetailsService.cardRecurringCharges(toAddress, totalDue, clientLoan.getId(), obligatoryPaymentDate, customer.getExternalID());
+//                                                cardDetailsService.cardRecurringCharges(toAddress, totalDue, clientLoan.getId(), obligatoryPaymentDate, customer.getExternalID());
+                                                cardDetailsService.cardRecurringCharges(toAddress, newTotalDue, clientLoan.getId(), obligatoryPaymentDate, customer.getExternalID());
                                             }
                                         } else System.out.println("Loan installments gt or eq to today is empty...");
                                     } else System.out.println("Loan installments is empty...");

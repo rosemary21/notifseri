@@ -5,6 +5,7 @@ import lombok.Data;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Objects;
 
 @Entity
@@ -27,8 +28,10 @@ public class CardDetails {
     private BigDecimal cardTokenCharge;
     private String authorizationCode;
     private String signature;
-//    @Lob
+    @Lob
     private String paystackResponse;
+//    @Version
+//    private Date lastUpdate;
 
 //    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 //    private Collection<CardTransactions> transactions;

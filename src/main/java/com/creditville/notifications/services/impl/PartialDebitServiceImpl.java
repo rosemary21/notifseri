@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
@@ -129,11 +130,9 @@ public class PartialDebitServiceImpl implements PartialDebitService {
                         .filter(lookUpLoanInstalment -> dateUtil.paymentDateMatches(lookUpLoanInstalment.getObligatoryPaymentDate(), pdRecord.getPaymentDate()))
                         .collect(Collectors.toList());
                 LookUpLoanInstalment loanInstalment = lookUpLoanInstalments.get(0);
-                Client customer = lookUpLoanAccount.getClient();
-                LocalDate obligatoryPaymentDate = dateUtil.convertDateToLocalDate(loanInstalment.getObligatoryPaymentDate());
-                String toAddress = customer.getEmail();
                 BigDecimal totalDue = loanInstalment.getCurrentState().getPrincipalDueAmount()
                         .add(loanInstalment.getCurrentState().getInterestDueAmount());
+                BigDecimal newTotalDue = totalDue.multiply(new BigDecimal(100));
                 if(totalDue.compareTo(BigDecimal.ZERO) > 0) {
                     if(dateUtil.isPaymentDateBeforeOrWithinNumber(pdRecord.getPaymentDate(), 5)) {
 //                        Partial debit operation not greater five(5) days yet...
@@ -141,9 +140,9 @@ public class PartialDebitServiceImpl implements PartialDebitService {
                         RepayLoanReq repayLoanReq = new RepayLoanReq();
                         if (!maxAttemptsReached) {
                             String pdResp = cardDetailsService.makePartialDebit(new PartialDebitDto(
-                                    chargeDto.getAuthorization_code(),
-                                    chargeDto.getAmount(),
-                                    chargeDto.getEmail()));
+                                    pdRecord.getAuthorizationCode(),
+                                    newTotalDue,
+                                    pdRecord.getEmail()));
                             if (pdResp != null) {
                                 JSONObject pdRespObj = cardUtil.getJsonObjResponse(pdResp);
                                 if (pdRespObj != null) {
@@ -151,9 +150,10 @@ public class PartialDebitServiceImpl implements PartialDebitService {
                                     if (data.get("status").toString().equalsIgnoreCase("success")) {
 //                                            Partial debit successful...
                                         BigDecimal pdAmount = new BigDecimal(data.get("amount").toString());
+                                        BigDecimal newPdAmount = pdAmount.divide(new BigDecimal(100), RoundingMode.DOWN);
 //                                            Make loan repayment...
                                         repayLoanReq.setAccountID(pdRecord.getLoanId());
-                                        repayLoanReq.setAmount(pdAmount);
+                                        repayLoanReq.setAmount(newPdAmount);
                                         repayLoanReq.setPaymentMethodName("Cash");
                                         repayLoanReq.setTransactionBranchID("CVLHQB");
                                         repayLoanReq.setRepaymentDate(LocalDate.now().toString());
@@ -195,6 +195,7 @@ public class PartialDebitServiceImpl implements PartialDebitService {
 //            Notify team...
             Map<String, String> notificationData = new HashMap<>();
             notificationData.put("toName", tokenizationName);
+            notificationData.put("customerName", tokenizationName);
 //        notificationData.put("toAddress", tokenizationEmail);
             notificationData.put("toAddress", pdRecord.getEmail());
             notificationData.put("loanId", pdRecord.getLoanId());

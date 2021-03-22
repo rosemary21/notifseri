@@ -77,7 +77,7 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public EmailAudit auditSuccessfulEmail(ObjectNode emailData, String emailSubject) {
         return emailAuditRepository.save(new EmailAudit(
-                emailData.get("toAddress").toString(),
+                emailData.get("toAddress").textValue(),
                 emailData.get("customerName") != null ? emailData.get("customerName").toString() : null,
                 emailSubject,
                 emailData.get("paymentDate") != null ? LocalDate.parse(emailData.get("paymentDate").toString()) : null)

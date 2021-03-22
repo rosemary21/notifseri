@@ -20,7 +20,7 @@ public class CardTransactions {
     private String currency;
     private String reference;
     private String status;
-//    @Lob
+    @Lob
     private String paystackResponse;
 
     @ManyToOne

@@ -28,6 +28,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.HashMap;
@@ -267,7 +268,11 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                             var dataObj = (JSONObject) chargeRespObj.get("data");
                             var authObj = (JSONObject) dataObj.get("authorization");
 
-                            ctDTO.setAmount(new BigDecimal(dataObj.get("amount").toString()));
+                            BigDecimal chargedAmount = new BigDecimal(dataObj.get("amount").toString());
+                            BigDecimal newChargedAmount = chargedAmount.divide(new BigDecimal(100), RoundingMode.DOWN);
+
+//                            ctDTO.setAmount(new BigDecimal(dataObj.get("amount").toString()));
+                            ctDTO.setAmount(newChargedAmount);
                             ctDTO.setCurrency(dataObj.get("currency").toString());
                             ctDTO.setTransactionDate(dataObj.get("transaction_date").toString());
                             ctDTO.setStatus(dataObj.get("status").toString());
@@ -281,7 +286,8 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                             if(ctDTO.getStatus().equalsIgnoreCase("success")){
                                 //repay Loan
                                 repayLoanReq.setAccountID(loanId);
-                                repayLoanReq.setAmount(new BigDecimal(dataObj.get("amount").toString()));
+//                                repayLoanReq.setAmount(new BigDecimal(dataObj.get("amount").toString()));
+                                repayLoanReq.setAmount(newChargedAmount);
                                 repayLoanReq.setPaymentMethodName(AppConstants.InstafinPaymentMethod.PAYSTACK_PAYMENT_METHOD);
                                 repayLoanReq.setTransactionBranchID(AppConstants.InstafinBranch.TRANSACTION_BRANCH_ID);
                                 repayLoanReq.setRepaymentDate(currentDate.toString());
@@ -330,9 +336,11 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                                                 if (data.get("status").toString().equalsIgnoreCase("success")) {
 //                                            Partial debit successful...
                                                     BigDecimal pdAmount = new BigDecimal(data.get("amount").toString());
+                                                    BigDecimal newPdAmount = pdAmount.divide(new BigDecimal(100), RoundingMode.DOWN);
 //                                            Make loan repayment...
                                                     repayLoanReq.setAccountID(loanId);
-                                                    repayLoanReq.setAmount(pdAmount);
+//                                                    repayLoanReq.setAmount(pdAmount);
+                                                    repayLoanReq.setAmount(newPdAmount);
                                                     repayLoanReq.setPaymentMethodName(AppConstants.InstafinPaymentMethod.PAYSTACK_PAYMENT_METHOD);
                                                     repayLoanReq.setTransactionBranchID(AppConstants.InstafinBranch.TRANSACTION_BRANCH_ID);
                                                     repayLoanReq.setRepaymentDate(currentDate.toString());
@@ -384,6 +392,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
 
         Map<String, String> notificationData = new HashMap<>();
         notificationData.put("toName", tokenizationName);
+        notificationData.put("customerName", tokenizationName);
 //        notificationData.put("toAddress", tokenizationEmail);
         notificationData.put("toAddress", email);
         notificationData.put("loanId", loanId);

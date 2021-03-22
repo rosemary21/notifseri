@@ -24,11 +24,12 @@ public class FailedEmail {
     private String toName;
     private String toAddress;
     private String subject;
-//    @Lob
+    @Lob
     private String message;
     private Integer noOfAttempts;
     private Date createdOn;
     private LocalDate paymentDate;
+    @Lob
     private String reason;
     @Version
     private Date lastUpdatedOn;
