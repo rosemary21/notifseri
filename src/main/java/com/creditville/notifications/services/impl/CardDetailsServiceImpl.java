@@ -2,6 +2,7 @@ package com.creditville.notifications.services.impl;
 
 import com.creditville.notifications.exceptions.CustomCheckedException;
 import com.creditville.notifications.executor.HttpCallService;
+import com.creditville.notifications.instafin.common.AppConstants;
 import com.creditville.notifications.instafin.req.RepayLoanReq;
 import com.creditville.notifications.instafin.service.LoanRepaymentService;
 import com.creditville.notifications.models.CardDetails;
@@ -18,6 +19,7 @@ import com.creditville.notifications.services.*;
 import com.creditville.notifications.utils.CardUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 public class CardDetailsServiceImpl implements CardDetailsService {
     @Autowired
@@ -275,24 +278,29 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                             ctDTO.setCardDetails(cardDetails);
 
                             ctService.saveCardTransaction(ctDTO);
-
-                            //repay Loan
-                            repayLoanReq.setAccountID(loanId);
-                            repayLoanReq.setAmount(amount);
-                            repayLoanReq.setPaymentMethodName("Cash");
-                            repayLoanReq.setTransactionBranchID("CVLHQB");
-                            repayLoanReq.setRepaymentDate(currentDate.toString());
-                            repayLoanReq.setNotes("Card loan repayment");
-                            var repaymentResp = loanRepaymentService.makeLoanRepayment(repayLoanReq);
-                            if (null == repaymentResp) {
-                                repaymentStatus = false;
-                                errorMessage = chargeRespObj.get("message").toString();
-                            } else {
-                                if (repaymentResp.trim().equals("")) {
+                            if(ctDTO.getStatus().equalsIgnoreCase("success")){
+                                //repay Loan
+                                repayLoanReq.setAccountID(loanId);
+                                repayLoanReq.setAmount(new BigDecimal(dataObj.get("amount").toString()));
+                                repayLoanReq.setPaymentMethodName(AppConstants.InstafinPaymentMethod.PAYSTACK_PAYMENT_METHOD);
+                                repayLoanReq.setTransactionBranchID(AppConstants.InstafinBranch.TRANSACTION_BRANCH_ID);
+                                repayLoanReq.setRepaymentDate(currentDate.toString());
+                                repayLoanReq.setNotes("Card loan repayment");
+                                var repaymentResp = loanRepaymentService.makeLoanRepayment(repayLoanReq);
+                                if (null == repaymentResp) {
                                     repaymentStatus = false;
                                     errorMessage = chargeRespObj.get("message").toString();
+                                } else {
+                                    if (repaymentResp.trim().equals("")) {
+                                        repaymentStatus = false;
+                                        errorMessage = chargeRespObj.get("message").toString();
+                                    }
                                 }
+                            }else {
+                                repaymentStatus = false;
+                                errorMessage = chargeRespObj.get("message").toString();
                             }
+
                         } else {
 //                        Charge failed...
                             if (chargeRespObj != null) {
@@ -325,10 +333,10 @@ public class CardDetailsServiceImpl implements CardDetailsService {
 //                                            Make loan repayment...
                                                     repayLoanReq.setAccountID(loanId);
                                                     repayLoanReq.setAmount(pdAmount);
-                                                    repayLoanReq.setPaymentMethodName("Cash");
-                                                    repayLoanReq.setTransactionBranchID("CVLHQB");
+                                                    repayLoanReq.setPaymentMethodName(AppConstants.InstafinPaymentMethod.PAYSTACK_PAYMENT_METHOD);
+                                                    repayLoanReq.setTransactionBranchID(AppConstants.InstafinBranch.TRANSACTION_BRANCH_ID);
                                                     repayLoanReq.setRepaymentDate(currentDate.toString());
-                                                    repayLoanReq.setNotes("Card loan repayment");
+                                                    repayLoanReq.setNotes("Paystack Card loan repayment");
                                                     var repaymentResp = loanRepaymentService.makeLoanRepayment(repayLoanReq);
                                                     if (null == repaymentResp) {
                                                         repaymentStatus = false;
@@ -364,7 +372,9 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                                 chargeDto.getAmount(),
                                 chargeDto.getEmail()
                         );
-                        partialDebitService.deletePartialDebitRecord(partialDebit.getId());
+                        if(partialDebit != null){
+                            partialDebitService.deletePartialDebitRecord(partialDebit.getId());
+                        }
                     }
                 }
             } catch (ParseException e) {
