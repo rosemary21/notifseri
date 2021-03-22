@@ -44,7 +44,6 @@ public class HttpCallService {
     }
 
     public String doBasicPost(String url, String payload) throws CustomCheckedException {
-//        logger.info("ENTRY -> Endpoint: {}", url);
         HttpResponse<String> httpResponse;
         try {
             httpResponse = Unirest.post(url)
