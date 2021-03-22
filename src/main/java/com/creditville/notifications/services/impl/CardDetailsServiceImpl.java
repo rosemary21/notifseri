@@ -79,10 +79,10 @@ public class CardDetailsServiceImpl implements CardDetailsService {
     @Autowired
     private NotificationService notificationService;
 
-    @Value("${app.defaultToName}")
+    @Value("${app.paystackToName}")
     private String tokenizationName;
 
-    @Value("${app.defaultToAddress}")
+    @Value("${app.paystack.tokenization.email}")
     private String tokenizationEmail;
 
     @Autowired
