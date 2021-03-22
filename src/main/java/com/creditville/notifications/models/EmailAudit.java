@@ -18,7 +18,7 @@ import java.util.Objects;
 @Setter
 @NoArgsConstructor
 public class EmailAudit {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Id
     private Long id;
     private String toAddress;
