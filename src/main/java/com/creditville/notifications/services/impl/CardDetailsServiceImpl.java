@@ -393,8 +393,8 @@ public class CardDetailsServiceImpl implements CardDetailsService {
         Map<String, String> notificationData = new HashMap<>();
         notificationData.put("toName", tokenizationName);
         notificationData.put("customerName", tokenizationName);
-//        notificationData.put("toAddress", tokenizationEmail);
-        notificationData.put("toAddress", email);
+        notificationData.put("toAddress", tokenizationEmail);
+//        notificationData.put("toAddress", email);
         notificationData.put("loanId", loanId);
         notificationData.put("todayDate", LocalDate.now().toString());
         notificationData.put("failureMessage", errorMessage);
