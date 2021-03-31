@@ -21,4 +21,6 @@ public interface PartialDebitService {
     List<PartialDebit> getAllPartialDebitRecords();
 
     void performPartialDebitOp();
+
+    String getLeastPartialDebitAmount(BigDecimal amount);
 }

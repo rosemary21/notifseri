@@ -31,4 +31,13 @@ public class PartialDebitDto {
         this.email = email;
         this.at_least = "2000";
     }
+
+    public PartialDebitDto(String authorization_code, BigDecimal amount, String email, String at_least) {
+        this.authorization_code = authorization_code;
+        this.currency = "NGN";
+        this.amount = amount;
+        this.email = email;
+        this.at_least = "2000";
+        this.at_least = at_least;
+    }
 }

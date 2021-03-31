@@ -1,6 +1,6 @@
 package com.creditville.notifications.services.impl;
 
-//import creditville.ng.creditvillecore.core.models.forms.AddToExceptionListForm;
+//import com.creditville.notifications.models.forms.AddToExceptionListForm;
 import com.creditville.notifications.exceptions.CustomCheckedException;
 import com.creditville.notifications.models.ExcludedEmail;
 import com.creditville.notifications.models.requests.SendEmailRequest;

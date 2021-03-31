@@ -3,6 +3,7 @@ package com.creditville.notifications.services.impl;
 import com.creditville.notifications.exceptions.CustomCheckedException;
 import com.creditville.notifications.models.BranchManager;
 import com.creditville.notifications.models.CollectionOfficer;
+import com.creditville.notifications.models.RecoveryOfficer;
 import com.creditville.notifications.models.response.*;
 import com.creditville.notifications.services.*;
 import com.creditville.notifications.utils.CurrencyUtil;
@@ -101,6 +102,9 @@ public class DispatcherServiceImpl implements DispatcherService {
 
     @Autowired
     private BranchManagerService branchManagerService;
+
+    @Autowired
+    private RecoveryOfficerService recoveryOfficerService;
 
     @Override
     public void performDueRentalOperation() {
@@ -496,7 +500,9 @@ public class DispatcherServiceImpl implements DispatcherService {
                 if (!clients.isEmpty()) {
                     for (Client client : clients) {
                         try {
-                            CollectionOfficer collectionOfficer = collectionOfficerService.getCollectionOfficer(client.getBranchName());
+//                            CollectionOfficer collectionOfficer = collectionOfficerService.getCollectionOfficer(client.getBranchName());
+                            RecoveryOfficer recoveryOfficer = recoveryOfficerService.getRecoveryOfficer(client.getBranchName());
+                            BranchManager branchManager = branchManagerService.getBranchManager(client.getBranchName());
                             LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());
                             List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
                                     .stream()
@@ -544,14 +550,34 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                 String coN;
                                                 String coE;
                                                 String coP;
-                                                if (collectionOfficer == null) {
+//                                                if (collectionOfficer == null) {
+//                                                    coN = defaultCollectionOfficer;
+//                                                    coE = collectionEmail;
+//                                                    coP = collectionPhoneNumber;
+//                                                } else {
+//                                                    coN = collectionOfficer.getOfficerName();
+//                                                    coE = collectionOfficer.getOfficerEmail();
+//                                                    coP = collectionOfficer.getOfficerPhoneNo();
+//                                                }
+                                                if (recoveryOfficer == null) {
                                                     coN = defaultCollectionOfficer;
                                                     coE = collectionEmail;
                                                     coP = collectionPhoneNumber;
                                                 } else {
-                                                    coN = collectionOfficer.getOfficerName();
-                                                    coE = collectionOfficer.getOfficerEmail();
-                                                    coP = collectionOfficer.getOfficerPhoneNo();
+                                                    coN = recoveryOfficer.getOfficerName();
+                                                    coE = recoveryOfficer.getOfficerEmail();
+                                                    coP = recoveryOfficer.getOfficerPhoneNo();
+                                                }
+                                                String brmN = "";
+                                                String brmE = "";
+                                                String brmPh = "";
+                                                Boolean hasBranchManager = true;
+                                                if (branchManager == null) {
+                                                    hasBranchManager = false;
+                                                } else {
+                                                    brmN = branchManager.getOfficerName();
+                                                    brmE = branchManager.getOfficerEmail();
+                                                    brmPh = branchManager.getOfficerPhoneNo();
                                                 }
                                                 notificationData.put("toName", useDefaultMailInfo ? defaultToName : customer.getName());
                                                 notificationData.put("toAddress", toAddress);
@@ -562,6 +588,10 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                 notificationData.put("collectionOfficer", coN);
                                                 notificationData.put("collectionPhoneNumber", coP);
                                                 notificationData.put("collectionEmail", coE);
+                                                notificationData.put("hasBranchManager", hasBranchManager.toString());
+                                                notificationData.put("branchManagerName", brmN);
+                                                notificationData.put("branchManagerPhoneNumber", brmPh);
+                                                notificationData.put("branchManagerEmail", brmE);
                                                 notificationData.put("companyName", companyName);
                                                 notificationData.put("loanId", clientLoan.getId());
                                                 notificationData.put("accountName", accountName);

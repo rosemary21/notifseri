@@ -269,7 +269,8 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                             var authObj = (JSONObject) dataObj.get("authorization");
 
                             BigDecimal chargedAmount = new BigDecimal(dataObj.get("amount").toString());
-                            BigDecimal newChargedAmount = chargedAmount.divide(new BigDecimal(100), RoundingMode.DOWN);
+//                            BigDecimal newChargedAmount = chargedAmount.divide(new BigDecimal(100), RoundingMode.DOWN);
+                            BigDecimal newChargedAmount = chargedAmount.divide(new BigDecimal(100)).setScale(2, RoundingMode.CEILING);
 
 //                            ctDTO.setAmount(new BigDecimal(dataObj.get("amount").toString()));
                             ctDTO.setAmount(newChargedAmount);
@@ -328,7 +329,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                                         String pdResp = this.makePartialDebit(new PartialDebitDto(
                                                 chargeDto.getAuthorization_code(),
                                                 chargeDto.getAmount(),
-                                                chargeDto.getEmail()));
+                                                chargeDto.getEmail(), partialDebitService.getLeastPartialDebitAmount(chargeDto.getAmount())));
                                         if (pdResp != null) {
                                             JSONObject pdRespObj = cardUtil.getJsonObjResponse(pdResp);
                                             if (pdRespObj != null) {
@@ -336,7 +337,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                                                 if (data.get("status").toString().equalsIgnoreCase("success")) {
 //                                            Partial debit successful...
                                                     BigDecimal pdAmount = new BigDecimal(data.get("amount").toString());
-                                                    BigDecimal newPdAmount = pdAmount.divide(new BigDecimal(100), RoundingMode.DOWN);
+                                                    BigDecimal newPdAmount = pdAmount.divide(new BigDecimal(100)).setScale(2, RoundingMode.CEILING);
 //                                            Make loan repayment...
                                                     repayLoanReq.setAccountID(loanId);
 //                                                    repayLoanReq.setAmount(pdAmount);

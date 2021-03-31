@@ -23,10 +23,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -142,7 +139,7 @@ public class PartialDebitServiceImpl implements PartialDebitService {
                             String pdResp = cardDetailsService.makePartialDebit(new PartialDebitDto(
                                     pdRecord.getAuthorizationCode(),
                                     newTotalDue,
-                                    pdRecord.getEmail()));
+                                    pdRecord.getEmail(), this.getLeastPartialDebitAmount(newTotalDue)));
                             if (pdResp != null) {
                                 JSONObject pdRespObj = cardUtil.getJsonObjResponse(pdResp);
                                 if (pdRespObj != null) {
@@ -150,7 +147,7 @@ public class PartialDebitServiceImpl implements PartialDebitService {
                                     if (data.get("status").toString().equalsIgnoreCase("success")) {
 //                                            Partial debit successful...
                                         BigDecimal pdAmount = new BigDecimal(data.get("amount").toString());
-                                        BigDecimal newPdAmount = pdAmount.divide(new BigDecimal(100), RoundingMode.DOWN);
+                                        BigDecimal newPdAmount = pdAmount.divide(new BigDecimal(100)).setScale(2, RoundingMode.CEILING);
 //                                            Make loan repayment...
                                         repayLoanReq.setAccountID(pdRecord.getLoanId());
                                         repayLoanReq.setAmount(newPdAmount);
@@ -213,5 +210,12 @@ public class PartialDebitServiceImpl implements PartialDebitService {
                 }
             }
         }
+    }
+
+    @Override
+    public String getLeastPartialDebitAmount(BigDecimal amount) {
+        Objects.requireNonNull(amount, "Amount cannot be null");
+        BigDecimal thirtyPercentOfAmount = new BigDecimal("0.30");
+        return amount.multiply(thirtyPercentOfAmount).setScale(2, RoundingMode.CEILING).toString();
     }
 }
