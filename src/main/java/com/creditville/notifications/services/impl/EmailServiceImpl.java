@@ -38,23 +38,24 @@ public class EmailServiceImpl implements EmailService {
                     emailSubject,
                     htmlEmailMessage,
                     emailData.get("paymentDate") != null ? LocalDate.parse(emailData.get("paymentDate")) : null,
-                    failReason));
+                    failReason,
+                    emailData.get("customId")));
         return null;
     }
 
     @Override
     public FailedEmail saveFailedEmail(ObjectNode emailData, String emailSubject, String htmlEmailMessage, String failReason) {
-//        System.out.println("Reason: "+ failReason);
         String mainReason = failReason.contains(":") ? failReason.split(":")[0] : failReason;
-        LocalDate paymentDate = emailData.get("paymentDate") != null ? LocalDate.parse(emailData.get("paymentDate").toString()) : null;
-        if(failedEmailRepository.findByToAddressAndSubjectAndPaymentDate(emailData.get("toAddress").toString(), emailSubject, paymentDate) == null)
+        LocalDate paymentDate = emailData.get("paymentDate") != null ? LocalDate.parse(emailData.get("paymentDate").textValue()) : null;
+        if(failedEmailRepository.findByToAddressAndSubjectAndPaymentDate(emailData.get("toAddress").textValue(), emailSubject, paymentDate) == null)
             return failedEmailRepository.save(new FailedEmail(
                     emailData.get("customerName") != null ? emailData.get("customerName").textValue() : null,
                     emailData.get("toAddress").textValue(),
                     emailSubject,
                     htmlEmailMessage,
                     emailData.get("paymentDate") != null ? LocalDate.parse(emailData.get("paymentDate").textValue()) : null,
-                    mainReason));
+                    mainReason,
+                    emailData.get("customId") != null ? emailData.get("customId").textValue() : null));
         return null;
     }
 
@@ -70,7 +71,8 @@ public class EmailServiceImpl implements EmailService {
                 emailData.get("toAddress"),
                 emailData.get("customerName"),
                 emailSubject,
-                emailData.get("paymentDate") != null ? LocalDate.parse(emailData.get("paymentDate")) : null)
+                emailData.get("paymentDate") != null ? LocalDate.parse(emailData.get("paymentDate")) : null,
+                emailData.get("customId"))
         );
     }
 
@@ -78,9 +80,10 @@ public class EmailServiceImpl implements EmailService {
     public EmailAudit auditSuccessfulEmail(ObjectNode emailData, String emailSubject) {
         return emailAuditRepository.save(new EmailAudit(
                 emailData.get("toAddress").textValue(),
-                emailData.get("customerName") != null ? emailData.get("customerName").toString() : null,
+                emailData.get("customerName") != null ? emailData.get("customerName").textValue() : null,
                 emailSubject,
-                emailData.get("paymentDate") != null ? LocalDate.parse(emailData.get("paymentDate").toString()) : null)
+                emailData.get("paymentDate") != null ? LocalDate.parse(emailData.get("paymentDate").textValue()) : null,
+                emailData.get("customId") != null ? emailData.get("customId").textValue() : null)
         );
     }
 

@@ -3,6 +3,8 @@ package com.creditville.notifications;
 import com.creditville.notifications.exceptions.CustomCheckedException;
 import com.creditville.notifications.services.PartialDebitService;
 import com.creditville.notifications.utils.DateUtil;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -35,6 +37,11 @@ class NotificationsApplicationTests {
     void thirtyPercentOfAmountTest() {
         System.out.println("Division test: "+ new BigDecimal(65033).divide(new BigDecimal(100)).setScale(2, RoundingMode.CEILING));
         System.out.println("Amount gotten: "+ partialDebitService.getLeastPartialDebitAmount(new BigDecimal(55000.10)));
+
+        ObjectNode on = new ObjectNode(JsonNodeFactory.instance);
+        on.put("test", "This is a test");
+        System.out.println("ON: "+ on.get("test").toString());
+        System.out.println("ON TXT: "+ on.get("test").textValue());
     }
 
 }

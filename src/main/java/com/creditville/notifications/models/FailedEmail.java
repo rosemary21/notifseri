@@ -12,7 +12,7 @@ import java.util.Objects;
 /**
  * Created by Chuks on 02/09/2021.
  */
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"toAddress", "subject", "paymentDate"}))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"toAddress", "subject", "paymentDate", "customIdentifier"}))
 @Entity
 @Getter
 @Setter
@@ -33,8 +33,9 @@ public class FailedEmail {
     private String reason;
     @Version
     private Date lastUpdatedOn;
+    private String customIdentifier;
 
-    public FailedEmail(String toName, String toAddress, String subject, String message, LocalDate paymentDate, String reason) {
+    public FailedEmail(String toName, String toAddress, String subject, String message, LocalDate paymentDate, String reason, String customIdentifier) {
         this.toName = toName;
         this.toAddress = toAddress;
         this.subject = subject;
@@ -43,6 +44,7 @@ public class FailedEmail {
         this.createdOn = new Date();
         this.paymentDate = paymentDate;
         this.reason = reason;
+        this.customIdentifier = customIdentifier;
     }
 
     @Override
@@ -52,6 +54,6 @@ public class FailedEmail {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getToAddress(), getSubject(), getPaymentDate());
+        return Objects.hash(getToAddress(), getSubject(), getPaymentDate(), getCustomIdentifier());
     }
 }

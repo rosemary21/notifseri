@@ -12,13 +12,13 @@ import java.util.Objects;
 /**
  * Created by Chuks on 02/09/2021.
  */
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"toAddress", "toName", "subject", "paymentDate"}))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"toAddress", "toName", "subject", "paymentDate", "customIdentifier"}))
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 public class EmailAudit {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Id
     private Long id;
     private String toAddress;
@@ -26,13 +26,15 @@ public class EmailAudit {
     private String subject;
     private Date sentOn;
     private LocalDate paymentDate;
+    private String customIdentifier;
 
-    public EmailAudit(String toAddress, String toName, String subject, LocalDate paymentDate) {
+    public EmailAudit(String toAddress, String toName, String subject, LocalDate paymentDate, String customIdentifier) {
         this.toAddress = toAddress;
         this.toName = toName;
         this.subject = subject;
         this.sentOn = new Date();
         this.paymentDate = paymentDate;
+        this.customIdentifier = customIdentifier;
     }
 
     @Override
@@ -42,6 +44,6 @@ public class EmailAudit {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getToAddress(), getSubject(), getPaymentDate());
+        return Objects.hash(getToAddress(), getSubject(), getPaymentDate(), getCustomIdentifier());
     }
 }
