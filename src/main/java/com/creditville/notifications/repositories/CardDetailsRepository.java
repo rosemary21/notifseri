@@ -17,4 +17,6 @@ public interface CardDetailsRepository extends JpaRepository<CardDetails, Long> 
     CardDetails findByEmail(String email);
 
     Page<CardDetails> findAllByStatusIn(Collection<String> statusList, Pageable pageable);
+
+    CardDetails findByAuthorizationCode(String authorizationCode);
 }
