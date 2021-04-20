@@ -10,11 +10,13 @@ import com.creditville.notifications.models.DTOs.PartialDebitDto;
 import com.creditville.notifications.models.PartialDebit;
 import com.creditville.notifications.models.PartialDebitAttempt;
 import com.creditville.notifications.models.requests.HookEvent;
-import com.creditville.notifications.models.response.LookUpClient;
-import com.creditville.notifications.models.response.LookUpClientLoan;
+import com.creditville.notifications.models.requests.HookEventAuthorization;
+import com.creditville.notifications.models.requests.HookEventData;
+import com.creditville.notifications.models.response.*;
 import com.creditville.notifications.repositories.CardDetailsRepository;
 import com.creditville.notifications.services.*;
 import com.creditville.notifications.utils.CardUtil;
+import com.creditville.notifications.utils.DateUtil;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,6 +75,9 @@ public class TransactionServiceImpl implements TransactionService {
     @Autowired
     private CardUtil cardUtil;
 
+    @Autowired
+    private DateUtil dateUtil;
+
     @Override
     public void handlePaystackTransactionEvent(HookEvent hookEvent) {
         if(hookEvent.getEvent().equalsIgnoreCase(successfulChargeEvent)) {
@@ -114,6 +119,7 @@ public class TransactionServiceImpl implements TransactionService {
                             //repay Loan
                             try {
                                 LookUpClient client = clientService.lookupClient(customerRecord.getClientId());
+
                                 List<LookUpClientLoan> openClientLoanList = client.getLoans()
                                         .stream()
                                         .filter(cl -> cl.getStatus().equalsIgnoreCase("ACTIVE") || cl.getStatus().equalsIgnoreCase("IN_ARREARS"))
@@ -121,7 +127,15 @@ public class TransactionServiceImpl implements TransactionService {
 //                                    Since there can be only one open client loan at a time, check if the list is empty, if not, get the first element...
                                 if (!openClientLoanList.isEmpty()) {
                                     LookUpClientLoan clientLoan = openClientLoanList.get(0);
-                                    loanId = clientLoan.getId();
+//                                    Check if it's a pd operation before checking below. It is a pd operation if previous loan before this month is unsettled and ammount is or there is an unsettled bal...
+//                                    If it is a pd operation, return unsettled loan ID...
+                                    try {
+                                        String unsettledLoanId = this.getUnsettledLoanId(clientLoan);
+                                        loanId = unsettledLoanId != null ? unsettledLoanId : clientLoan.getId();
+                                    }catch (CustomCheckedException cce) {
+                                        System.out.println("Unable to get unsettled loan ID. See reason below: \n"+ cce.getMessage());
+                                        loanId = clientLoan.getId();
+                                    }
                                 }
                             }catch (CustomCheckedException cce) {
                                 System.out.println("An error occurred while performing lookup. See status below...");
@@ -159,8 +173,44 @@ public class TransactionServiceImpl implements TransactionService {
             System.out.println("Unsuccessful charge message is: "+ message);
             if(message.equalsIgnoreCase("insufficient funds")) {
 //                Charge failed due to insufficient funds. Attempt partial debit...
+//                TODO check if PD is disabled for customer...
+                if(hookEvent.getData() != null) {
+                    if (hookEvent.getData().getAuthorization() != null) {
+                        HookEventData data = hookEvent.getData();
+                        HookEventAuthorization authorization = data.getAuthorization();
+                        cardDetailsService.makePartialDebit(
+                                new PartialDebitDto(
+                                        authorization.getAuthorizationCode(),
+                                        data.getAmount(),
+                                        data.getCustomer().getEmail(),
+                                        partialDebitService.getLeastPartialDebitAmount(data.getAmount())
+                                )
+                        );
+                    }
+                }
             }
         }
+    }
+
+    private String getUnsettledLoanId(LookUpClientLoan activeLoan) throws CustomCheckedException {
+        LookUpLoanAccount lookUpLoanAccount = clientService.lookupLoanAccount(activeLoan.getId());
+        List<LookUpLoanInstalment> loanInstalments = lookUpLoanAccount.getLoanAccount().getInstalments();
+        String unsettledLoanId = null;
+        if (!loanInstalments.isEmpty()) {
+            List<LookUpLoanInstalment> loanInstalmentsLtToday = loanInstalments
+                    .stream()
+                    .filter(lookUpLoanInstalment -> dateUtil.isPaymentDateLtToday(lookUpLoanInstalment.getObligatoryPaymentDate()))
+                    .collect(Collectors.toList());
+            if (!loanInstalmentsLtToday.isEmpty()) {
+                LookUpLoanInstalment latestInstalment = loanInstalmentsLtToday.get((loanInstalmentsLtToday.size() - 1));
+                if (latestInstalment.getCurrentState().getPrincipalDueAmount().compareTo(BigDecimal.ZERO) > 0) {
+//                    Customer has loan in arrears
+//                    I want to make payment only for this instalment, I feel ID would be the loan ID. If not, we are posed with the challenge of paying the right loan
+                    unsettledLoanId = latestInstalment.getId();
+                }
+            }
+        }
+        return unsettledLoanId;
     }
 
     private void sendOutOpNotification(String loanId, String errorMessage, LocalDate currentDate, boolean repaymentStatus) {
