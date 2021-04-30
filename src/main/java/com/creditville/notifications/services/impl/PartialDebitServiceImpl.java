@@ -213,9 +213,9 @@ public class PartialDebitServiceImpl implements PartialDebitService {
     }
 
     @Override
-    public String getLeastPartialDebitAmount(BigDecimal amount) {
+    public BigDecimal getLeastPartialDebitAmount(BigDecimal amount) {
         Objects.requireNonNull(amount, "Amount cannot be null");
         BigDecimal thirtyPercentOfAmount = new BigDecimal("0.30");
-        return amount.multiply(thirtyPercentOfAmount).setScale(2, RoundingMode.CEILING).toString();
+        return amount.multiply(thirtyPercentOfAmount).setScale(2, RoundingMode.CEILING);
     }
 }
