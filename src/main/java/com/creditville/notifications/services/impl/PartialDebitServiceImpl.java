@@ -131,9 +131,9 @@ public class PartialDebitServiceImpl implements PartialDebitService {
                         .add(loanInstalment.getCurrentState().getInterestDueAmount());
                 BigDecimal newTotalDue = totalDue.multiply(new BigDecimal(100));
                 if(totalDue.compareTo(BigDecimal.ZERO) > 0) {
-                    if(dateUtil.isPaymentDateBeforeOrWithinNumber(pdRecord.getPaymentDate(), 5)) {
-//                        Partial debit operation not greater five(5) days yet...
-                        ChargeDto chargeDto = new ChargeDto();
+//                    if(dateUtil.isPaymentDateBeforeOrWithinNumber(pdRecord.getPaymentDate(), 5)) {
+////                        Partial debit operation not greater five(5) days yet...
+//                        ChargeDto chargeDto = new ChargeDto();
                         RepayLoanReq repayLoanReq = new RepayLoanReq();
                         if (!maxAttemptsReached) {
                             String pdResp = cardDetailsService.makePartialDebit(new PartialDebitDto(
@@ -176,11 +176,11 @@ public class PartialDebitServiceImpl implements PartialDebitService {
                                 }
                             }
                         }
-                    }else {
-//                        Partial debit date has passed 5th Day, delete record from pd table and contact risk team or collection officer...
-                        this.deletePartialDebitRecord(pdRecord.getId());
-                        errorMessage = "Unable to totally charge customer after five days or persistent trials";
-                    }
+//                    }else {
+////                        Partial debit date has passed 5th Day, delete record from pd table and contact risk team or collection officer...
+//                        this.deletePartialDebitRecord(pdRecord.getId());
+//                        errorMessage = "Unable to totally charge customer after five days or persistent trials";
+//                    }
                 }else {
 //                        Customer is no longer owing...
                     this.deletePartialDebitRecord(pdRecord.getId());

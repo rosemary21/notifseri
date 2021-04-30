@@ -12,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.NumberFormat;
+import java.time.LocalDate;
 import java.util.Locale;
 
 @SpringBootTest
@@ -31,6 +32,9 @@ class NotificationsApplicationTests {
         System.out.println(NumberFormat.getCurrencyInstance(new Locale("en", "NG"))
                 .format(new BigDecimal("10000")));
         System.out.println("Year: " + dateUtil.getYearByDate("2021-03-12T00:00:00.000+01:00"));
+        System.out.println("Within: " + dateUtil.isPaymentDateWithin("2021-05-12T00:00:00.000+01:00", LocalDate.now().minusDays(19), LocalDate.now()));
+        BigDecimal bigDecimal = new BigDecimal("-50");
+        System.out.println("Response "+ (bigDecimal.compareTo(BigDecimal.ZERO) < 0));
     }
 
     @Test

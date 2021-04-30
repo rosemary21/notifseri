@@ -181,6 +181,30 @@ public class DateUtil {
         return (paymentDateMonth == todaysDateMonth);
     }
 
+    public boolean isPaymentDateWithin(String paymentDate, LocalDate firstDate, LocalDate secondDate) {
+        Calendar paymentDateCalendar = this.convertDateToCalendar(paymentDate);
+        paymentDateCalendar.set(Calendar.HOUR_OF_DAY, 0);
+        paymentDateCalendar.set(Calendar.MINUTE, 0);
+        paymentDateCalendar.set(Calendar.SECOND, 0);
+        paymentDateCalendar.set(Calendar.MILLISECOND, 0);
+
+        Calendar firstDateCalendar = this.convertDateToCalendar(firstDate);
+        firstDateCalendar.set(Calendar.HOUR_OF_DAY, 0);
+        firstDateCalendar.set(Calendar.MINUTE, 0);
+        firstDateCalendar.set(Calendar.SECOND, 0);
+        firstDateCalendar.set(Calendar.MILLISECOND, 0);
+
+        Calendar secondDateCalendar = this.convertDateToCalendar(secondDate);
+        secondDateCalendar.set(Calendar.HOUR_OF_DAY, 0);
+        secondDateCalendar.set(Calendar.MINUTE, 0);
+        secondDateCalendar.set(Calendar.SECOND, 0);
+        secondDateCalendar.set(Calendar.MILLISECOND, 0);
+        return (
+                paymentDateCalendar.compareTo(firstDateCalendar) >= 0
+                && paymentDateCalendar.compareTo(secondDateCalendar) <= 0
+        );
+    }
+
     public String getMonthByDate(String paymentDate) throws CustomCheckedException {
         Calendar calendar = this.convertDateToCalendar(paymentDate);
         int paymentDateMonth = calendar.get(Calendar.MONTH);

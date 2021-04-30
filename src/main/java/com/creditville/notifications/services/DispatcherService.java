@@ -1,5 +1,7 @@
 package com.creditville.notifications.services;
 
+import java.time.LocalDate;
+
 /**
  * Created by Chuks on 02/09/2021.
  */
@@ -17,4 +19,6 @@ public interface DispatcherService {
     void performChequeLodgementOperation();
 
     void performRecurringChargesOperation();
+
+    void performMiscOperation(LocalDate startDate, LocalDate endDate);
 }
