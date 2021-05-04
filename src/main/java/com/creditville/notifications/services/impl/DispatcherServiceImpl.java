@@ -1,14 +1,11 @@
 package com.creditville.notifications.services.impl;
 
 import com.creditville.notifications.exceptions.CustomCheckedException;
-import com.creditville.notifications.models.BranchManager;
-import com.creditville.notifications.models.CollectionOfficer;
-import com.creditville.notifications.models.RecoveryOfficer;
+import com.creditville.notifications.models.*;
 import com.creditville.notifications.models.response.*;
 import com.creditville.notifications.services.*;
 import com.creditville.notifications.utils.CurrencyUtil;
 import com.creditville.notifications.utils.DateUtil;
-import com.creditville.notifications.models.CardDetails;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -106,11 +103,14 @@ public class DispatcherServiceImpl implements DispatcherService {
     @Autowired
     private RecoveryOfficerService recoveryOfficerService;
 
+    @Autowired
+    private MailMonitorService mailMonitorService;
+
     @Override
     public void performDueRentalOperation() {
         try {
-            int totalMailCounter = 0;
-            int failedCounter = 0;
+            Long totalSuccessfulCounter = 0L;
+            Long failedCounter = 0L;
             String lastExternalId = "";
             while (lastExternalId != null) {
                 List<Client> clients = clientService.fetchClients(lastExternalId);
@@ -202,12 +202,15 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                 notificationData.put("accountName", accountName);
                                                 notificationData.put("accountNumber", accountNumber);
                                                 notificationData.put("bankName", bankName);
-                                                totalMailCounter++;
+                                                totalSuccessfulCounter++;
                                                 try {
                                                     notificationService.sendEmailNotification(doRentalSubject, notificationData, "email/due_rental");
                                                 } catch (CustomCheckedException cce) {
                                                     cce.printStackTrace();
-                                                    failedCounter++;
+//                                                    failedCounter++;
+                                                    if(!emailService.emailAlreadyFailed(obligatoryPaymentDate, toAddress, doRentalSubject)) {
+                                                        failedCounter++;
+                                                    }
                                                     log.info("Failed to send out mail to: " + customer.getName() + ". See reason: " + cce.getMessage());
                                                 }
                                             }
@@ -218,7 +221,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                             }
                         }catch (Exception ex) {
                             ex.printStackTrace();
-                            failedCounter++;
+//                            failedCounter++;
                         }
                     }
                     Client lastClient = clients.get((clients.size() - 1));
@@ -227,7 +230,8 @@ public class DispatcherServiceImpl implements DispatcherService {
                     lastExternalId = null;
                 }
             }
-            this.notifyTeamOfOperation("Due rental 1", totalMailCounter, failedCounter);
+//            this.notifyTeamOfOperation("Due rental 1", totalSuccessfulCounter, failedCounter);
+            this.logDispatchOperation("Due rental 1", totalSuccessfulCounter, failedCounter);
         }catch (CustomCheckedException cce) {
             cce.printStackTrace();
         }
@@ -236,8 +240,8 @@ public class DispatcherServiceImpl implements DispatcherService {
     @Override
     public void performDueRentalTwoOperation() {
         try {
-            int totalMailCounter = 0;
-            int failedCounter = 0;
+            Long totalSuccessfulCounter = 0L;
+            Long failedCounter = 0L;
             String lastExternalId = "";
             while (lastExternalId != null) {
                 List<Client> clients = clientService.fetchClients(lastExternalId);
@@ -329,13 +333,16 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                 notificationData.put("accountName", accountName);
                                                 notificationData.put("accountNumber", accountNumber);
                                                 notificationData.put("bankName", bankName);
-                                                totalMailCounter++;
+                                                totalSuccessfulCounter++;
                                                 try {
                                                     notificationService.sendEmailNotification(doRentalSubject, notificationData, "email/due_rental");
                                                 } catch (CustomCheckedException cce) {
                                                     cce.printStackTrace();
 //                                    An error occurred while trying to send out notification, notify infotech of total failed and store failed mails in the db for retrial. Min of 3 retrials...
-                                                    failedCounter++;
+//                                                    failedCounter++;
+                                                    if(!emailService.emailAlreadyFailed(obligatoryPaymentDate, toAddress, doRentalSubject)) {
+                                                        failedCounter++;
+                                                    }
                                                     log.info("Failed to send out mail to: " + customer.getName() + ". See reason: " + cce.getMessage());
                                                 }
                                             }
@@ -346,7 +353,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                             }
                         }catch (Exception ex) {
                             ex.printStackTrace();
-                            failedCounter++;
+//                            failedCounter++;
                         }
                     }
                     Client lastClient = clients.get((clients.size() - 1));
@@ -355,7 +362,8 @@ public class DispatcherServiceImpl implements DispatcherService {
                     lastExternalId = null;
                 }
             }
-            this.notifyTeamOfOperation("Due rental 2", totalMailCounter, failedCounter);
+//            this.notifyTeamOfOperation("Due rental 2", totalSuccessfulCounter, failedCounter);
+            this.logDispatchOperation("Due rental 2", totalSuccessfulCounter, failedCounter);
         }catch (CustomCheckedException cce) {
             cce.printStackTrace();
         }
@@ -364,8 +372,8 @@ public class DispatcherServiceImpl implements DispatcherService {
     @Override
     public void performDueRentalThreeOperation() {
         try {
-            int totalMailCounter = 0;
-            int failedCounter = 0;
+            Long totalSuccessfulCounter = 0L;
+            Long failedCounter = 0L;
             String lastExternalId = "";
             while (lastExternalId != null) {
                 List<Client> clients = clientService.fetchClients(lastExternalId);
@@ -457,13 +465,16 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                 notificationData.put("accountName", accountName);
                                                 notificationData.put("accountNumber", accountNumber);
                                                 notificationData.put("bankName", bankName);
-                                                totalMailCounter++;
+                                                totalSuccessfulCounter++;
                                                 try {
                                                     notificationService.sendEmailNotification(doRentalSubject, notificationData, "email/due_rental");
                                                 } catch (CustomCheckedException cce) {
                                                     cce.printStackTrace();
 //                                    An error occurred while trying to send out notification, notify infotech of total failed and store failed mails in the db for retrial. Min of 3 retrials...
-                                                    failedCounter++;
+//                                                    failedCounter++;
+                                                    if(!emailService.emailAlreadyFailed(obligatoryPaymentDate, toAddress, doRentalSubject)) {
+                                                        failedCounter++;
+                                                    }
                                                     log.info("Failed to send out mail to: " + customer.getName() + ". See reason: " + cce.getMessage());
                                                 }
                                             }
@@ -474,7 +485,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                             }
                         }catch (Exception ex) {
                             ex.printStackTrace();
-                            failedCounter++;
+//                            failedCounter++;
                         }
                     }
                     Client lastClient = clients.get((clients.size() - 1));
@@ -483,7 +494,8 @@ public class DispatcherServiceImpl implements DispatcherService {
                     lastExternalId = null;
                 }
             }
-            this.notifyTeamOfOperation("Due rental 3", totalMailCounter, failedCounter);
+//            this.notifyTeamOfOperation("Due rental 3", totalSuccessfulCounter, failedCounter);
+            this.logDispatchOperation("Due rental 3", totalSuccessfulCounter, failedCounter);
         }catch (CustomCheckedException cce) {
             cce.printStackTrace();
         }
@@ -492,8 +504,8 @@ public class DispatcherServiceImpl implements DispatcherService {
     @Override
     public void performArrearsOperation() {
         try {
-            int totalMailCounter = 0;
-            int failedCounter = 0;
+            Long totalSuccessfulCounter = 0L;
+            Long failedCounter = 0L;
             String lastExternalId = "";
             while (lastExternalId != null) {
                 List<Client> clients = clientService.fetchClients(lastExternalId);
@@ -597,13 +609,16 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                 notificationData.put("accountName", accountName);
                                                 notificationData.put("accountNumber", accountNumber);
                                                 notificationData.put("bankName", bankName);
-                                                totalMailCounter++;
+                                                totalSuccessfulCounter++;
                                                 try {
                                                     notificationService.sendEmailNotification(arrearsSubject, notificationData, "email/arrears");
                                                 } catch (CustomCheckedException cce) {
                                                     cce.printStackTrace();
 //                                    An error occurred while trying to send out notification, notify infotech of total failed and store failed mails in the db for retrial. Min of 3 retrials...
-                                                    failedCounter++;
+//                                                    failedCounter++;
+                                                    if(!emailService.emailAlreadyFailed(null, toAddress, doRentalSubject)) {
+                                                        failedCounter++;
+                                                    }
                                                     log.info("Failed to send out mail to: " + customer.getName() + ". See reason: " + cce.getMessage());
                                                 }
                                             }
@@ -613,7 +628,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                             }
                         }catch (Exception ex) {
                             ex.printStackTrace();
-                            failedCounter++;
+//                            failedCounter++;
                         }
                     }
                     Client lastClient = clients.get((clients.size() - 1));
@@ -622,7 +637,8 @@ public class DispatcherServiceImpl implements DispatcherService {
                     lastExternalId = null;
                 }
             }
-            this.notifyTeamOfOperation("Arrears", totalMailCounter, failedCounter);
+//            this.notifyTeamOfOperation("Arrears", totalSuccessfulCounter, failedCounter);
+            this.logDispatchOperation("Arrears", totalSuccessfulCounter, failedCounter);
         }catch (CustomCheckedException cce) {
             cce.printStackTrace();
         }
@@ -631,8 +647,8 @@ public class DispatcherServiceImpl implements DispatcherService {
     @Override
     public void performPostMaturityOperation() {
         try {
-            int totalMailCounter = 0;
-            int failedCounter = 0;
+            Long totalSuccessfulCounter = 0L;
+            Long failedCounter = 0L;
             String lastExternalId = "";
             while (lastExternalId != null) {
                 List<Client> clients = clientService.fetchClients(lastExternalId);
@@ -703,13 +719,16 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                     notificationData.put("accountName", accountName);
                                                     notificationData.put("accountNumber", accountNumber);
                                                     notificationData.put("bankName", bankName);
-                                                    totalMailCounter++;
+                                                    totalSuccessfulCounter++;
                                                     try {
                                                         notificationService.sendEmailNotification(postMaturitySubject, notificationData, "email/post_maturity");
                                                     } catch (CustomCheckedException cce) {
                                                         cce.printStackTrace();
 //                                    An error occurred while trying to send out notification, notify infotech of total failed and store failed mails in the db for retrial. Min of 3 retrials...
-                                                        failedCounter++;
+//                                                        failedCounter++;
+                                                        if(!emailService.emailAlreadyFailed(obligatoryPaymentDate, toAddress, doRentalSubject)) {
+                                                            failedCounter++;
+                                                        }
                                                         log.info("Failed to send out mail to: " + customer.getName() + ". See reason: " + cce.getMessage());
                                                     }
                                                 }
@@ -720,7 +739,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                             }
                         }catch (Exception ex) {
                             ex.printStackTrace();
-                            failedCounter++;
+//                            failedCounter++;
                         }
                     }
                     Client lastClient = clients.get((clients.size() - 1));
@@ -729,7 +748,8 @@ public class DispatcherServiceImpl implements DispatcherService {
                     lastExternalId = null;
                 }
             }
-            this.notifyTeamOfOperation("Post Maturity", totalMailCounter, failedCounter);
+//            this.notifyTeamOfOperation("Post Maturity", totalSuccessfulCounter, failedCounter);
+            this.logDispatchOperation("Post Maturity", totalSuccessfulCounter, failedCounter);
         }catch (CustomCheckedException cce) {
             cce.printStackTrace();
         }
@@ -738,8 +758,8 @@ public class DispatcherServiceImpl implements DispatcherService {
     @Override
     public void performChequeLodgementOperation() {
         try {
-            int totalMailCounter = 0;
-            int failedCounter = 0;
+            Long totalSuccessfulCounter = 0L;
+            Long failedCounter = 0L;
             String lastExternalId = "";
             while (lastExternalId != null) {
                 List<Client> clients = clientService.fetchClients(lastExternalId);
@@ -813,12 +833,15 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                     notificationData.put("accountName", accountName);
                                                     notificationData.put("accountNumber", accountNumber);
                                                     notificationData.put("bankName", bankName);
-                                                    totalMailCounter++;
+                                                    totalSuccessfulCounter++;
                                                     try {
                                                         notificationService.sendEmailNotification(chequeLodgementSubject, notificationData, "email/cheque_lodgement");
                                                     } catch (CustomCheckedException cce) {
                                                         cce.printStackTrace();
-                                                        failedCounter++;
+//                                                        failedCounter++;
+                                                        if(!emailService.emailAlreadyFailed(obligatoryPaymentDate, toAddress, doRentalSubject)) {
+                                                            failedCounter++;
+                                                        }
                                                         log.info("Failed to send out mail to: " + customer.getName() + ". See reason: " + cce.getMessage());
                                                     }
                                                 }
@@ -838,7 +861,8 @@ public class DispatcherServiceImpl implements DispatcherService {
                     lastExternalId = null;
                 }
             }
-            this.notifyTeamOfOperation("Cheque Lodgement", totalMailCounter, failedCounter);
+//            this.notifyTeamOfOperation("Cheque Lodgement", totalSuccessfulCounter, failedCounter);
+            this.logDispatchOperation("Cheque Lodgement", totalSuccessfulCounter, failedCounter);
         }catch (CustomCheckedException cce) {
             cce.printStackTrace();
         }
@@ -1055,16 +1079,41 @@ public class DispatcherServiceImpl implements DispatcherService {
         }
     }
 
-    private void notifyTeamOfOperation(String operationName, int totalMailCounter, int failedCounter) throws CustomCheckedException {
-        if(totalMailCounter > 0) {
-            int totalSuccessfulCount = (totalMailCounter - failedCounter);
-            Map<String, String> notificationData = new HashMap<>();
-            notificationData.put("toAddress", defaultToAddress);
-            notificationData.put("toName", defaultToName);
-            notificationData.put("totalSuccessfulCount", String.valueOf(totalSuccessfulCount));
-            notificationData.put("totalFailedCount", String.valueOf(failedCounter));
-            notificationData.put("operationName", operationName);
-            notificationService.sendEmailNotification(dispatchedMailsSubject, notificationData, "email/dispatched_mails");
+//    private void notifyTeamOfOperation(String operationName, int totalMailCounter, int failedCounter) throws CustomCheckedException {
+//        if(totalMailCounter > 0) {
+//            int totalSuccessfulCount = (totalMailCounter - failedCounter);
+//            Map<String, String> notificationData = new HashMap<>();
+//            notificationData.put("toAddress", defaultToAddress);
+//            notificationData.put("toName", defaultToName);
+//            notificationData.put("totalSuccessfulCount", String.valueOf(totalSuccessfulCount));
+//            notificationData.put("totalFailedCount", String.valueOf(failedCounter));
+//            notificationData.put("operationName", operationName);
+//            notificationService.sendEmailNotification(dispatchedMailsSubject, notificationData, "email/dispatched_mails");
+//        }
+//    }
+
+    @Override
+    public void notifyTeamOfOperation() throws CustomCheckedException {
+        List<MailMonitor> mailMonitorList = mailMonitorService.getAllDailyEventOperations();
+        if(!mailMonitorList.isEmpty()) {
+            for (MailMonitor monitoredEvent : mailMonitorList) {
+                Map<String, String> notificationData = new HashMap<>();
+                notificationData.put("toAddress", defaultToAddress);
+                notificationData.put("toName", defaultToName);
+                notificationData.put("totalSuccessfulCount", String.valueOf(monitoredEvent.getSuccessCount()));
+                notificationData.put("totalFailedCount", String.valueOf(monitoredEvent.getFailedCount()));
+                notificationData.put("operationName", monitoredEvent.getOperationName());
+                notificationService.sendEmailNotification(dispatchedMailsSubject, notificationData, "email/dispatched_mails");
+            }
+        }
+    }
+
+    private void logDispatchOperation(String operationName, Long successCount, Long failureCount) {
+        try {
+            mailMonitorService.modifyDailyMonitor(operationName, successCount, failureCount);
+        }catch (CustomCheckedException cce) {
+            cce.printStackTrace();
+            log.info("AN ERROR OCCURRED WHILE TRYING TO LOG DISPATCH OPERATION. SEE ERROR: \n" + cce.getMessage());
         }
     }
 }

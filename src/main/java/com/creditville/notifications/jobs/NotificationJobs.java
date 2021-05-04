@@ -1,5 +1,6 @@
 package com.creditville.notifications.jobs;
 
+import com.creditville.notifications.exceptions.CustomCheckedException;
 import com.creditville.notifications.services.DispatcherService;
 import com.creditville.notifications.services.PartialDebitService;
 import lombok.extern.slf4j.Slf4j;
@@ -112,5 +113,15 @@ public class NotificationJobs {
         if(partialDebitEnabled)
             partialDebitService.performPartialDebitOp();
         else log.info("Schedule for partial debit operation has reached it's schedule time but is operation is disabled from configuration".toUpperCase());
+    }
+
+    @Scheduled(cron = "${app.schedule.notifyTeam}")
+//    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
+    public void notifyTeamOperation() {
+        try {
+            dispatcherService.notifyTeamOfOperation();
+        }catch (CustomCheckedException cce) {
+            log.info("An error occurred while trying to notify team of operation");
+        }
     }
 }

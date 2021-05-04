@@ -139,7 +139,7 @@ public class PartialDebitServiceImpl implements PartialDebitService {
                             String pdResp = cardDetailsService.makePartialDebit(new PartialDebitDto(
                                     pdRecord.getAuthorizationCode(),
                                     newTotalDue,
-                                    pdRecord.getEmail(), this.getLeastPartialDebitAmount(newTotalDue)));
+                                    pdRecord.getEmail()));
                             if (pdResp != null) {
                                 JSONObject pdRespObj = cardUtil.getJsonObjResponse(pdResp);
                                 if (pdRespObj != null) {

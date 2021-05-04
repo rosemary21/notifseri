@@ -110,4 +110,11 @@ public class EmailServiceImpl implements EmailService {
             excludedEmailRepository.deleteByExcludedEmailId(excludedEmail.getId());
         }
     }
+
+    @Override
+    public boolean emailAlreadyFailed(LocalDate paymentDate, String toAddress, String emailSubject) {
+        if(failedEmailRepository.findByToAddressAndSubjectAndPaymentDate(toAddress, emailSubject, paymentDate) == null)
+            return false;
+        return true;
+    }
 }

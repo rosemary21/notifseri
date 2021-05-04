@@ -182,8 +182,7 @@ public class TransactionServiceImpl implements TransactionService {
                                 new PartialDebitDto(
                                         authorization.getAuthorizationCode(),
                                         data.getAmount(),
-                                        data.getCustomer().getEmail(),
-                                        partialDebitService.getLeastPartialDebitAmount(data.getAmount())
+                                        data.getCustomer().getEmail()
                                 )
                         );
                     }
@@ -248,7 +247,7 @@ public class TransactionServiceImpl implements TransactionService {
                 maxAttemptsReached = true;
         }
         if(!maxAttemptsReached) {
-            String pdResp = cardDetailsService.makePartialDebit(new PartialDebitDto(authCode, amount, email, partialDebitService.getLeastPartialDebitAmount(amount)));
+            String pdResp = cardDetailsService.makePartialDebit(new PartialDebitDto(authCode, amount, email));
             if (pdResp != null) {
                 JSONObject pdRespObj = cardUtil.getJsonObjResponse(pdResp);
                 if (pdRespObj != null) {

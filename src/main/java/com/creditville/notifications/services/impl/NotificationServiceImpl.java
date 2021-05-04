@@ -1,6 +1,5 @@
 package com.creditville.notifications.services.impl;
 
-//import com.creditville.notifications.models.forms.AddToExceptionListForm;
 import com.creditville.notifications.exceptions.CustomCheckedException;
 import com.creditville.notifications.models.ExcludedEmail;
 import com.creditville.notifications.models.requests.SendEmailRequest;
@@ -10,14 +9,13 @@ import com.creditville.notifications.repositories.FailedEmailRepository;
 import com.creditville.notifications.services.EmailService;
 import com.creditville.notifications.services.NotificationService;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import org.simplejavamail.email.Email;
+import org.simplejavamail.api.email.Email;
+import org.simplejavamail.api.mailer.Mailer;
 import org.simplejavamail.email.EmailBuilder;
-import org.simplejavamail.mailer.Mailer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;

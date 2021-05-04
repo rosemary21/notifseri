@@ -1,5 +1,7 @@
 package com.creditville.notifications.services;
 
+import com.creditville.notifications.exceptions.CustomCheckedException;
+
 import java.time.LocalDate;
 
 /**
@@ -21,4 +23,6 @@ public interface DispatcherService {
     void performRecurringChargesOperation();
 
     void performMiscOperation(LocalDate startDate, LocalDate endDate);
+
+    void notifyTeamOfOperation() throws CustomCheckedException;
 }

@@ -1,6 +1,7 @@
 package com.creditville.notifications;
 
 import com.creditville.notifications.exceptions.CustomCheckedException;
+import com.creditville.notifications.services.NotificationService;
 import com.creditville.notifications.services.PartialDebitService;
 import com.creditville.notifications.utils.DateUtil;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -13,7 +14,9 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.NumberFormat;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 @SpringBootTest
 class NotificationsApplicationTests {
@@ -22,6 +25,9 @@ class NotificationsApplicationTests {
 
     @Autowired
     private PartialDebitService partialDebitService;
+
+    @Autowired
+    private NotificationService notificationService;
 
     @Test
     void contextLoads() {
@@ -46,6 +52,21 @@ class NotificationsApplicationTests {
         on.put("test", "This is a test");
         System.out.println("ON: "+ on.get("test").toString());
         System.out.println("ON TXT: "+ on.get("test").textValue());
+    }
+
+    @Test
+    void sendDummyNotification() {
+//        try {
+//            Map<String, String> notificationData = new HashMap<>();
+//            notificationData.put("toAddress", "david.udechukwu@creditville.ng");
+//            notificationData.put("toName", "David Udechukwu");
+//            notificationData.put("totalSuccessfulCount", String.valueOf(12));
+//            notificationData.put("totalFailedCount", String.valueOf(0));
+//            notificationData.put("operationName", "Test OP");
+//            notificationService.sendEmailNotification("DAILY TEST REPORT", notificationData, "email/dispatched_mails");
+//        }catch (CustomCheckedException cce) {
+//            cce.printStackTrace();
+//        }
     }
 
 }

@@ -379,7 +379,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                 String pdResp = this.makePartialDebit(new PartialDebitDto(
                         chargeDto.getAuthorization_code(),
                         chargeDto.getAmount(),
-                        chargeDto.getEmail(), partialDebitService.getLeastPartialDebitAmount(chargeDto.getAmount())));
+                        chargeDto.getEmail()));
                 if (pdResp != null) {
                     JSONObject pdRespObj = cardUtil.getJsonObjResponse(pdResp);
                     if (pdRespObj != null) {
