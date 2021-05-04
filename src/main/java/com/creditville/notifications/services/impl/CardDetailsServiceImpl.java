@@ -297,14 +297,28 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                                 repayLoanReq.setRepaymentDate(currentDate.toString());
                                 repayLoanReq.setNotes("Card loan repayment");
                                 var repaymentResp = loanRepaymentService.makeLoanRepayment(repayLoanReq);
-                                if (null == repaymentResp) {
-                                    repaymentStatus = false;
-                                    errorMessage = chargeRespObj.get("message").toString();
-                                } else {
-                                    if (repaymentResp.trim().equals("")) {
-                                        repaymentStatus = false;
-                                        errorMessage = chargeRespObj.get("message").toString();
+                                if(repaymentResp != null) {
+                                    JSONObject repaymentResponseObject;
+                                    try{
+                                        repaymentResponseObject = cardUtil.getJsonObjResponse(repaymentResp);
+                                        if(responseContainsValidationError(repaymentResponseObject)) {
+                                            errorMessage = repaymentResponseObject.get("message").toString();
+                                            repaymentStatus = false;
+                                        }
+                                    }catch (Exception ex) {
+                                        ex.printStackTrace();
+                                        repaymentResponseObject = null;
                                     }
+                                    if(repaymentResponseObject == null) {
+                                        boolean isEmpty = repaymentResp.trim().equals("");
+                                        errorMessage = isEmpty ?
+                                                "Charge successful but loan repayment failed. Reason: No response gotten from Instafin" :
+                                                repaymentResp;
+                                        if(isEmpty) repaymentStatus = false;
+                                    }
+                                }else {
+                                    errorMessage = "Charge successful but loan repayment failed. Reason: No response gotten from Instafin";
+                                    repaymentStatus = false;
                                 }
                             }else {
 //                                Charge failed. Attempt PD...
@@ -397,31 +411,58 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                             repayLoanReq.setRepaymentDate(currentDate.toString());
                             repayLoanReq.setNotes("Paystack Card loan repayment");
                             var repaymentResp = loanRepaymentService.makeLoanRepayment(repayLoanReq);
-                            if (null == repaymentResp) {
-                                errorMessage = pdRespObj.get("message").toString();
-                                responseMap.put("repaymentStatus", Boolean.toString(false));
-                                responseMap.put("errorMessage",errorMessage);
-                            } else {
-                                if (repaymentResp.trim().equals("")) {
-                                    errorMessage = pdRespObj.get("message").toString();
-                                    responseMap.put("repaymentStatus", Boolean.toString(false));
-                                    responseMap.put("errorMessage",errorMessage);
-                                } else {
-//                                  Repayment successful...
-                                    if (isNewPdRecord)
-                                        partialDebitService.savePartialDebit(chargeDto.getAuthorization_code(), loanId, chargeDto.getAmount(), chargeDto.getEmail(), currentDate);
-                                    else {
-                                        PartialDebitAttempt partialDebitAttempt = partialDebitService.getPartialDebitAttempt(partialDebit, LocalDate.now());
-                                        int totalAttempts = partialDebitAttempt.getTotalNoOfAttempts();
-                                        int totalAttemptsInc = (totalAttempts + 1);
-                                        partialDebitAttempt.setTotalNoOfAttempts(totalAttemptsInc);
-                                        partialDebitService.savePartialDebitAttempt(partialDebitAttempt);
+                            if(repaymentResp != null) {
+                                JSONObject repaymentResponseObject;
+                                try{
+                                    repaymentResponseObject = cardUtil.getJsonObjResponse(repaymentResp);
+                                    if(responseContainsValidationError(repaymentResponseObject)) {
+                                        errorMessage = repaymentResponseObject.get("message").toString();
+                                        responseMap.put("repaymentStatus", Boolean.toString(false));
+                                    }else {
+                                        errorMessage = null;
+                                        responseMap.put("repaymentStatus", Boolean.toString(true));
+//                                        Repayment successful...
+                                        if (isNewPdRecord)
+                                            partialDebitService.savePartialDebit(chargeDto.getAuthorization_code(), loanId, chargeDto.getAmount(), chargeDto.getEmail(), currentDate);
+                                        else {
+                                            PartialDebitAttempt partialDebitAttempt = partialDebitService.getPartialDebitAttempt(partialDebit, LocalDate.now());
+                                            int totalAttempts = partialDebitAttempt.getTotalNoOfAttempts();
+                                            int totalAttemptsInc = (totalAttempts + 1);
+                                            partialDebitAttempt.setTotalNoOfAttempts(totalAttemptsInc);
+                                            partialDebitService.savePartialDebitAttempt(partialDebitAttempt);
+                                        }
+                                    }
+                                    responseMap.put("errorMessage", errorMessage);
+                                }catch (Exception ex) {
+                                    ex.printStackTrace();
+                                    repaymentResponseObject = null;
+                                }
+                                if(repaymentResponseObject == null) {
+                                    boolean isEmpty = repaymentResp.trim().equals("");
+                                    errorMessage = isEmpty ?
+                                            "Charge successful but loan repayment failed. Reason: No response gotten from Instafin" :
+                                            repaymentResp;
+                                    if(isEmpty) {
+                                        responseMap.put("repaymentStatus", Boolean.toString(false));
+                                        responseMap.put("errorMessage", errorMessage);
                                     }
                                 }
+                            }else {
+                                errorMessage = "Charge successful but loan repayment failed. Reason: No response gotten from Instafin";
+                                responseMap.put("repaymentStatus", Boolean.toString(false));
+                                responseMap.put("errorMessage", errorMessage);
                             }
                         }
                     }
                 }
+            }
+        }else {
+            if(chargeRespObj.get("gateway_response") != null) {
+                responseMap.put("repaymentStatus", Boolean.toString(false));
+                responseMap.put("errorMessage", chargeRespObj.get("gateway_response").toString());
+            }else {
+                responseMap.put("repaymentStatus", Boolean.toString(false));
+                responseMap.put("errorMessage", "No gateway response returned from Paystack");
             }
         }
         return responseMap;
@@ -476,5 +517,21 @@ public class CardDetailsServiceImpl implements CardDetailsService {
     @Override
     public List<CardDetails> getAllCardDetails(Integer pageNo, Integer pageSize) {
         return cardDetailsRepo.findAllByStatusIn(Collections.singletonList("success"), PageRequest.of(pageNo, pageSize)).getContent();
+    }
+
+    private boolean responseContainsValidationError(JSONObject jsonObject){
+        String[] validationErrors = new String[] {"LEGACY_VALIDATION_ERROR", "VALIDATION",
+                "NON_EXISTING_ACCOUNT", "INVALID_STATUS_CHANGE",
+                "ACCOUNT_ALREADY_DISBURSED", "NON_EXISTING_ACCOUNT_STATUS", "VALUE_BEFORE_APPROVAL_DATE",
+                "CLIENTS_NOT_FOUND", "PAYMENT_METHOD_UNAVAILABLE", "NON_EXISTING_BRANCH", "STATUS_CHANGE_DATE_INVALID",
+                "DISBURSEMENT_NOT_ALLOWED", "GENERIC_VALIDATION_ERROR"};
+        boolean contains = false;
+        for(String error : validationErrors) {
+            if(jsonObject.containsValue(error)) {
+                contains = true;
+                break;
+            }
+        }
+        return contains;
     }
 }
