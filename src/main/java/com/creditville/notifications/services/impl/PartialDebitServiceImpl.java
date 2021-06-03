@@ -15,6 +15,7 @@ import com.creditville.notifications.repositories.PartialDebitRepository;
 import com.creditville.notifications.services.*;
 import com.creditville.notifications.utils.CardUtil;
 import com.creditville.notifications.utils.DateUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,6 +27,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class PartialDebitServiceImpl implements PartialDebitService {
     @Autowired
@@ -187,7 +189,7 @@ public class PartialDebitServiceImpl implements PartialDebitService {
                 }
             }catch (Exception ex) {
                 ex.printStackTrace();
-                System.out.println("Partial debit operation failed for record with ID: "+ pdRecord.getId() + ". Reason \n "+ ex.getMessage());
+                log.info("Partial debit operation failed for record with ID: "+ pdRecord.getId() + ". Reason \n "+ ex.getMessage());
             }
 //            Notify team...
             Map<String, String> notificationData = new HashMap<>();
@@ -206,7 +208,7 @@ public class PartialDebitServiceImpl implements PartialDebitService {
                     notificationService.sendEmailNotification(mailSubject, notificationData, templateLocation);
                 } catch (CustomCheckedException cce) {
                     cce.printStackTrace();
-                    System.out.println("An error occurred while trying to notify team of repayment status");
+                    log.info("An error occurred while trying to notify team of repayment status. See message: "+ cce.getMessage());
                 }
             }
         }

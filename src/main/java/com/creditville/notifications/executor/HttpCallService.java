@@ -56,7 +56,7 @@ public class HttpCallService {
             throw new CustomCheckedException(e.getMessage(), e.getCause());
         }
         if(httpResponse.getStatus() == 200) return  httpResponse.getBody();
-        else throw new CustomCheckedException("Unable to perform basic post operation with status code: "+ httpResponse.getStatus());
+        else throw new CustomCheckedException("Unable to perform basic post operation with status code: "+ httpResponse.getStatus() + ". Payload is \n "+ payload);
     }
 
     public String httpPaystackCall(String url, String payload){

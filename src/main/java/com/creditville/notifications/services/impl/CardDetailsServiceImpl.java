@@ -107,7 +107,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
         boolean isTokenized = false;
         try {
             var tranRespObj = cardUtil.getJsonObjResponse(authResp);
-            System.out.println("tranRespObj: "+tranRespObj);
+            log.info("tranRespObj: "+tranRespObj);
             if(null != tranRespObj && tranRespObj.containsKey("data")){
                 var dataObj =(JSONObject) tranRespObj.get("data");
                 var customerObj = (JSONObject) dataObj.get("customer");
@@ -128,7 +128,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                 cdDto.setClientId(clientId);
 
                 saveCustomerCardDetails(convertCardDetailsDtoToEntity(cdDto));
-                System.out.println("ENTRY cardAuthorization: >>>>>>>>> SAVED <<<<<<<<<<");
+                log.info("ENTRY cardAuthorization: >>>>>>>>> SAVED <<<<<<<<<<");
                 isTokenized = true;
             }
             String clientEmail = cdDto.getEmail();
@@ -145,7 +145,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                 notificationService.sendEmailNotification(subject, notificationData, templateLocation);
             }catch (CustomCheckedException cce) {
                 cce.printStackTrace();
-                System.out.println("An error occurred while trying to notify team of tokenization status");
+                log.info("An error occurred while trying to notify team of tokenization status");
             }
         } catch (ParseException e) {
             e.printStackTrace();
@@ -239,7 +239,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
 
     @Override
     public void cardRecurringCharges(String email, BigDecimal amount, String loanId, LocalDate currentDate, String clientID) {
-        System.out.printf("Email %s, Amount %s, Loan ID %s, Local Date %s, ClientID: %s", email, amount.toString(), loanId, currentDate.toString(), clientID);
+        log.info("Email %s, Amount %s, Loan ID %s, Local Date %s, ClientID: %s", email, amount.toString(), loanId, currentDate.toString(), clientID);
         ChargeDto chargeDto = new ChargeDto();
         CardTransactionsDto ctDTO = new CardTransactionsDto();
         RepayLoanReq repayLoanReq = new RepayLoanReq();
@@ -248,13 +248,13 @@ public class CardDetailsServiceImpl implements CardDetailsService {
         var cardDetails = cardDetailsRepo.findByClientIdAndEmail(clientID, email);
         String errorMessage = null;
         if(null == cardDetails){
-            System.out.println("Card is not tokenized".toUpperCase());
+            log.info("Card is not tokenized".toUpperCase());
             repaymentStatus = false;
         }else {
             try {
                 CardTransactions existingTransaction = cardTransactionRepository.findByCardDetailsAndStatusInAndLastUpdate(cardDetails, Collections.singletonList("success"), currentDate);
                 if (existingTransaction == null) {
-                    System.out.println("There is no such existing transaction. Creating one now...");
+                    log.info("There is no such existing transaction. Creating one now...");
                     if(amount.compareTo(BigDecimal.ZERO) > 0) {
                         chargeDto.setAmount(amount);
                         chargeDto.setAuthorization_code(cardDetails.getAuthorizationCode());
@@ -265,9 +265,9 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                         ctDTO.setPaystackResponse(chargeResp);
 
                         var chargeRespObj = cardUtil.getJsonObjResponse(chargeResp);
-                        System.out.println("ENTRY -> recurringCharges response: " + chargeRespObj);
+//                        log.info("ENTRY -> recurringCharges response: " + chargeRespObj);
                         if (null != chargeRespObj && chargeRespObj.containsKey("data")) {
-                            System.out.printf("Data response was gotten from PAYSTACK for client: %s with loan id: %s", cardDetails.getClientId(), loanId);
+                            log.info("Data response was gotten from PAYSTACK for client: %s with loan id: %s", cardDetails.getClientId(), loanId);
                             var dataObj = (JSONObject) chargeRespObj.get("data");
                             var authObj = (JSONObject) dataObj.get("authorization");
 
@@ -328,7 +328,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                             }
 
                         }else {
-                            System.out.printf("No response was gotten from PAYSTACK. Aborting operation for client: %s with loan id: %s", cardDetails.getClientId(), loanId);
+                            log.info("No response was gotten from PAYSTACK. Aborting operation for client: %s with loan id: %s", cardDetails.getClientId(), loanId);
                             repaymentStatus = false;
                             errorMessage = "No response gotten from paystack";
                         }
@@ -344,7 +344,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                         }
                     }
                 }else {
-                    System.out.println("An existing transaction already exists. See ID: "+ existingTransaction.getId());
+                    log.info("An existing transaction already exists. See ID: "+ existingTransaction.getId());
                 }
             } catch (ParseException e) {
                 e.printStackTrace();
@@ -367,7 +367,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                 notificationService.sendEmailNotification(mailSubject, notificationData, templateLocation);
             } catch (CustomCheckedException cce) {
                 cce.printStackTrace();
-                System.out.println("An error occurred while trying to notify team of repayment status");
+                log.info("An error occurred while trying to notify team of repayment status: Error message: " +  cce.getMessage());
             }
         }
     }
@@ -375,7 +375,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
     private Map<String, String> performPd(JSONObject chargeRespObj, ChargeDto chargeDto, RepayLoanReq repayLoanReq, String loanId, LocalDate currentDate) throws ParseException {
         String errorMessage;
         Map<String, String> responseMap = new HashMap<>();
-        if (chargeRespObj.get("gateway_response") != null && chargeRespObj.get("gateway_response").toString().equalsIgnoreCase("insufficient funds")) {
+        if (chargeRespObj.get("gateway_response") != null && (chargeRespObj.get("gateway_response").toString().equalsIgnoreCase("insufficient funds") || chargeRespObj.get("gateway_response").toString().equalsIgnoreCase("not sufficient funds"))) {
 //          Charge failed due to insufficient funds. Attempt partial debit...
             PartialDebit partialDebit = partialDebitService.getPartialDebit(
                     chargeDto.getAuthorization_code(),
@@ -473,9 +473,9 @@ public class CardDetailsServiceImpl implements CardDetailsService {
         String resp = null;
         try {
             var payload = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(partialDebitDto);
-            System.out.println("ENTRY -> makePartialDebit payload: "+ payload);
+            log.info("ENTRY -> makePartialDebit payload: "+ payload);
             resp = httpCallService.httpPaystackCall(psBaseUrl+partialDebitUrl, payload);
-            System.out.println("ENTRY -> makePartialDebit resp: "+resp);
+            log.info("ENTRY -> makePartialDebit resp: "+resp);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
@@ -488,10 +488,9 @@ public class CardDetailsServiceImpl implements CardDetailsService {
         String chargeResp = null;
         try {
             var payload = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(chargeDto);
-            System.out.println("ENTRY -> recurringCharges payload: "+ payload);
+            log.info("ENTRY -> recurringCharges payload: "+ payload);
             chargeResp = httpCallService.httpPaystackCall(psBaseUrl+psChargeAuthUrl, payload);
-//            System.out.println("chargeResp: "+chargeResp);
-
+            log.info("recurringCharges response: "+chargeResp);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
@@ -500,7 +499,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
 
     @Override
     public String verifyTransaction(String reference) {
-        System.out.println("reference: "+reference);
+        log.info("Verify transaction reference: "+reference);
         var transResp = httpCallService.httpPaystackCall(psBaseUrl+psTransVerification+reference, null);
 //        System.out.println("transResp: "+transResp);
         return transResp;

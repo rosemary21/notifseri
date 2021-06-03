@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.simplejavamail.api.email.Email;
 import org.simplejavamail.api.mailer.Mailer;
 import org.simplejavamail.email.EmailBuilder;
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
 /**
  * Created by Chuks on 02/07/2021.
  */
+@Slf4j
 @Service
 public class NotificationServiceImpl implements NotificationService {
     @Qualifier("templateEngine")
@@ -100,7 +102,7 @@ public class NotificationServiceImpl implements NotificationService {
                 }
             }catch (Exception ex) {
                 emailService.saveFailedEmail(notificationData, subject, email.getHTMLText(), ex.getMessage());
-                System.out.println("Email sending failed: "+ ex.getMessage());
+                log.info("Email sending failed: "+ ex.getMessage());
                 throw new CustomCheckedException("Email sending failed");
             }
         }
@@ -168,7 +170,7 @@ public class NotificationServiceImpl implements NotificationService {
                 }
             }catch (Exception ex) {
                 emailService.saveFailedEmail(mailData, sendEmailRequest.getMailSubject(), email.getHTMLText(), ex.getMessage());
-                System.out.println("Email sending failed: "+ ex.getMessage());
+                log.info("Email sending failed: "+ ex.getMessage());
                 throw new CustomCheckedException("Email sending failed");
             }
         }
@@ -213,7 +215,7 @@ public class NotificationServiceImpl implements NotificationService {
                     }
                 }catch (Exception ex) {
                     emailService.saveFailedEmail(mailData, sendEmailRequest.getMailSubject(), email.getHTMLText(), ex.getMessage());
-                    System.out.println("Email sending failed: "+ ex.getMessage());
+                    log.info("Email sending failed: "+ ex.getMessage());
                     throw new CustomCheckedException("Email sending failed");
                 }
             }

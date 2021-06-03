@@ -954,39 +954,51 @@ public class DispatcherServiceImpl implements DispatcherService {
                                     if (modeOfRepayment.equalsIgnoreCase(cardModeOfRepaymentKey)) {
                                         List<LookUpLoanInstalment> loanInstalments = lookUpLoanAccount.getLoanAccount().getInstalments();
                                         if (!loanInstalments.isEmpty()) {
-                                            List<LookUpLoanInstalment> loanInstalmentsGtOrEqToday = loanInstalments
+                                            List<LookUpLoanInstalment> loanInstalmentsLtOrEqToday = loanInstalments
                                                     .stream()
-                                                    .filter(lookUpLoanInstalment -> dateUtil.isPaymentDateGtOrEqToday(lookUpLoanInstalment.getObligatoryPaymentDate()))
+                                                    .filter(lookUpLoanInstalment -> dateUtil.isPaymentDateLtOrEqToday(lookUpLoanInstalment.getObligatoryPaymentDate()))
                                                     .collect(Collectors.toList());
-                                            if (!loanInstalmentsGtOrEqToday.isEmpty()) {
-                                                List<LookUpLoanInstalment> lookUpLoanInstalments = loanInstalmentsGtOrEqToday
-                                                        .stream()
-                                                        .filter(lookUpLoanInstalment -> dateUtil.isPaymentDateToday(lookUpLoanInstalment.getObligatoryPaymentDate()))
-                                                        .collect(Collectors.toList());
-                                                LookUpLoanInstalment dueDateInstalment = !lookUpLoanInstalments.isEmpty() ? lookUpLoanInstalments.get(0) : null;
-//                                            System.out.println("Loan due date installment is: " + dueDateInstalment);
-                                                if (dueDateInstalment != null) {
-//                                                System.out.println("Loan due date installment date is: " + dueDateInstalment.getObligatoryPaymentDate());
+                                            if (!loanInstalmentsLtOrEqToday.isEmpty()) {
+                                                for (LookUpLoanInstalment dueDateInstalment : loanInstalmentsLtOrEqToday) {
                                                     Client customer = lookUpClient.getClient();
                                                     LocalDate obligatoryPaymentDate = dateUtil.convertDateToLocalDate(dueDateInstalment.getObligatoryPaymentDate());
                                                     String toAddress = customer.getEmail();
-                                                    BigDecimal totalDue = dueDateInstalment.getCurrentState().getPrincipalDueAmount()
-                                                            .add(dueDateInstalment.getCurrentState().getInterestDueAmount());
-                                                    BigDecimal newTotalDue = totalDue.multiply(new BigDecimal(100));
-//                                            String toAddress = useDefaultMailInfo ? defaultToAddress : customer.getEmail();
-//                                            Perform recurring charge...
-//                                                cardDetailsService.cardRecurringCharges(toAddress, totalDue, clientLoan.getId(), obligatoryPaymentDate, customer.getExternalID());
-                                                    cardDetailsService.cardRecurringCharges(toAddress, newTotalDue, clientLoan.getId(), obligatoryPaymentDate, customer.getExternalID());
+                                                    var principalDueAmount = dueDateInstalment.getCurrentState().getPrincipalDueAmount();
+                                                    if (principalDueAmount.compareTo(BigDecimal.ZERO) > 0) {
+                                                        BigDecimal totalDue = principalDueAmount
+                                                                .add(dueDateInstalment.getCurrentState().getInterestDueAmount());
+                                                        BigDecimal newTotalDue = totalDue.multiply(new BigDecimal(100));
+                                                        cardDetailsService.cardRecurringCharges(toAddress, newTotalDue, clientLoan.getId(), obligatoryPaymentDate, customer.getExternalID());
+                                                    }
                                                 }
+//                                                List<LookUpLoanInstalment> lookUpLoanInstalments = loanInstalmentsLtOrEqToday
+//                                                        .stream()
+//                                                        .filter(lookUpLoanInstalment -> dateUtil.isPaymentDateToday(lookUpLoanInstalment.getObligatoryPaymentDate()))
+//                                                        .collect(Collectors.toList());
+//                                                LookUpLoanInstalment dueDateInstalment = !lookUpLoanInstalments.isEmpty() ? lookUpLoanInstalments.get(0) : null;
+////                                            System.out.println("Loan due date installment is: " + dueDateInstalment);
+//                                                if (dueDateInstalment != null) {
+////                                                System.out.println("Loan due date installment date is: " + dueDateInstalment.getObligatoryPaymentDate());
+//                                                    Client customer = lookUpClient.getClient();
+//                                                    LocalDate obligatoryPaymentDate = dateUtil.convertDateToLocalDate(dueDateInstalment.getObligatoryPaymentDate());
+//                                                    String toAddress = customer.getEmail();
+//                                                    BigDecimal totalDue = dueDateInstalment.getCurrentState().getPrincipalDueAmount()
+//                                                            .add(dueDateInstalment.getCurrentState().getInterestDueAmount());
+//                                                    BigDecimal newTotalDue = totalDue.multiply(new BigDecimal(100));
+////                                            String toAddress = useDefaultMailInfo ? defaultToAddress : customer.getEmail();
+////                                            Perform recurring charge...
+////                                                cardDetailsService.cardRecurringCharges(toAddress, totalDue, clientLoan.getId(), obligatoryPaymentDate, customer.getExternalID());
+//                                                    cardDetailsService.cardRecurringCharges(toAddress, newTotalDue, clientLoan.getId(), obligatoryPaymentDate, customer.getExternalID());
+//                                                }
                                             } else
-                                                System.out.println("Loan installments gt or eq to today is empty...");
-                                        } else System.out.println("Loan installments is empty...");
-                                    } else System.out.println("Mode of repayment is not known..." + modeOfRepayment);
+                                                log.info("Loan installments gt or eq to today is empty...");
+                                        } else log.info("Loan installments is empty...");
+                                    } else log.info("Mode of repayment is not known..." + modeOfRepayment);
                                 }
                             }
                         }catch (Exception ex) {
                             ex.printStackTrace();
-                            System.out.println("An error occurred for client with id: ".toUpperCase() + cardDetails.getClientId());
+                            log.info("An error occurred for client with id: ".toUpperCase() + cardDetails.getClientId());
                         }
                     }
                     pageNumber++;
@@ -1009,62 +1021,62 @@ public class DispatcherServiceImpl implements DispatcherService {
                 List<CardDetails> tokenizedCardDetails = cardDetailsService.getAllCardDetails(pageNumber, 100);
                 if (!tokenizedCardDetails.isEmpty()) {
                     for (CardDetails cardDetails : tokenizedCardDetails) {
-                        System.out.println("CARD DETAILS: "+ cardDetails.getClientId());
+                        log.info("CARD DETAILS: "+ cardDetails.getClientId());
                         try {
                             LookUpClient lookUpClient = clientService.lookupClient(cardDetails.getClientId());
                             String clientStatus = lookUpClient.getClient().getClientStatus();
-                            System.out.println("LOOKUP DONE: "+ clientStatus);
+                            log.info("LOOKUP DONE: "+ clientStatus);
                             if (clientStatus.equals("ACTIVE") || clientStatus.contains("ARREARS")) {
-                                System.out.println("CLIENT IS ACTIVE/IN ARREARS");
+                                log.info("CLIENT IS ACTIVE/IN ARREARS");
                                 List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
                                         .stream()
                                         .filter(cl -> cl.getStatus().equalsIgnoreCase("ACTIVE") || cl.getStatus().contains("ARREARS"))
                                         .collect(Collectors.toList());
-                                System.out.println("OPEN CLIENT LOAN SIZE IS: "+ openClientLoanList.size());
+                                log.info("OPEN CLIENT LOAN SIZE IS: "+ openClientLoanList.size());
 //                Since there can be only one open client loan at a time, check if the list is empty, if not, get the first element...
                                 if (!openClientLoanList.isEmpty()) {
                                     LookUpClientLoan clientLoan = openClientLoanList.get(0);
                                     LookUpLoanAccount lookUpLoanAccount = clientService.lookupLoanAccount(clientLoan.getId());
-                                    System.out.println("LOAN ACCOUNT IS: "+ lookUpLoanAccount.getLoanAccount());
+                                    log.info("LOAN ACCOUNT IS: "+ lookUpLoanAccount.getLoanAccount());
                                     String modeOfRepayment = lookUpLoanAccount.getLoanAccount().getOptionalFields().getModeOfRepayment() == null ?
                                             "" :
                                             lookUpLoanAccount.getLoanAccount().getOptionalFields().getModeOfRepayment();
-                                    System.out.println("MODE OF REPAYMENT IS: "+ modeOfRepayment);
+                                    log.info("MODE OF REPAYMENT IS: "+ modeOfRepayment);
                                     if (modeOfRepayment.equalsIgnoreCase(cardModeOfRepaymentKey)) {
                                         List<LookUpLoanInstalment> loanInstalments = lookUpLoanAccount.getLoanAccount().getInstalments();
-                                        System.out.println("INSTALMENT SIZE IS: "+ loanInstalments.size());
+                                        log.info("INSTALMENT SIZE IS: "+ loanInstalments.size());
                                         if (!loanInstalments.isEmpty()) {
                                             List<LookUpLoanInstalment> loanInstalmentsWithin = loanInstalments
                                                     .stream()
                                                     .filter(lookUpLoanInstalment -> dateUtil.isPaymentDateWithin(lookUpLoanInstalment.getObligatoryPaymentDate(), startDate, endDate))
                                                     .collect(Collectors.toList());
-                                            System.out.println("INSTALMENT WITHIN SIZE IS: "+ loanInstalmentsWithin.size());
+                                            log.info("INSTALMENT WITHIN SIZE IS: "+ loanInstalmentsWithin.size());
                                             if (!loanInstalmentsWithin.isEmpty()) {
-                                                System.out.println("INSTALMENT WITHIN IS NOT EMPTY");
+                                                log.info("INSTALMENT WITHIN IS NOT EMPTY");
                                                 for (LookUpLoanInstalment dueDateInstalment : loanInstalmentsWithin) {
-                                                    System.out.println("DUE DATE INSTALMENT IS: "+ dueDateInstalment.getStatus());
+                                                    log.info("DUE DATE INSTALMENT IS: "+ dueDateInstalment.getStatus());
                                                     Client customer = lookUpClient.getClient();
                                                     LocalDate obligatoryPaymentDate = dateUtil.convertDateToLocalDate(dueDateInstalment.getObligatoryPaymentDate());
                                                     String toAddress = customer.getEmail();
                                                     var principalDueAmount = dueDateInstalment.getCurrentState().getPrincipalDueAmount();
-                                                    System.out.println("PRINCIPAL DUE AMOUNT IS: "+ principalDueAmount);
+                                                    log.info("PRINCIPAL DUE AMOUNT IS: "+ principalDueAmount);
                                                     if (principalDueAmount.compareTo(BigDecimal.ZERO) > 0) {
-                                                        System.out.println("PRINCIPAL DUE AMOUNT IS GT ZERO");
+                                                        log.info("PRINCIPAL DUE AMOUNT IS GT ZERO");
                                                         BigDecimal totalDue = principalDueAmount
                                                                 .add(dueDateInstalment.getCurrentState().getInterestDueAmount());
                                                         BigDecimal newTotalDue = totalDue.multiply(new BigDecimal(100));
                                                         cardDetailsService.cardRecurringCharges(toAddress, newTotalDue, clientLoan.getId(), obligatoryPaymentDate, customer.getExternalID());
                                                     }
                                                 }
-                                                System.out.println("Done with OP...." + cardDetails.getClientId());
-                                            }else System.out.println("There are no loan instalments for client: "+ cardDetails.getClientId());
-                                        } else System.out.println("Loan installments is empty...");
-                                    } else System.out.println("Mode of repayment is not known..." + modeOfRepayment);
+                                                log.info("Done with OP...." + cardDetails.getClientId());
+                                            }else log.info("There are no loan instalments for client: "+ cardDetails.getClientId());
+                                        } else log.info("Loan installments is empty...");
+                                    } else log.info("Mode of repayment is not known..." + modeOfRepayment);
                                 }
                             }
                         }catch (Exception ex) {
                             ex.printStackTrace();
-                            System.out.println("An error occurred for client with id: ".toUpperCase() + cardDetails.getClientId());
+                            log.info("An error occurred for client with id: ".toUpperCase() + cardDetails.getClientId());
                         }
                         counter ++;
                     }
@@ -1073,7 +1085,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                     pageNumber = null;
                 }
             }
-            System.out.print("TOTAL OPERATION COUNT AF IS: "+ counter);
+            log.info("TOTAL OPERATION COUNT AF IS: "+ counter);
         }catch (Exception cce) {
             cce.printStackTrace();
         }
