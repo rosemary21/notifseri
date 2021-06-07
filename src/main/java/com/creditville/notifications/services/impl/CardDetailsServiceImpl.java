@@ -239,7 +239,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
 
     @Override
     public void cardRecurringCharges(String email, BigDecimal amount, String loanId, LocalDate currentDate, String clientID) {
-        log.info("Email %s, Amount %s, Loan ID %s, Local Date %s, ClientID: %s", email, amount.toString(), loanId, currentDate.toString(), clientID);
+        log.info("Email {}, Amount {}, Loan ID {}, Local Date {}, ClientID: {}", email, amount.toString(), loanId, currentDate.toString(), clientID);
         ChargeDto chargeDto = new ChargeDto();
         CardTransactionsDto ctDTO = new CardTransactionsDto();
         RepayLoanReq repayLoanReq = new RepayLoanReq();
@@ -267,7 +267,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                         var chargeRespObj = cardUtil.getJsonObjResponse(chargeResp);
 //                        log.info("ENTRY -> recurringCharges response: " + chargeRespObj);
                         if (null != chargeRespObj && chargeRespObj.containsKey("data")) {
-                            log.info("Data response was gotten from PAYSTACK for client: %s with loan id: %s", cardDetails.getClientId(), loanId);
+                            log.info("Data response was gotten from PAYSTACK for client: {} with loan id: {}", cardDetails.getClientId(), loanId);
                             var dataObj = (JSONObject) chargeRespObj.get("data");
                             var authObj = (JSONObject) dataObj.get("authorization");
 
@@ -328,7 +328,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                             }
 
                         }else {
-                            log.info("No response was gotten from PAYSTACK. Aborting operation for client: %s with loan id: %s", cardDetails.getClientId(), loanId);
+                            log.info("No response was gotten from PAYSTACK. Aborting operation for client: {} with loan id: {}", cardDetails.getClientId(), loanId);
                             repaymentStatus = false;
                             errorMessage = "No response gotten from paystack";
                         }
