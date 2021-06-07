@@ -2,6 +2,7 @@ package com.creditville.notifications.commandline;
 
 import com.creditville.notifications.exceptions.CustomCheckedException;
 import com.creditville.notifications.models.response.*;
+import com.creditville.notifications.services.BranchService;
 import com.creditville.notifications.services.ClientService;
 import com.creditville.notifications.services.CollectionOfficerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,9 @@ public class NotificationDbCli implements CommandLineRunner {
     @Value("${app.collectionEmail}")
     private String collectionOfficerEmail;
 
+    @Autowired
+    private BranchService branchService;
+
     @Override
     public void run(String... args) throws Exception {
         if(collectionOfficerService.getAllCollectionOfficers().isEmpty()) {
@@ -47,6 +51,21 @@ public class NotificationDbCli implements CommandLineRunner {
             collectionOfficerService.createNew("Benin City", "Saheed Kolawole", "saheed.kolawole@creditville.ng", "08024533917");
             collectionOfficerService.createNew("SSU", "Adewonuola Adebayo", "adewonuola.adebayo@creditville.ng", "08036468906");
             collectionOfficerService.createNew("Head Office Branch", "Adewonuola Adebayo", "adewonuola.adebayo@creditville.ng", "08036468906");
+        }
+
+        if(!collectionOfficerService.getAllCollectionOfficers().isEmpty()) {
+            if(branchService.getAllBranches().isEmpty()) {
+               branchService.createBranch("Abuja");
+               branchService.createBranch("Port Harcourt");
+               branchService.createBranch("Lagos Mainland");
+               branchService.createBranch("Enugu");
+               branchService.createBranch("Enugu 2");
+               branchService.createBranch("Lagos Island");
+               branchService.createBranch("CVL_Touchgold");
+               branchService.createBranch("Benin City");
+               branchService.createBranch("SSU");
+               branchService.createBranch("Head Office Branch");
+            }
         }
 //        try {
 //            for(Client client : clientService.fetchClients()) {

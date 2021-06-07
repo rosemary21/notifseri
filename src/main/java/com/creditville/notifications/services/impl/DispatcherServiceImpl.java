@@ -106,6 +106,9 @@ public class DispatcherServiceImpl implements DispatcherService {
     @Autowired
     private MailMonitorService mailMonitorService;
 
+    @Autowired
+    private BranchService branchService;
+
     @Override
     public void performDueRentalOperation() {
         try {
@@ -118,6 +121,11 @@ public class DispatcherServiceImpl implements DispatcherService {
                     for(Client client : clients) {
                         try {
                             CollectionOfficer collectionOfficer = collectionOfficerService.getCollectionOfficer(client.getBranchName());
+                            Branch branch = branchService.getBranch(client.getBranchName());
+                            if(!branch.getIsEnabled()) {
+                                log.info("Branch {} is disabled from receiving notifications. Hence, notification would not be sent out for client with ID {}", client.getBranchName(), client.getExternalID());
+                                throw new CustomCheckedException("Customer branch is disabled. Notification would not be sent out");
+                            }
                             BranchManager branchManager = branchManagerService.getBranchManager(client.getBranchName());
                             LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());
                             List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
@@ -249,6 +257,11 @@ public class DispatcherServiceImpl implements DispatcherService {
                     for (Client client : clients) {
                         try {
                             CollectionOfficer collectionOfficer = collectionOfficerService.getCollectionOfficer(client.getBranchName());
+                            Branch branch = branchService.getBranch(client.getBranchName());
+                            if(!branch.getIsEnabled()) {
+                                log.info("Branch {} is disabled from receiving notifications. Hence, notification would not be sent out for client with ID {}", client.getBranchName(), client.getExternalID());
+                                throw new CustomCheckedException("Customer branch is disabled. Notification would not be sent out");
+                            }
                             BranchManager branchManager = branchManagerService.getBranchManager(client.getBranchName());
                             LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());
                             List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
@@ -381,6 +394,11 @@ public class DispatcherServiceImpl implements DispatcherService {
                     for (Client client : clients) {
                         try {
                             CollectionOfficer collectionOfficer = collectionOfficerService.getCollectionOfficer(client.getBranchName());
+                            Branch branch = branchService.getBranch(client.getBranchName());
+                            if(!branch.getIsEnabled()) {
+                                log.info("Branch {} is disabled from receiving notifications. Hence, notification would not be sent out for client with ID {}", client.getBranchName(), client.getExternalID());
+                                throw new CustomCheckedException("Customer branch is disabled. Notification would not be sent out");
+                            }
                             BranchManager branchManager = branchManagerService.getBranchManager(client.getBranchName());
                             LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());
                             List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
@@ -514,6 +532,11 @@ public class DispatcherServiceImpl implements DispatcherService {
                         try {
 //                            CollectionOfficer collectionOfficer = collectionOfficerService.getCollectionOfficer(client.getBranchName());
                             RecoveryOfficer recoveryOfficer = recoveryOfficerService.getRecoveryOfficer(client.getBranchName());
+                            Branch branch = branchService.getBranch(client.getBranchName());
+                            if(!branch.getIsEnabled()) {
+                                log.info("Branch {} is disabled from receiving notifications. Hence, notification would not be sent out for client with ID {}", client.getBranchName(), client.getExternalID());
+                                throw new CustomCheckedException("Customer branch is disabled. Notification would not be sent out");
+                            }
                             BranchManager branchManager = branchManagerService.getBranchManager(client.getBranchName());
                             LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());
                             List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
@@ -656,6 +679,11 @@ public class DispatcherServiceImpl implements DispatcherService {
                     for (Client client : clients) {
                         try {
                             CollectionOfficer collectionOfficer = collectionOfficerService.getCollectionOfficer(client.getBranchName());
+                            Branch branch = branchService.getBranch(client.getBranchName());
+                            if(!branch.getIsEnabled()) {
+                                log.info("Branch {} is disabled from receiving notifications. Hence, notification would not be sent out for client with ID {}", client.getBranchName(), client.getExternalID());
+                                throw new CustomCheckedException("Customer branch is disabled. Notification would not be sent out");
+                            }
                             LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());
                             List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
                                     .stream()
@@ -767,6 +795,11 @@ public class DispatcherServiceImpl implements DispatcherService {
                     for (Client client : clients) {
                         try {
                             CollectionOfficer collectionOfficer = collectionOfficerService.getCollectionOfficer(client.getBranchName());
+                            Branch branch = branchService.getBranch(client.getBranchName());
+                            if(!branch.getIsEnabled()) {
+                                log.info("Branch {} is disabled from receiving notifications. Hence, notification would not be sent out for client with ID {}", client.getBranchName(), client.getExternalID());
+                                throw new CustomCheckedException("Customer branch is disabled. Notification would not be sent out");
+                            }
                             LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());
                             List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
                                     .stream()
