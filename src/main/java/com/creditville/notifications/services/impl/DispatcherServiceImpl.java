@@ -109,6 +109,9 @@ public class DispatcherServiceImpl implements DispatcherService {
     @Autowired
     private BranchService branchService;
 
+    @Autowired
+    private NotificationConfigService notificationConfigService;
+
     @Override
     public void performDueRentalOperation() {
         try {
@@ -125,6 +128,13 @@ public class DispatcherServiceImpl implements DispatcherService {
                             if(!branch.getIsEnabled()) {
                                 log.info("Branch {} is disabled from receiving notifications. Hence, notification would not be sent out for client with ID {}", client.getBranchName(), client.getExternalID());
                                 throw new CustomCheckedException("Customer branch is disabled. Notification would not be sent out");
+                            }
+                            NotificationConfig notificationConfig = notificationConfigService.getNotificationConfig(branch.getId(), NotificationType.DUE_RENTAL_ONE.name());
+                            if(notificationConfig != null) {
+                                if(!notificationConfig.getIsEnabled()) {
+                                    log.info("Branch {} is disabled from receiving due rental 1 notifications. Hence, notification would not be sent out for client with ID {}", client.getBranchName(), client.getExternalID());
+                                    throw new CustomCheckedException("Customer branch is disabled. Notification would not be sent out");
+                                }
                             }
                             BranchManager branchManager = branchManagerService.getBranchManager(client.getBranchName());
                             LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());
@@ -261,6 +271,13 @@ public class DispatcherServiceImpl implements DispatcherService {
                             if(!branch.getIsEnabled()) {
                                 log.info("Branch {} is disabled from receiving notifications. Hence, notification would not be sent out for client with ID {}", client.getBranchName(), client.getExternalID());
                                 throw new CustomCheckedException("Customer branch is disabled. Notification would not be sent out");
+                            }
+                            NotificationConfig notificationConfig = notificationConfigService.getNotificationConfig(branch.getId(), NotificationType.DUE_RENTAL_TWO.name());
+                            if(notificationConfig != null) {
+                                if(!notificationConfig.getIsEnabled()) {
+                                    log.info("Branch {} is disabled from receiving due rental 2 notifications. Hence, notification would not be sent out for client with ID {}", client.getBranchName(), client.getExternalID());
+                                    throw new CustomCheckedException("Customer branch is disabled. Notification would not be sent out");
+                                }
                             }
                             BranchManager branchManager = branchManagerService.getBranchManager(client.getBranchName());
                             LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());
@@ -399,6 +416,13 @@ public class DispatcherServiceImpl implements DispatcherService {
                                 log.info("Branch {} is disabled from receiving notifications. Hence, notification would not be sent out for client with ID {}", client.getBranchName(), client.getExternalID());
                                 throw new CustomCheckedException("Customer branch is disabled. Notification would not be sent out");
                             }
+                            NotificationConfig notificationConfig = notificationConfigService.getNotificationConfig(branch.getId(), NotificationType.DUE_RENTAL_THREE.name());
+                            if(notificationConfig != null) {
+                                if(!notificationConfig.getIsEnabled()) {
+                                    log.info("Branch {} is disabled from receiving due rental 3 notifications. Hence, notification would not be sent out for client with ID {}", client.getBranchName(), client.getExternalID());
+                                    throw new CustomCheckedException("Customer branch is disabled. Notification would not be sent out");
+                                }
+                            }
                             BranchManager branchManager = branchManagerService.getBranchManager(client.getBranchName());
                             LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());
                             List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
@@ -536,6 +560,13 @@ public class DispatcherServiceImpl implements DispatcherService {
                             if(!branch.getIsEnabled()) {
                                 log.info("Branch {} is disabled from receiving notifications. Hence, notification would not be sent out for client with ID {}", client.getBranchName(), client.getExternalID());
                                 throw new CustomCheckedException("Customer branch is disabled. Notification would not be sent out");
+                            }
+                            NotificationConfig notificationConfig = notificationConfigService.getNotificationConfig(branch.getId(), NotificationType.ARREARS.name());
+                            if(notificationConfig != null) {
+                                if(!notificationConfig.getIsEnabled()) {
+                                    log.info("Branch {} is disabled from receiving arrears notifications. Hence, notification would not be sent out for client with ID {}", client.getBranchName(), client.getExternalID());
+                                    throw new CustomCheckedException("Customer branch is disabled. Notification would not be sent out");
+                                }
                             }
                             BranchManager branchManager = branchManagerService.getBranchManager(client.getBranchName());
                             LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());
@@ -684,6 +715,13 @@ public class DispatcherServiceImpl implements DispatcherService {
                                 log.info("Branch {} is disabled from receiving notifications. Hence, notification would not be sent out for client with ID {}", client.getBranchName(), client.getExternalID());
                                 throw new CustomCheckedException("Customer branch is disabled. Notification would not be sent out");
                             }
+                            NotificationConfig notificationConfig = notificationConfigService.getNotificationConfig(branch.getId(), NotificationType.POST_MATURITY.name());
+                            if(notificationConfig != null) {
+                                if(!notificationConfig.getIsEnabled()) {
+                                    log.info("Branch {} is disabled from receiving post maturity notifications. Hence, notification would not be sent out for client with ID {}", client.getBranchName(), client.getExternalID());
+                                    throw new CustomCheckedException("Customer branch is disabled. Notification would not be sent out");
+                                }
+                            }
                             LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());
                             List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
                                     .stream()
@@ -799,6 +837,13 @@ public class DispatcherServiceImpl implements DispatcherService {
                             if(!branch.getIsEnabled()) {
                                 log.info("Branch {} is disabled from receiving notifications. Hence, notification would not be sent out for client with ID {}", client.getBranchName(), client.getExternalID());
                                 throw new CustomCheckedException("Customer branch is disabled. Notification would not be sent out");
+                            }
+                            NotificationConfig notificationConfig = notificationConfigService.getNotificationConfig(branch.getId(), NotificationType.CHEQUE_LODGEMENT.name());
+                            if(notificationConfig != null) {
+                                if(!notificationConfig.getIsEnabled()) {
+                                    log.info("Branch {} is disabled from receiving cheque lodgement notifications. Hence, notification would not be sent out for client with ID {}", client.getBranchName(), client.getExternalID());
+                                    throw new CustomCheckedException("Customer branch is disabled. Notification would not be sent out");
+                                }
                             }
                             LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());
                             List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()

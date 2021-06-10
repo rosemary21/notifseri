@@ -12,6 +12,8 @@ public interface BranchService {
 
     Branch getBranch(String branchName) throws CustomCheckedException;
 
+    Branch getBranch(Long branchId) throws CustomCheckedException;
+
     List<Branch> getAllBranches();
 
     boolean deleteBranch(Long branchId) throws CustomCheckedException;

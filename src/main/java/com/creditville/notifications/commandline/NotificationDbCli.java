@@ -1,10 +1,14 @@
 package com.creditville.notifications.commandline;
 
 import com.creditville.notifications.exceptions.CustomCheckedException;
+import com.creditville.notifications.models.Branch;
+import com.creditville.notifications.models.NotificationConfig;
+import com.creditville.notifications.models.NotificationType;
 import com.creditville.notifications.models.response.*;
 import com.creditville.notifications.services.BranchService;
 import com.creditville.notifications.services.ClientService;
 import com.creditville.notifications.services.CollectionOfficerService;
+import com.creditville.notifications.services.NotificationConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -38,6 +42,9 @@ public class NotificationDbCli implements CommandLineRunner {
     @Autowired
     private BranchService branchService;
 
+    @Autowired
+    private NotificationConfigService notificationConfigService;
+
     @Override
     public void run(String... args) throws Exception {
         if(collectionOfficerService.getAllCollectionOfficers().isEmpty()) {
@@ -65,6 +72,34 @@ public class NotificationDbCli implements CommandLineRunner {
                branchService.createBranch("Benin City");
                branchService.createBranch("SSU");
                branchService.createBranch("Head Office Branch");
+            }
+        }
+
+        if(notificationConfigService.getAllNotificationGeneralConfig().isEmpty()) {
+            for(NotificationType notificationType : NotificationType.values()) {
+                notificationConfigService.createNewGeneralConfig(notificationType.name());
+                if(
+                        notificationType == NotificationType.ARREARS ||
+                                notificationType == NotificationType.POST_MATURITY ||
+                                notificationType == NotificationType.CHEQUE_LODGEMENT
+                ) {
+                    notificationConfigService.toggleGeneralConfigSwitch(notificationType.name(), "OFF");
+                }
+            }
+        }
+
+        if(notificationConfigService.getAllNotificationConfig().isEmpty()) {
+            for (Branch branch : branchService.getAllBranches()) {
+                for(NotificationType notificationType : NotificationType.values()) {
+                    notificationConfigService.createNew(branch.getId(), notificationType.name());
+                    if(
+                            notificationType == NotificationType.ARREARS ||
+                            notificationType == NotificationType.POST_MATURITY ||
+                            notificationType == NotificationType.CHEQUE_LODGEMENT
+                    ) {
+                        notificationConfigService.toggleConfigSwitch(branch.getId(), notificationType.name(), "OFF");
+                    }
+                }
             }
         }
 //        try {

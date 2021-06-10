@@ -29,18 +29,19 @@ public class BranchServiceImpl implements BranchService {
         return branchRepository.findAll();
     }
 
-    private Branch getBranch(Long branchId) throws CustomCheckedException {
-        Optional<Branch> branch = branchRepository.findById(branchId);
-        if(branch.isPresent()) return branch.get();
-        else throw new CustomCheckedException(String.format("Branch with ID: %s does not exist", branchId));
-    }
-
     @Override
     public Branch getBranch(String branchName) throws CustomCheckedException {
         Branch branch = branchRepository.findByName(branchName);
         if(branch == null)
             throw new CustomCheckedException(String.format("Branch with name: %s does not exist", branchName));
         else return branch;
+    }
+
+    @Override
+    public Branch getBranch(Long branchId) throws CustomCheckedException {
+        Optional<Branch> branch = branchRepository.findById(branchId);
+        if(branch.isPresent()) return branch.get();
+        else throw new CustomCheckedException(String.format("Branch with ID: %s does not exist", branchId));
     }
 
     @Override
