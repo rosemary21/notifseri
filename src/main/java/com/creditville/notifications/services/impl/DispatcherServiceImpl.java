@@ -200,36 +200,38 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                     brmPh = branchManager.getOfficerPhoneNo();
                                                 }
                                                 BigDecimal rentalAmount = thisMonthInstalment.getCurrentState().getPrincipalDueAmount().add(thisMonthInstalment.getCurrentState().getInterestDueAmount());
-                                                notificationData.put("toName", useDefaultMailInfo ? defaultToName : customer.getName());
-                                                notificationData.put("toAddress", toAddress);
-                                                notificationData.put("customerName", customer.getName());
-                                                notificationData.put("paymentMonth", dateUtil.getMonthByDate(thisMonthInstalment.getObligatoryPaymentDate()));
-                                                notificationData.put("paymentDate", obligatoryPaymentDate.toString());
-                                                notificationData.put("paymentYear", Integer.toString(dateUtil.getYearByDate(thisMonthInstalment.getObligatoryPaymentDate())));
+                                                if(rentalAmount.compareTo(BigDecimal.ZERO) > 0) {
+                                                    notificationData.put("toName", useDefaultMailInfo ? defaultToName : customer.getName());
+                                                    notificationData.put("toAddress", toAddress);
+                                                    notificationData.put("customerName", customer.getName());
+                                                    notificationData.put("paymentMonth", dateUtil.getMonthByDate(thisMonthInstalment.getObligatoryPaymentDate()));
+                                                    notificationData.put("paymentDate", obligatoryPaymentDate.toString());
+                                                    notificationData.put("paymentYear", Integer.toString(dateUtil.getYearByDate(thisMonthInstalment.getObligatoryPaymentDate())));
 //                                                notificationData.put("rentalAmount", thisMonthInstalment.getCurrentState().getPrincipalDueAmount().toString());
-                                                notificationData.put("rentalAmount", currencyUtil.getFormattedCurrency(rentalAmount));
-                                                notificationData.put("collectionOfficer", coN);
-                                                notificationData.put("collectionPhoneNumber", coP);
-                                                notificationData.put("collectionEmail", coE);
-                                                notificationData.put("hasBranchManager", hasBranchManager.toString());
-                                                notificationData.put("branchManagerName", brmN);
-                                                notificationData.put("branchManagerPhoneNumber", brmPh);
-                                                notificationData.put("branchManagerEmail", brmE);
-                                                notificationData.put("companyName", companyName);
-                                                notificationData.put("loanId", clientLoan.getId());
-                                                notificationData.put("accountName", accountName);
-                                                notificationData.put("accountNumber", accountNumber);
-                                                notificationData.put("bankName", bankName);
-                                                totalSuccessfulCounter++;
-                                                try {
-                                                    notificationService.sendEmailNotification(doRentalSubject, notificationData, "email/due_rental");
-                                                } catch (CustomCheckedException cce) {
-                                                    cce.printStackTrace();
+                                                    notificationData.put("rentalAmount", currencyUtil.getFormattedCurrency(rentalAmount));
+                                                    notificationData.put("collectionOfficer", coN);
+                                                    notificationData.put("collectionPhoneNumber", coP);
+                                                    notificationData.put("collectionEmail", coE);
+                                                    notificationData.put("hasBranchManager", hasBranchManager.toString());
+                                                    notificationData.put("branchManagerName", brmN);
+                                                    notificationData.put("branchManagerPhoneNumber", brmPh);
+                                                    notificationData.put("branchManagerEmail", brmE);
+                                                    notificationData.put("companyName", companyName);
+                                                    notificationData.put("loanId", clientLoan.getId());
+                                                    notificationData.put("accountName", accountName);
+                                                    notificationData.put("accountNumber", accountNumber);
+                                                    notificationData.put("bankName", bankName);
+                                                    totalSuccessfulCounter++;
+                                                    try {
+                                                        notificationService.sendEmailNotification(doRentalSubject, notificationData, "email/due_rental");
+                                                    } catch (CustomCheckedException cce) {
+                                                        cce.printStackTrace();
 //                                                    failedCounter++;
-                                                    if(!emailService.emailAlreadyFailed(obligatoryPaymentDate, toAddress, doRentalSubject)) {
-                                                        failedCounter++;
+                                                        if (!emailService.emailAlreadyFailed(obligatoryPaymentDate, toAddress, doRentalSubject)) {
+                                                            failedCounter++;
+                                                        }
+                                                        log.info("Failed to send out mail to: " + customer.getName() + ". See reason: " + cce.getMessage());
                                                     }
-                                                    log.info("Failed to send out mail to: " + customer.getName() + ". See reason: " + cce.getMessage());
                                                 }
                                             }
                                         }
@@ -343,37 +345,39 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                     brmPh = branchManager.getOfficerPhoneNo();
                                                 }
                                                 BigDecimal rentalAmount = fortyEightHoursInstalment.getCurrentState().getPrincipalDueAmount().add(fortyEightHoursInstalment.getCurrentState().getInterestDueAmount());
-                                                notificationData.put("toName", useDefaultMailInfo ? defaultToName : customer.getName());
-                                                notificationData.put("toAddress", toAddress);
-                                                notificationData.put("customerName", customer.getName());
-                                                notificationData.put("paymentMonth", dateUtil.getMonthByDate(fortyEightHoursInstalment.getObligatoryPaymentDate()));
-                                                notificationData.put("paymentDate", obligatoryPaymentDate.toString());
-                                                notificationData.put("paymentYear", Integer.toString(dateUtil.getYearByDate(fortyEightHoursInstalment.getObligatoryPaymentDate())));
+                                                if(rentalAmount.compareTo(BigDecimal.ZERO) > 0) {
+                                                    notificationData.put("toName", useDefaultMailInfo ? defaultToName : customer.getName());
+                                                    notificationData.put("toAddress", toAddress);
+                                                    notificationData.put("customerName", customer.getName());
+                                                    notificationData.put("paymentMonth", dateUtil.getMonthByDate(fortyEightHoursInstalment.getObligatoryPaymentDate()));
+                                                    notificationData.put("paymentDate", obligatoryPaymentDate.toString());
+                                                    notificationData.put("paymentYear", Integer.toString(dateUtil.getYearByDate(fortyEightHoursInstalment.getObligatoryPaymentDate())));
 //                                                notificationData.put("rentalAmount", fortyEightHoursInstalment.getCurrentState().getPrincipalDueAmount().toString());
-                                                notificationData.put("rentalAmount", currencyUtil.getFormattedCurrency(rentalAmount));
-                                                notificationData.put("collectionOfficer", coN);
-                                                notificationData.put("collectionPhoneNumber", coP);
-                                                notificationData.put("collectionEmail", coE);
-                                                notificationData.put("hasBranchManager", hasBranchManager.toString());
-                                                notificationData.put("branchManagerName", brmN);
-                                                notificationData.put("branchManagerPhoneNumber", brmPh);
-                                                notificationData.put("branchManagerEmail", brmE);
-                                                notificationData.put("companyName", companyName);
-                                                notificationData.put("loanId", clientLoan.getId());
-                                                notificationData.put("accountName", accountName);
-                                                notificationData.put("accountNumber", accountNumber);
-                                                notificationData.put("bankName", bankName);
-                                                totalSuccessfulCounter++;
-                                                try {
-                                                    notificationService.sendEmailNotification(doRentalSubject, notificationData, "email/due_rental");
-                                                } catch (CustomCheckedException cce) {
-                                                    cce.printStackTrace();
+                                                    notificationData.put("rentalAmount", currencyUtil.getFormattedCurrency(rentalAmount));
+                                                    notificationData.put("collectionOfficer", coN);
+                                                    notificationData.put("collectionPhoneNumber", coP);
+                                                    notificationData.put("collectionEmail", coE);
+                                                    notificationData.put("hasBranchManager", hasBranchManager.toString());
+                                                    notificationData.put("branchManagerName", brmN);
+                                                    notificationData.put("branchManagerPhoneNumber", brmPh);
+                                                    notificationData.put("branchManagerEmail", brmE);
+                                                    notificationData.put("companyName", companyName);
+                                                    notificationData.put("loanId", clientLoan.getId());
+                                                    notificationData.put("accountName", accountName);
+                                                    notificationData.put("accountNumber", accountNumber);
+                                                    notificationData.put("bankName", bankName);
+                                                    totalSuccessfulCounter++;
+                                                    try {
+                                                        notificationService.sendEmailNotification(doRentalSubject, notificationData, "email/due_rental");
+                                                    } catch (CustomCheckedException cce) {
+                                                        cce.printStackTrace();
 //                                    An error occurred while trying to send out notification, notify infotech of total failed and store failed mails in the db for retrial. Min of 3 retrials...
 //                                                    failedCounter++;
-                                                    if(!emailService.emailAlreadyFailed(obligatoryPaymentDate, toAddress, doRentalSubject)) {
-                                                        failedCounter++;
+                                                        if (!emailService.emailAlreadyFailed(obligatoryPaymentDate, toAddress, doRentalSubject)) {
+                                                            failedCounter++;
+                                                        }
+                                                        log.info("Failed to send out mail to: " + customer.getName() + ". See reason: " + cce.getMessage());
                                                     }
-                                                    log.info("Failed to send out mail to: " + customer.getName() + ". See reason: " + cce.getMessage());
                                                 }
                                             }
                                         }
@@ -487,37 +491,39 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                     brmPh = branchManager.getOfficerPhoneNo();
                                                 }
                                                 BigDecimal rentalAmount = todayInstalment.getCurrentState().getPrincipalDueAmount().add(todayInstalment.getCurrentState().getInterestDueAmount());
-                                                notificationData.put("toName", useDefaultMailInfo ? defaultToName : customer.getName());
-                                                notificationData.put("toAddress", toAddress);
-                                                notificationData.put("customerName", customer.getName());
-                                                notificationData.put("paymentMonth", dateUtil.getMonthByDate(todayInstalment.getObligatoryPaymentDate()));
-                                                notificationData.put("paymentDate", obligatoryPaymentDate.toString());
-                                                notificationData.put("paymentYear", Integer.toString(dateUtil.getYearByDate(todayInstalment.getObligatoryPaymentDate())));
+                                                if(rentalAmount.compareTo(BigDecimal.ZERO) > 0) {
+                                                    notificationData.put("toName", useDefaultMailInfo ? defaultToName : customer.getName());
+                                                    notificationData.put("toAddress", toAddress);
+                                                    notificationData.put("customerName", customer.getName());
+                                                    notificationData.put("paymentMonth", dateUtil.getMonthByDate(todayInstalment.getObligatoryPaymentDate()));
+                                                    notificationData.put("paymentDate", obligatoryPaymentDate.toString());
+                                                    notificationData.put("paymentYear", Integer.toString(dateUtil.getYearByDate(todayInstalment.getObligatoryPaymentDate())));
 //                                                notificationData.put("rentalAmount", todayInstalment.getCurrentState().getPrincipalDueAmount().toString());
-                                                notificationData.put("rentalAmount", currencyUtil.getFormattedCurrency(rentalAmount));
-                                                notificationData.put("collectionOfficer", coN);
-                                                notificationData.put("collectionPhoneNumber", coP);
-                                                notificationData.put("collectionEmail", coE);
-                                                notificationData.put("hasBranchManager", hasBranchManager.toString());
-                                                notificationData.put("branchManagerName", brmN);
-                                                notificationData.put("branchManagerPhoneNumber", brmPh);
-                                                notificationData.put("branchManagerEmail", brmE);
-                                                notificationData.put("companyName", companyName);
-                                                notificationData.put("loanId", clientLoan.getId());
-                                                notificationData.put("accountName", accountName);
-                                                notificationData.put("accountNumber", accountNumber);
-                                                notificationData.put("bankName", bankName);
-                                                totalSuccessfulCounter++;
-                                                try {
-                                                    notificationService.sendEmailNotification(doRentalSubject, notificationData, "email/due_rental");
-                                                } catch (CustomCheckedException cce) {
-                                                    cce.printStackTrace();
+                                                    notificationData.put("rentalAmount", currencyUtil.getFormattedCurrency(rentalAmount));
+                                                    notificationData.put("collectionOfficer", coN);
+                                                    notificationData.put("collectionPhoneNumber", coP);
+                                                    notificationData.put("collectionEmail", coE);
+                                                    notificationData.put("hasBranchManager", hasBranchManager.toString());
+                                                    notificationData.put("branchManagerName", brmN);
+                                                    notificationData.put("branchManagerPhoneNumber", brmPh);
+                                                    notificationData.put("branchManagerEmail", brmE);
+                                                    notificationData.put("companyName", companyName);
+                                                    notificationData.put("loanId", clientLoan.getId());
+                                                    notificationData.put("accountName", accountName);
+                                                    notificationData.put("accountNumber", accountNumber);
+                                                    notificationData.put("bankName", bankName);
+                                                    totalSuccessfulCounter++;
+                                                    try {
+                                                        notificationService.sendEmailNotification(doRentalSubject, notificationData, "email/due_rental");
+                                                    } catch (CustomCheckedException cce) {
+                                                        cce.printStackTrace();
 //                                    An error occurred while trying to send out notification, notify infotech of total failed and store failed mails in the db for retrial. Min of 3 retrials...
 //                                                    failedCounter++;
-                                                    if(!emailService.emailAlreadyFailed(obligatoryPaymentDate, toAddress, doRentalSubject)) {
-                                                        failedCounter++;
+                                                        if (!emailService.emailAlreadyFailed(obligatoryPaymentDate, toAddress, doRentalSubject)) {
+                                                            failedCounter++;
+                                                        }
+                                                        log.info("Failed to send out mail to: " + customer.getName() + ". See reason: " + cce.getMessage());
                                                     }
-                                                    log.info("Failed to send out mail to: " + customer.getName() + ". See reason: " + cce.getMessage());
                                                 }
                                             }
                                         }
@@ -645,35 +651,37 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                     brmE = branchManager.getOfficerEmail();
                                                     brmPh = branchManager.getOfficerPhoneNo();
                                                 }
-                                                notificationData.put("toName", useDefaultMailInfo ? defaultToName : customer.getName());
-                                                notificationData.put("toAddress", toAddress);
-                                                notificationData.put("customerName", customer.getName());
-                                                notificationData.put("noOfArrears", String.valueOf(noOfArrears));
+                                                if(valueOfArrears.compareTo(BigDecimal.ZERO) > 0) {
+                                                    notificationData.put("toName", useDefaultMailInfo ? defaultToName : customer.getName());
+                                                    notificationData.put("toAddress", toAddress);
+                                                    notificationData.put("customerName", customer.getName());
+                                                    notificationData.put("noOfArrears", String.valueOf(noOfArrears));
 //                                            notificationData.put("valueOfArrears", valueOfArrears.toString());
-                                                notificationData.put("valueOfArrears", currencyUtil.getFormattedCurrency(valueOfArrears));
-                                                notificationData.put("collectionOfficer", coN);
-                                                notificationData.put("collectionPhoneNumber", coP);
-                                                notificationData.put("collectionEmail", coE);
-                                                notificationData.put("hasBranchManager", hasBranchManager.toString());
-                                                notificationData.put("branchManagerName", brmN);
-                                                notificationData.put("branchManagerPhoneNumber", brmPh);
-                                                notificationData.put("branchManagerEmail", brmE);
-                                                notificationData.put("companyName", companyName);
-                                                notificationData.put("loanId", clientLoan.getId());
-                                                notificationData.put("accountName", accountName);
-                                                notificationData.put("accountNumber", accountNumber);
-                                                notificationData.put("bankName", bankName);
-                                                totalSuccessfulCounter++;
-                                                try {
-                                                    notificationService.sendEmailNotification(arrearsSubject, notificationData, "email/arrears");
-                                                } catch (CustomCheckedException cce) {
-                                                    cce.printStackTrace();
+                                                    notificationData.put("valueOfArrears", currencyUtil.getFormattedCurrency(valueOfArrears));
+                                                    notificationData.put("collectionOfficer", coN);
+                                                    notificationData.put("collectionPhoneNumber", coP);
+                                                    notificationData.put("collectionEmail", coE);
+                                                    notificationData.put("hasBranchManager", hasBranchManager.toString());
+                                                    notificationData.put("branchManagerName", brmN);
+                                                    notificationData.put("branchManagerPhoneNumber", brmPh);
+                                                    notificationData.put("branchManagerEmail", brmE);
+                                                    notificationData.put("companyName", companyName);
+                                                    notificationData.put("loanId", clientLoan.getId());
+                                                    notificationData.put("accountName", accountName);
+                                                    notificationData.put("accountNumber", accountNumber);
+                                                    notificationData.put("bankName", bankName);
+                                                    totalSuccessfulCounter++;
+                                                    try {
+                                                        notificationService.sendEmailNotification(arrearsSubject, notificationData, "email/arrears");
+                                                    } catch (CustomCheckedException cce) {
+                                                        cce.printStackTrace();
 //                                    An error occurred while trying to send out notification, notify infotech of total failed and store failed mails in the db for retrial. Min of 3 retrials...
 //                                                    failedCounter++;
-                                                    if(!emailService.emailAlreadyFailed(null, toAddress, doRentalSubject)) {
-                                                        failedCounter++;
+                                                        if (!emailService.emailAlreadyFailed(null, toAddress, doRentalSubject)) {
+                                                            failedCounter++;
+                                                        }
+                                                        log.info("Failed to send out mail to: " + customer.getName() + ". See reason: " + cce.getMessage());
                                                     }
-                                                    log.info("Failed to send out mail to: " + customer.getName() + ". See reason: " + cce.getMessage());
                                                 }
                                             }
                                         }
@@ -771,31 +779,33 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                         coP = collectionOfficer.getOfficerPhoneNo();
                                                     }
                                                     BigDecimal outstandingBalance = latestInstalment.getCurrentState().getPrincipalDueAmount().add(latestInstalment.getCurrentState().getInterestDueAmount());
-                                                    notificationData.put("toName", useDefaultMailInfo ? defaultToName : customer.getName());
-                                                    notificationData.put("toAddress", toAddress);
-                                                    notificationData.put("customerName", customer.getName());
-                                                    notificationData.put("maturityDate", dateUtil.convertDateToLocalDate(latestInstalment.getObligatoryPaymentDate()).toString());
+                                                    if(outstandingBalance.compareTo(BigDecimal.ZERO) > 0) {
+                                                        notificationData.put("toName", useDefaultMailInfo ? defaultToName : customer.getName());
+                                                        notificationData.put("toAddress", toAddress);
+                                                        notificationData.put("customerName", customer.getName());
+                                                        notificationData.put("maturityDate", dateUtil.convertDateToLocalDate(latestInstalment.getObligatoryPaymentDate()).toString());
 //                                                notificationData.put("outstandingBalance", latestInstalment.getCurrentState().getPrincipalDueAmount().toString());
-                                                    notificationData.put("outstandingBalance", currencyUtil.getFormattedCurrency(outstandingBalance));
-                                                    notificationData.put("collectionOfficer", coN);
-                                                    notificationData.put("collectionPhoneNumber", coP);
-                                                    notificationData.put("collectionEmail", coE);
-                                                    notificationData.put("companyName", companyName);
-                                                    notificationData.put("loanId", clientLoan.getId());
-                                                    notificationData.put("accountName", accountName);
-                                                    notificationData.put("accountNumber", accountNumber);
-                                                    notificationData.put("bankName", bankName);
-                                                    totalSuccessfulCounter++;
-                                                    try {
-                                                        notificationService.sendEmailNotification(postMaturitySubject, notificationData, "email/post_maturity");
-                                                    } catch (CustomCheckedException cce) {
-                                                        cce.printStackTrace();
+                                                        notificationData.put("outstandingBalance", currencyUtil.getFormattedCurrency(outstandingBalance));
+                                                        notificationData.put("collectionOfficer", coN);
+                                                        notificationData.put("collectionPhoneNumber", coP);
+                                                        notificationData.put("collectionEmail", coE);
+                                                        notificationData.put("companyName", companyName);
+                                                        notificationData.put("loanId", clientLoan.getId());
+                                                        notificationData.put("accountName", accountName);
+                                                        notificationData.put("accountNumber", accountNumber);
+                                                        notificationData.put("bankName", bankName);
+                                                        totalSuccessfulCounter++;
+                                                        try {
+                                                            notificationService.sendEmailNotification(postMaturitySubject, notificationData, "email/post_maturity");
+                                                        } catch (CustomCheckedException cce) {
+                                                            cce.printStackTrace();
 //                                    An error occurred while trying to send out notification, notify infotech of total failed and store failed mails in the db for retrial. Min of 3 retrials...
 //                                                        failedCounter++;
-                                                        if(!emailService.emailAlreadyFailed(obligatoryPaymentDate, toAddress, doRentalSubject)) {
-                                                            failedCounter++;
+                                                            if (!emailService.emailAlreadyFailed(obligatoryPaymentDate, toAddress, doRentalSubject)) {
+                                                                failedCounter++;
+                                                            }
+                                                            log.info("Failed to send out mail to: " + customer.getName() + ". See reason: " + cce.getMessage());
                                                         }
-                                                        log.info("Failed to send out mail to: " + customer.getName() + ". See reason: " + cce.getMessage());
                                                     }
                                                 }
                                             }
@@ -896,31 +906,33 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                         coP = collectionOfficer.getOfficerPhoneNo();
                                                     }
                                                     BigDecimal rentalAmount = thisMonthInstalment.getCurrentState().getPrincipalDueAmount().add(thisMonthInstalment.getCurrentState().getInterestDueAmount());
-                                                    notificationData.put("toName", useDefaultMailInfo ? defaultToName : customer.getName());
-                                                    notificationData.put("toAddress", toAddress);
-                                                    notificationData.put("customerName", customer.getName());
-                                                    notificationData.put("paymentMonth", dateUtil.getMonthByDate(thisMonthInstalment.getObligatoryPaymentDate()));
-                                                    notificationData.put("paymentDate", obligatoryPaymentDate.toString());
+                                                    if(rentalAmount.compareTo(BigDecimal.ZERO) > 0) {
+                                                        notificationData.put("toName", useDefaultMailInfo ? defaultToName : customer.getName());
+                                                        notificationData.put("toAddress", toAddress);
+                                                        notificationData.put("customerName", customer.getName());
+                                                        notificationData.put("paymentMonth", dateUtil.getMonthByDate(thisMonthInstalment.getObligatoryPaymentDate()));
+                                                        notificationData.put("paymentDate", obligatoryPaymentDate.toString());
 //                                                notificationData.put("rentalAmount", thisMonthInstalment.getCurrentState().getPrincipalDueAmount().toString());
-                                                    notificationData.put("rentalAmount", currencyUtil.getFormattedCurrency(rentalAmount));
-                                                    notificationData.put("collectionOfficer", coN);
-                                                    notificationData.put("collectionPhoneNumber", coP);
-                                                    notificationData.put("collectionEmail", coE);
-                                                    notificationData.put("companyName", companyName);
-                                                    notificationData.put("loanId", clientLoan.getId());
-                                                    notificationData.put("accountName", accountName);
-                                                    notificationData.put("accountNumber", accountNumber);
-                                                    notificationData.put("bankName", bankName);
-                                                    totalSuccessfulCounter++;
-                                                    try {
-                                                        notificationService.sendEmailNotification(chequeLodgementSubject, notificationData, "email/cheque_lodgement");
-                                                    } catch (CustomCheckedException cce) {
-                                                        cce.printStackTrace();
+                                                        notificationData.put("rentalAmount", currencyUtil.getFormattedCurrency(rentalAmount));
+                                                        notificationData.put("collectionOfficer", coN);
+                                                        notificationData.put("collectionPhoneNumber", coP);
+                                                        notificationData.put("collectionEmail", coE);
+                                                        notificationData.put("companyName", companyName);
+                                                        notificationData.put("loanId", clientLoan.getId());
+                                                        notificationData.put("accountName", accountName);
+                                                        notificationData.put("accountNumber", accountNumber);
+                                                        notificationData.put("bankName", bankName);
+                                                        totalSuccessfulCounter++;
+                                                        try {
+                                                            notificationService.sendEmailNotification(chequeLodgementSubject, notificationData, "email/cheque_lodgement");
+                                                        } catch (CustomCheckedException cce) {
+                                                            cce.printStackTrace();
 //                                                        failedCounter++;
-                                                        if(!emailService.emailAlreadyFailed(obligatoryPaymentDate, toAddress, doRentalSubject)) {
-                                                            failedCounter++;
+                                                            if (!emailService.emailAlreadyFailed(obligatoryPaymentDate, toAddress, doRentalSubject)) {
+                                                                failedCounter++;
+                                                            }
+                                                            log.info("Failed to send out mail to: " + customer.getName() + ". See reason: " + cce.getMessage());
                                                         }
-                                                        log.info("Failed to send out mail to: " + customer.getName() + ". See reason: " + cce.getMessage());
                                                     }
                                                 }
                                             }
