@@ -5,17 +5,18 @@ import com.creditville.notifications.models.Branch;
 import com.creditville.notifications.models.NotificationConfig;
 import com.creditville.notifications.models.NotificationType;
 import com.creditville.notifications.models.response.*;
-import com.creditville.notifications.services.BranchService;
-import com.creditville.notifications.services.ClientService;
-import com.creditville.notifications.services.CollectionOfficerService;
-import com.creditville.notifications.services.NotificationConfigService;
+import com.creditville.notifications.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -44,6 +45,9 @@ public class NotificationDbCli implements CommandLineRunner {
 
     @Autowired
     private NotificationConfigService notificationConfigService;
+
+    @Autowired
+    private NotificationService notificationService;
 
     @Override
     public void run(String... args) throws Exception {
@@ -102,6 +106,44 @@ public class NotificationDbCli implements CommandLineRunner {
                 }
             }
         }
+
+        List<Client> customerList = new ArrayList<>();
+        Client client = new Client();
+        client.setName("David Udechukwu");
+        client.setEmail("david.udechukwu@creditville.ng");
+        customerList.add(client);
+
+        Client client2 = new Client();
+        client2.setName("David Udechukwu");
+        client2.setEmail("davidudechukwu97@gmail.com");
+        customerList.add(client2);
+
+        Client client3 = new Client();
+        client3.setName("Senami Atika");
+        client3.setEmail("senami.atika@creditville.ng");
+        customerList.add(client3);
+
+        Client client4 = new Client();
+        client4.setName("Martins Nwanu");
+        client4.setEmail("martins.nwanu@creditville.ng");
+        customerList.add(client4);
+
+        Client client5 = new Client();
+        client5.setName("Richard Rotoye");
+        client5.setEmail("richard.rotoye@creditville.ng");
+        customerList.add(client5);
+        for(Client customer : customerList) {
+            Map<String, String> notificationData = new HashMap<>();
+            notificationData.put("toName", customer.getName());
+            notificationData.put("toAddress", customer.getEmail());
+            notificationData.put("customerName", customer.getName());
+            try {
+                notificationService.sendEmailNotification("Out of Office Notification", notificationData, "email/eid_holiday");
+            } catch (CustomCheckedException cce) {
+                cce.printStackTrace();
+            }
+        }
+        System.out.println("All test mails sent...");
 //        try {
 //            for(Client client : clientService.fetchClients()) {
 //                LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());

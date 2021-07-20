@@ -1206,4 +1206,55 @@ public class DispatcherServiceImpl implements DispatcherService {
             log.info("AN ERROR OCCURRED WHILE TRYING TO LOG DISPATCH OPERATION. SEE ERROR: \n" + cce.getMessage());
         }
     }
+
+    @Override
+    public void sendOutEidNotification() {
+        try {
+            Long totalSuccessfulCounter = 0L;
+            Long failedCounter = 0L;
+            String lastExternalId = "";
+            while (lastExternalId != null) {
+                List<Client> clients = clientService.fetchClients(lastExternalId);
+                if(!clients.isEmpty()) {
+                    for(Client client : clients) {
+                        try {
+                            LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());
+                            Client customer = lookUpClient.getClient();
+                            String toAddress = customer.getEmail();
+                            if (!emailService.alreadySentOutEmailToday(
+                                    toAddress,
+                                    customer.getName(),
+                                    "Out of Office Notification",
+                                    LocalDate.now()
+                            )) {
+                                Map<String, String> notificationData = new HashMap<>();
+                                notificationData.put("toName", customer.getName());
+                                notificationData.put("toAddress", toAddress);
+                                notificationData.put("customerName", customer.getName());
+                                totalSuccessfulCounter++;
+                                try {
+                                    notificationService.sendEmailNotification("Out of Office Notification", notificationData, "email/eid_holiday");
+                                } catch (CustomCheckedException cce) {
+                                    cce.printStackTrace();
+                                    if(!emailService.emailAlreadyFailed(LocalDate.now(), toAddress, "Out of Office Notification")) {
+                                        failedCounter++;
+                                    }
+                                    log.info("Failed to send out mail to: " + customer.getName() + ". See reason: " + cce.getMessage());
+                                }
+                            }
+                        }catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                    Client lastClient = clients.get((clients.size() - 1));
+                    lastExternalId = lastClient.getExternalID();
+                }else {
+                    lastExternalId = null;
+                }
+            }
+            this.logDispatchOperation("Eid-Holiday Notification", totalSuccessfulCounter, failedCounter);
+        }catch (CustomCheckedException cce) {
+            cce.printStackTrace();
+        }
+    }
 }

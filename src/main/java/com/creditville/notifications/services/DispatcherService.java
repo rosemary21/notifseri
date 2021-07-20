@@ -25,4 +25,6 @@ public interface DispatcherService {
     void performMiscOperation(LocalDate startDate, LocalDate endDate);
 
     void notifyTeamOfOperation() throws CustomCheckedException;
+
+    void sendOutEidNotification();
 }
