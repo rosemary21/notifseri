@@ -22,6 +22,8 @@ public class CardTransactions {
     private String status;
     @Lob
     private String paystackResponse;
+    @Lob
+    private String instafinResponse;
 
     @ManyToOne
     private CardDetails cardDetails;

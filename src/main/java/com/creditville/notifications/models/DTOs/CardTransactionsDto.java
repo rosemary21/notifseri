@@ -19,6 +19,7 @@ public class CardTransactionsDto {
     private String status;
 //    @Lob
     private String paystackResponse;
+    private String instafinResponse;
 
 //    @ManyToOne
     private CardDetails cardDetails;

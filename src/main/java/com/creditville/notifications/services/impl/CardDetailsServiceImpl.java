@@ -320,6 +320,14 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                                     errorMessage = "Charge successful but loan repayment failed. Reason: No response gotten from Instafin";
                                     repaymentStatus = false;
                                 }
+                                if(!repaymentStatus) {
+                                    ctDTO.setStatus("repayment_failure");
+                                    ctDTO.setInstafinResponse(errorMessage);
+                                    ctService.saveCardTransaction(ctDTO);
+                                }else {
+                                    ctDTO.setInstafinResponse("REPAYMENT SUCCESSFUL");
+                                    ctService.saveCardTransaction(ctDTO);
+                                }
                             }else {
 //                                Charge failed. Attempt PD...
                                 Map<String, String> pdResponse = this.performPd(dataObj, chargeDto, repayLoanReq, loanId, currentDate);

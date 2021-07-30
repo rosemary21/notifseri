@@ -200,6 +200,8 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                     brmPh = branchManager.getOfficerPhoneNo();
                                                 }
                                                 BigDecimal rentalAmount = thisMonthInstalment.getCurrentState().getPrincipalDueAmount().add(thisMonthInstalment.getCurrentState().getInterestDueAmount());
+                                                if(thisMonthInstalment.getCurrentState().getFeeDueAmount() != null)
+                                                    rentalAmount = rentalAmount.add(thisMonthInstalment.getCurrentState().getFeeDueAmount());
                                                 if(rentalAmount.compareTo(BigDecimal.ZERO) > 0) {
                                                     notificationData.put("toName", useDefaultMailInfo ? defaultToName : customer.getName());
                                                     notificationData.put("toAddress", toAddress);
@@ -345,6 +347,8 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                     brmPh = branchManager.getOfficerPhoneNo();
                                                 }
                                                 BigDecimal rentalAmount = fortyEightHoursInstalment.getCurrentState().getPrincipalDueAmount().add(fortyEightHoursInstalment.getCurrentState().getInterestDueAmount());
+                                                if(fortyEightHoursInstalment.getCurrentState().getFeeDueAmount() != null)
+                                                    rentalAmount = rentalAmount.add(fortyEightHoursInstalment.getCurrentState().getFeeDueAmount());
                                                 if(rentalAmount.compareTo(BigDecimal.ZERO) > 0) {
                                                     notificationData.put("toName", useDefaultMailInfo ? defaultToName : customer.getName());
                                                     notificationData.put("toAddress", toAddress);
@@ -491,6 +495,8 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                     brmPh = branchManager.getOfficerPhoneNo();
                                                 }
                                                 BigDecimal rentalAmount = todayInstalment.getCurrentState().getPrincipalDueAmount().add(todayInstalment.getCurrentState().getInterestDueAmount());
+                                                if(todayInstalment.getCurrentState().getFeeDueAmount() != null)
+                                                    rentalAmount = rentalAmount.add(todayInstalment.getCurrentState().getFeeDueAmount());
                                                 if(rentalAmount.compareTo(BigDecimal.ZERO) > 0) {
                                                     notificationData.put("toName", useDefaultMailInfo ? defaultToName : customer.getName());
                                                     notificationData.put("toAddress", toAddress);
@@ -607,6 +613,8 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                 LookUpLoanInstalmentCurrentState currentState = lookUpLoanInstalment.getCurrentState();
                                                 valueOfArrears = valueOfArrears.add(currentState.getPrincipalDueAmount());
                                                 valueOfArrears = valueOfArrears.add(currentState.getInterestDueAmount());
+                                                if(lookUpLoanInstalment.getCurrentState().getFeeDueAmount() != null)
+                                                    valueOfArrears = valueOfArrears.add(lookUpLoanInstalment.getCurrentState().getFeeDueAmount());
                                                 noOfArrears++;
                                             }
 
@@ -779,6 +787,8 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                         coP = collectionOfficer.getOfficerPhoneNo();
                                                     }
                                                     BigDecimal outstandingBalance = latestInstalment.getCurrentState().getPrincipalDueAmount().add(latestInstalment.getCurrentState().getInterestDueAmount());
+                                                    if(latestInstalment.getCurrentState().getFeeDueAmount() != null)
+                                                        outstandingBalance = outstandingBalance.add(latestInstalment.getCurrentState().getFeeDueAmount());
                                                     if(outstandingBalance.compareTo(BigDecimal.ZERO) > 0) {
                                                         notificationData.put("toName", useDefaultMailInfo ? defaultToName : customer.getName());
                                                         notificationData.put("toAddress", toAddress);
@@ -906,6 +916,8 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                         coP = collectionOfficer.getOfficerPhoneNo();
                                                     }
                                                     BigDecimal rentalAmount = thisMonthInstalment.getCurrentState().getPrincipalDueAmount().add(thisMonthInstalment.getCurrentState().getInterestDueAmount());
+                                                    if(thisMonthInstalment.getCurrentState().getFeeDueAmount() != null)
+                                                        rentalAmount = rentalAmount.add(thisMonthInstalment.getCurrentState().getFeeDueAmount());
                                                     if(rentalAmount.compareTo(BigDecimal.ZERO) > 0) {
                                                         notificationData.put("toName", useDefaultMailInfo ? defaultToName : customer.getName());
                                                         notificationData.put("toAddress", toAddress);
@@ -1057,6 +1069,8 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                     if (principalDueAmount.compareTo(BigDecimal.ZERO) > 0) {
                                                         BigDecimal totalDue = principalDueAmount
                                                                 .add(dueDateInstalment.getCurrentState().getInterestDueAmount());
+                                                        if(dueDateInstalment.getCurrentState().getFeeDueAmount() != null)
+                                                            totalDue = totalDue.add(dueDateInstalment.getCurrentState().getFeeDueAmount());
                                                         BigDecimal newTotalDue = totalDue.multiply(new BigDecimal(100));
                                                         cardDetailsService.cardRecurringCharges(toAddress, newTotalDue, clientLoan.getId(), obligatoryPaymentDate, customer.getExternalID());
                                                     }
@@ -1154,6 +1168,8 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                         log.info("PRINCIPAL DUE AMOUNT IS GT ZERO");
                                                         BigDecimal totalDue = principalDueAmount
                                                                 .add(dueDateInstalment.getCurrentState().getInterestDueAmount());
+                                                        if(dueDateInstalment.getCurrentState().getFeeDueAmount() != null)
+                                                            totalDue = totalDue.add(dueDateInstalment.getCurrentState().getFeeDueAmount());
                                                         BigDecimal newTotalDue = totalDue.multiply(new BigDecimal(100));
                                                         cardDetailsService.cardRecurringCharges(toAddress, newTotalDue, clientLoan.getId(), obligatoryPaymentDate, customer.getExternalID());
                                                     }
