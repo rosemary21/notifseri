@@ -12,6 +12,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -166,5 +168,32 @@ public class NotificationDbCli implements CommandLineRunner {
 //        }catch (CustomCheckedException cce) {
 //            cce.printStackTrace();
 //        }
+
+//        double result = 0;
+//        double D7 = 200000;
+//        double d11 = 12;
+//        double D9 = 5.5;
+//        result = (D7*D9/12)/Math.pow((1-(1+D9/12)),(-(d11/12)*12));
+
+//        if (D9 < 1E-6) {
+//            result = (D7 / d11);
+//        }
+//        result = (D7*D9) / (1.0 - Math.pow(1 + D9, -d11));
+
+
+        System.out.println("Result is: "+ this.calculatePMT(new BigDecimal("0.5"), 12, new BigDecimal("200000"), false));
+    }
+
+    private BigDecimal calculatePMT(BigDecimal rate, Integer months, BigDecimal presentValue, boolean t) {
+//        double loanAmt = 100000;
+//        double roi = 9.65;
+//        int timePeriod = 60;
+
+        double loanAmt = 200000;
+        double roi = 0.55;
+        int timePeriod = 12;
+
+        double emi = (loanAmt * (roi/12)/100 * Math.pow((1+(roi/12)/100),timePeriod))/(Math.pow(1+(roi/12)/100, timePeriod)-1);
+        return new BigDecimal(emi);
     }
 }
