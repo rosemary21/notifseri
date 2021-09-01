@@ -3,6 +3,7 @@ package com.creditville.notifications.services.impl;
 import com.creditville.notifications.exceptions.CustomCheckedException;
 import com.creditville.notifications.instafin.req.RepayLoanReq;
 import com.creditville.notifications.instafin.service.LoanRepaymentService;
+import com.creditville.notifications.models.DTOs.CardTransactionsDto;
 import com.creditville.notifications.models.DTOs.ChargeDto;
 import com.creditville.notifications.models.DTOs.PartialDebitDto;
 import com.creditville.notifications.models.PartialDebit;
@@ -10,6 +11,7 @@ import com.creditville.notifications.models.PartialDebitAttempt;
 import com.creditville.notifications.models.response.Client;
 import com.creditville.notifications.models.response.LookUpLoanAccount;
 import com.creditville.notifications.models.response.LookUpLoanInstalment;
+import com.creditville.notifications.repositories.CardDetailsRepository;
 import com.creditville.notifications.repositories.PartialDebitAttemptRepository;
 import com.creditville.notifications.repositories.PartialDebitRepository;
 import com.creditville.notifications.services.*;
@@ -71,6 +73,12 @@ public class PartialDebitServiceImpl implements PartialDebitService {
 
     @Autowired
     private NotificationService notificationService;
+
+    @Autowired
+    private CardDetailsRepository cardDetailsRepo;
+
+    @Autowired
+    private CardTransactionsService ctService;
 
     @Override
     public PartialDebit savePartialDebit(String authCode, String loanId, BigDecimal amount, String email, LocalDate paymentDate) {
@@ -138,6 +146,8 @@ public class PartialDebitServiceImpl implements PartialDebitService {
 //                        ChargeDto chargeDto = new ChargeDto();
                         RepayLoanReq repayLoanReq = new RepayLoanReq();
                         if (!maxAttemptsReached) {
+                            CardTransactionsDto ctDTO = new CardTransactionsDto();
+                            var cardDetails = cardDetailsRepo.findByClientIdAndEmail(lookUpLoanAccount.getClient().getExternalID(), pdRecord.getEmail());
                             String pdResp = cardDetailsService.makePartialDebit(new PartialDebitDto(
                                     pdRecord.getAuthorizationCode(),
                                     newTotalDue,
@@ -150,6 +160,19 @@ public class PartialDebitServiceImpl implements PartialDebitService {
 //                                            Partial debit successful...
                                         BigDecimal pdAmount = new BigDecimal(data.get("amount").toString());
                                         BigDecimal newPdAmount = pdAmount.divide(new BigDecimal(100)).setScale(2, RoundingMode.CEILING);
+
+                                        ctDTO.setAmount(newPdAmount);
+                                        ctDTO.setCurrency(pdRespObj.get("currency").toString());
+                                        ctDTO.setTransactionDate(pdRespObj.get("transaction_date").toString());
+                                        ctDTO.setStatus(pdRespObj.get("status").toString());
+                                        ctDTO.setReference(pdRespObj.get("reference").toString());
+
+                                        ctDTO.setCardType(pdRespObj.get("card_type").toString());
+
+                                        ctDTO.setCardDetails(cardDetails);
+
+                                        ctService.saveCardTransaction(ctDTO);
+
 //                                            Make loan repayment...
                                         repayLoanReq.setAccountID(pdRecord.getLoanId());
                                         repayLoanReq.setAmount(newPdAmount);

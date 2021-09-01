@@ -330,7 +330,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                                 }
                             }else {
 //                                Charge failed. Attempt PD...
-                                Map<String, String> pdResponse = this.performPd(dataObj, chargeDto, repayLoanReq, loanId, currentDate);
+                                Map<String, String> pdResponse = this.performPd(dataObj, chargeDto, repayLoanReq, loanId, currentDate, clientID);
                                 repaymentStatus = Boolean.valueOf(pdResponse.get("repaymentStatus"));
                                 errorMessage = pdResponse.get("errorMessage");
                             }
@@ -380,9 +380,11 @@ public class CardDetailsServiceImpl implements CardDetailsService {
         }
     }
 
-    private Map<String, String> performPd(JSONObject chargeRespObj, ChargeDto chargeDto, RepayLoanReq repayLoanReq, String loanId, LocalDate currentDate) throws ParseException {
+    private Map<String, String> performPd(JSONObject chargeRespObj, ChargeDto chargeDto, RepayLoanReq repayLoanReq, String loanId, LocalDate currentDate, String clientId) throws ParseException {
         String errorMessage;
         Map<String, String> responseMap = new HashMap<>();
+        CardTransactionsDto ctDTO = new CardTransactionsDto();
+        var cardDetails = cardDetailsRepo.findByClientIdAndEmail(clientId, chargeDto.getEmail());
         if (chargeRespObj.get("gateway_response") != null && (chargeRespObj.get("gateway_response").toString().equalsIgnoreCase("insufficient funds") || chargeRespObj.get("gateway_response").toString().equalsIgnoreCase("not sufficient funds"))) {
 //          Charge failed due to insufficient funds. Attempt partial debit...
             PartialDebit partialDebit = partialDebitService.getPartialDebit(
@@ -402,14 +404,28 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                         chargeDto.getAuthorization_code(),
                         chargeDto.getAmount(),
                         chargeDto.getEmail()));
+                ctDTO.setPaystackResponse(pdResp);
                 if (pdResp != null) {
                     JSONObject pdRespObj = cardUtil.getJsonObjResponse(pdResp);
-                    if (pdRespObj != null) {
+                    if (pdRespObj != null && pdRespObj.containsKey("data")) {
                         JSONObject data = cardUtil.getJsonObjResponse(pdRespObj.get("data").toString());
                         if (data.get("status").toString().equalsIgnoreCase("success")) {
 //                          Partial debit successful...
                             BigDecimal pdAmount = new BigDecimal(data.get("amount").toString());
                             BigDecimal newPdAmount = pdAmount.divide(new BigDecimal(100)).setScale(2, RoundingMode.CEILING);
+
+                            ctDTO.setAmount(newPdAmount);
+                            ctDTO.setCurrency(pdRespObj.get("currency").toString());
+                            ctDTO.setTransactionDate(pdRespObj.get("transaction_date").toString());
+                            ctDTO.setStatus(pdRespObj.get("status").toString());
+                            ctDTO.setReference(pdRespObj.get("reference").toString());
+
+                            ctDTO.setCardType(pdRespObj.get("card_type").toString());
+
+                            ctDTO.setCardDetails(cardDetails);
+
+                            ctService.saveCardTransaction(ctDTO);
+
 //                          Make loan repayment...
                             repayLoanReq.setAccountID(loanId);
 //                                                    repayLoanReq.setAmount(pdAmount);
