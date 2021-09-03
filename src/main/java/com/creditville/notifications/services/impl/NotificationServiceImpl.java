@@ -124,6 +124,10 @@ public class NotificationServiceImpl implements NotificationService {
             Map.Entry<String, JsonNode> jsonNode = jsonNodeIterator.next();
             context.setVariable(jsonNode.getKey(), jsonNode.getValue().textValue());
         }
+        if(sendEmailRequest.getMailTemplate().equals("custom")) {
+            context.setVariable("customMailSubject", sendEmailRequest.getMailSubject());
+            context.setVariable("customCustomerName", sendEmailRequest.getMailData().get("toName"));
+        }
         String templateLocation = this.getTemplateLocation(sendEmailRequest.getMailTemplate());
         String content = templateEngine.process(templateLocation, context);
         if(mailData.get("toAddress") == null) throw new CustomCheckedException("To address cannot be null");
