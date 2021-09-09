@@ -15,6 +15,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.simplejavamail.api.email.Email;
+import org.simplejavamail.api.email.EmailPopulatingBuilder;
 import org.simplejavamail.api.mailer.Mailer;
 import org.simplejavamail.email.EmailBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+import javax.activation.FileDataSource;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -115,6 +117,7 @@ public class NotificationServiceImpl implements NotificationService {
         ObjectNode mailData = sendEmailRequest.getMailData();
         if(mailData.isEmpty())
             throw new CustomCheckedException("Mail data cannot be empty");
+        if(sendEmailRequest.getMailTemplate().trim().equals("")) throw new CustomCheckedException("Mail template cannot be empty");
         if(!mailData.has("toAddress"))
             throw new CustomCheckedException("To address is required to send an email notification");
         if(sendEmailRequest.getMailTemplate().trim().equals("")) throw new CustomCheckedException("Mail template cannot be empty");
@@ -124,9 +127,10 @@ public class NotificationServiceImpl implements NotificationService {
             Map.Entry<String, JsonNode> jsonNode = jsonNodeIterator.next();
             context.setVariable(jsonNode.getKey(), jsonNode.getValue().textValue());
         }
-        if(sendEmailRequest.getMailTemplate().equals("custom")) {
+        String mailTemplate = sendEmailRequest.getMailTemplate();
+        if(mailTemplate.equals("custom")) {
             context.setVariable("customMailSubject", sendEmailRequest.getMailSubject());
-            context.setVariable("customCustomerName", sendEmailRequest.getMailData().get("toName"));
+            context.setVariable("customCustomerName", sendEmailRequest.getMailData().get("toName").textValue());
         }
         String templateLocation = this.getTemplateLocation(sendEmailRequest.getMailTemplate());
         String content = templateEngine.process(templateLocation, context);
@@ -158,13 +162,19 @@ public class NotificationServiceImpl implements NotificationService {
             } else bccAddressList.add(bccAddresses);
         }
 
-        Email email = EmailBuilder.startingBlank()
+        EmailPopulatingBuilder emailPopulatingBuilder = EmailBuilder.startingBlank()
                 .from(senderName, senderEmail)
                 .to(null, toAddressList)
                 .cc(null, ccAddressList)
                 .bcc(null, bccAddressList)
                 .withSubject(sendEmailRequest.getMailSubject())
-                .withHTMLText(content).buildEmail();
+                .withHTMLText(content);
+        Email email = mailTemplate.equals("investmentCertificate") ?
+                emailPopulatingBuilder
+                        .withAttachment("investment-certificate.pdf", new FileDataSource(sendEmailRequest.getMailData().get("attachmentLocation").textValue()))
+                        .buildEmail() :
+                emailPopulatingBuilder
+                        .buildEmail();
 //        System.out.println("Email: "+ email.getHTMLText());
         if(notificationsEnabled) {
             try {
@@ -173,6 +183,7 @@ public class NotificationServiceImpl implements NotificationService {
                     emailService.auditSuccessfulEmail(mailData, sendEmailRequest.getMailSubject());
                 }
             }catch (Exception ex) {
+                ex.printStackTrace();
                 emailService.saveFailedEmail(mailData, sendEmailRequest.getMailSubject(), email.getHTMLText(), ex.getMessage());
                 log.info("Email sending failed: "+ ex.getMessage());
                 throw new CustomCheckedException("Email sending failed");
@@ -271,6 +282,8 @@ public class NotificationServiceImpl implements NotificationService {
                 return "email/cheque_lodgement";
             case "postMaturity":
                 return "email/post_maturity";
+            case "investmentCertificate":
+                return "email/investment-certificate";
             case "custom":
                 return "email/custom-message";
             default:
