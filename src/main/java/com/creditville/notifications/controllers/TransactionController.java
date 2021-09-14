@@ -24,9 +24,15 @@ public class TransactionController {
     @Autowired
     private TransactionService transactionService;
 
-    @PostMapping("/receive-hook-events")
-    public ResponseEntity<?> receiveHookEvents(@RequestBody HookEvent hookEvent, HttpServletRequest httpServletRequest) throws CustomCheckedException {
+    @PostMapping("/paystack/receive-hook-events")
+    public ResponseEntity<?> receivePaystackHookEvents(@RequestBody HookEvent hookEvent, HttpServletRequest httpServletRequest) throws CustomCheckedException {
         validationUtil.validatePaystackRequest(httpServletRequest);
+        transactionService.handlePaystackTransactionEvent(hookEvent);
+        return new ResponseEntity<>(new SuccessResponse("Event received successfully", null), HttpStatus.OK);
+    }
+
+    @PostMapping("/remitta/receive-hook-events")
+    public ResponseEntity<?> receiveRemittaHookEvents(@RequestBody HookEvent hookEvent, HttpServletRequest httpServletRequest) throws CustomCheckedException {
         transactionService.handlePaystackTransactionEvent(hookEvent);
         return new ResponseEntity<>(new SuccessResponse("Event received successfully", null), HttpStatus.OK);
     }

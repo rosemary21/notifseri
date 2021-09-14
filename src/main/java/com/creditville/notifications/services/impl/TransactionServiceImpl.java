@@ -36,6 +36,9 @@ public class TransactionServiceImpl implements TransactionService {
     @Value("${paystack.charge.message}")
     private String successfulChargeEvent;
 
+    @Value("${remitta.charge.message}")
+    private String successfulRemittaChargeEvent;
+
     @Autowired
     private CardDetailsRepository cardDetailsRepository;
 
@@ -83,6 +86,117 @@ public class TransactionServiceImpl implements TransactionService {
         if(hookEvent.getEvent().equalsIgnoreCase(successfulChargeEvent)) {
 //            Charge was successful...
 //            Check if customer has an auth code...
+            if(hookEvent.getData() != null) {
+                if(hookEvent.getData().getAuthorization() != null) {
+                    CardDetails customerRecord = cardDetailsRepository.findByAuthorizationCode(hookEvent.getData().getAuthorization().getAuthorizationCode());
+                    if(customerRecord == null) {
+//                        Customer'a auth code is not found. Hence, this is a tokenization process. Do nothing because tokenization requires a response to front end...
+                        System.out.println("Received hook event for tokenization but no operation was performed due to the structure of our system...");
+                    }else {
+//                        Customer's record is found. Hence, this is a repayment process. Attempt repayment...
+                        CardTransactionsDto ctDTO = new CardTransactionsDto();
+                        RepayLoanReq repayLoanReq = new RepayLoanReq();
+                        LocalDate currentDate = LocalDate.now();
+                        boolean repaymentStatus = true;
+                        String errorMessage = null;
+                        String loanId = null;
+                        var dataObj = hookEvent.getData();
+                        var authObj = hookEvent.getData().getAuthorization();
+
+                        BigDecimal chargedAmount = dataObj.getAmount();
+                        BigDecimal newChargedAmount = chargedAmount.divide(new BigDecimal(100)).setScale(2, RoundingMode.CEILING);
+
+//                            ctDTO.setAmount(new BigDecimal(dataObj.get("amount").toString()));
+                        ctDTO.setAmount(newChargedAmount);
+                        ctDTO.setCurrency(dataObj.getCurrency());
+                        ctDTO.setTransactionDate(dataObj.getPaidAt());
+                        ctDTO.setStatus(dataObj.getStatus());
+                        ctDTO.setReference(dataObj.getReference());
+
+                        ctDTO.setCardType(authObj.getCardType());
+
+                        ctDTO.setCardDetails(customerRecord);
+
+                        cardTransactionsService.saveCardTransaction(ctDTO);
+                        if(ctDTO.getStatus().equalsIgnoreCase("success")){
+                            //repay Loan
+                            try {
+                                LookUpClient client = clientService.lookupClient(customerRecord.getClientId());
+
+                                List<LookUpClientLoan> openClientLoanList = client.getLoans()
+                                        .stream()
+                                        .filter(cl -> cl.getStatus().equalsIgnoreCase("ACTIVE") || cl.getStatus().equalsIgnoreCase("IN_ARREARS"))
+                                        .collect(Collectors.toList());
+//                                    Since there can be only one open client loan at a time, check if the list is empty, if not, get the first element...
+                                if (!openClientLoanList.isEmpty()) {
+                                    LookUpClientLoan clientLoan = openClientLoanList.get(0);
+//                                    Check if it's a pd operation before checking below. It is a pd operation if previous loan before this month is unsettled and ammount is or there is an unsettled bal...
+//                                    If it is a pd operation, return unsettled loan ID...
+                                    try {
+                                        String unsettledLoanId = this.getUnsettledLoanId(clientLoan);
+                                        loanId = unsettledLoanId != null ? unsettledLoanId : clientLoan.getId();
+                                    }catch (CustomCheckedException cce) {
+                                        System.out.println("Unable to get unsettled loan ID. See reason below: \n"+ cce.getMessage());
+                                        loanId = clientLoan.getId();
+                                    }
+                                }
+                            }catch (CustomCheckedException cce) {
+                                System.out.println("An error occurred while performing lookup. See status below...");
+                                cce.printStackTrace();
+                            }
+                            repayLoanReq.setAccountID(loanId);
+//                                repayLoanReq.setAmount(new BigDecimal(dataObj.get("amount").toString()));
+                            repayLoanReq.setAmount(newChargedAmount);
+                            repayLoanReq.setPaymentMethodName(AppConstants.InstafinPaymentMethod.PAYSTACK_PAYMENT_METHOD);
+                            repayLoanReq.setTransactionBranchID(AppConstants.InstafinBranch.TRANSACTION_BRANCH_ID);
+                            repayLoanReq.setRepaymentDate(currentDate.toString());
+                            repayLoanReq.setNotes("Card loan repayment");
+                            var repaymentResp = loanRepaymentService.makeLoanRepayment(repayLoanReq);
+                            if (null == repaymentResp) {
+                                repaymentStatus = false;
+                                errorMessage = dataObj.getMessage();
+                            } else {
+                                if (repaymentResp.trim().equals("")) {
+                                    repaymentStatus = false;
+                                    errorMessage = dataObj.getMessage();
+                                }
+                            }
+                        }else {
+                            repaymentStatus = false;
+                            errorMessage = dataObj.getMessage();
+                        }
+//                        Send out operation notification...
+                        this.sendOutOpNotification(loanId, errorMessage, currentDate, repaymentStatus);
+                    }
+                }else System.out.println("No Auuthorization information was returned for customer with email: "+ hookEvent.getData().getCustomer().getEmail());
+            }
+        }else {
+            System.out.println("Charge was not successful. See status below: \n" + hookEvent.getEvent());
+            String message = hookEvent.getData().getMessage();
+            System.out.println("Unsuccessful charge message is: "+ message);
+            if(message.equalsIgnoreCase("insufficient funds")) {
+//                Charge failed due to insufficient funds. Attempt partial debit...
+//                TODO check if PD is disabled for customer...
+                if(hookEvent.getData() != null) {
+                    if (hookEvent.getData().getAuthorization() != null) {
+                        HookEventData data = hookEvent.getData();
+                        HookEventAuthorization authorization = data.getAuthorization();
+                        cardDetailsService.makePartialDebit(
+                                new PartialDebitDto(
+                                        authorization.getAuthorizationCode(),
+                                        data.getAmount(),
+                                        data.getCustomer().getEmail()
+                                )
+                        );
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void handleRemittaTransactionEvent(HookEvent hookEvent) {
+        if(hookEvent.getEvent().equalsIgnoreCase(successfulRemittaChargeEvent)) {
             if(hookEvent.getData() != null) {
                 if(hookEvent.getData().getAuthorization() != null) {
                     CardDetails customerRecord = cardDetailsRepository.findByAuthorizationCode(hookEvent.getData().getAuthorization().getAuthorizationCode());
