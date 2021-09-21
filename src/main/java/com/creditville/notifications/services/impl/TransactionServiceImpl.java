@@ -194,7 +194,7 @@ public class TransactionServiceImpl implements TransactionService {
         }
     }
 
-    @Override
+//    @Override
     public void handleRemittaTransactionEvent(HookEvent hookEvent) {
         if(hookEvent.getEvent().equalsIgnoreCase(successfulRemittaChargeEvent)) {
             if(hookEvent.getData() != null) {

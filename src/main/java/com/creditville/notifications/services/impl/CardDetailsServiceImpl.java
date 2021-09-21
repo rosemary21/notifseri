@@ -286,7 +286,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
 
                             ctDTO.setCardDetails(cardDetails);
 
-                            ctService.saveCardTransaction(ctDTO);
+                            var savedCardTransaction = ctService.saveCardTransaction(ctDTO);
                             if(ctDTO.getStatus().equalsIgnoreCase("success")){
                                 //repay Loan
                                 repayLoanReq.setAccountID(loanId);
@@ -321,12 +321,18 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                                     repaymentStatus = false;
                                 }
                                 if(!repaymentStatus) {
-                                    ctDTO.setStatus("repayment_failure");
-                                    ctDTO.setInstafinResponse(errorMessage);
-                                    ctService.saveCardTransaction(ctDTO);
+//                                    ctDTO.setStatus("repayment_failure");
+//                                    ctDTO.setInstafinResponse(errorMessage);
+//                                    ctService.saveCardTransaction(ctDTO);
+                                    savedCardTransaction.setStatus("repayment_failure");
+                                    savedCardTransaction.setInstafinResponse(errorMessage);
+                                    ctService.addCardTransaction(savedCardTransaction);
+
                                 }else {
-                                    ctDTO.setInstafinResponse("REPAYMENT SUCCESSFUL");
-                                    ctService.saveCardTransaction(ctDTO);
+//                                    ctDTO.setInstafinResponse("REPAYMENT SUCCESSFUL");
+//                                    ctService.saveCardTransaction(ctDTO);
+                                    savedCardTransaction.setStatus("REPAYMENT SUCCESSFUL");
+                                    ctService.addCardTransaction(savedCardTransaction);
                                 }
                             }else {
 //                                Charge failed. Attempt PD...
@@ -424,7 +430,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
 
                             ctDTO.setCardDetails(cardDetails);
 
-                            ctService.saveCardTransaction(ctDTO);
+                            var savedCardTransaction = ctService.saveCardTransaction(ctDTO);
 
 //                          Make loan repayment...
                             repayLoanReq.setAccountID(loanId);
@@ -475,6 +481,15 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                                 errorMessage = "Charge successful but loan repayment failed. Reason: No response gotten from Instafin";
                                 responseMap.put("repaymentStatus", Boolean.toString(false));
                                 responseMap.put("errorMessage", errorMessage);
+                            }
+
+                            if(responseMap.get("repaymentStatus").equals("false")) {
+                                savedCardTransaction.setStatus("repayment_failure");
+                                savedCardTransaction.setInstafinResponse(responseMap.get("errorMessage"));
+                                ctService.addCardTransaction(savedCardTransaction);
+                            }else {
+                                savedCardTransaction.setStatus("REPAYMENT SUCCESSFUL");
+                                ctService.addCardTransaction(savedCardTransaction);
                             }
                         }
                     }
