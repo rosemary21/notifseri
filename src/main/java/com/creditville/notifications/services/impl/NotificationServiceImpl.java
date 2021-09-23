@@ -288,6 +288,8 @@ public class NotificationServiceImpl implements NotificationService {
                 return "email/custom-message";
             case "activateOtp":
                 return "email/activate-otp";
+            case "sendForm":
+                return "email/send-form";
             default:
                 throw new CustomCheckedException("Invalid template name provided");
         }

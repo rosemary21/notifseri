@@ -13,7 +13,9 @@ public interface CardDetailsService {
 
     public void cardAuthorization(String response, String clientId);
 
-    public void cardRecurringCharges(String email, BigDecimal amount, String loanId, LocalDate currentDate, String clientID);
+    void cardRecurringCharges(String email, BigDecimal amount, String loanId, LocalDate currentDate, String clientID);
+
+    void initiateRemitaRecurringCharges(BigDecimal amount, String loanId, LocalDate currentDate, String clientID);
 
     String makePartialDebit(PartialDebitDto partialDebitDto);
 

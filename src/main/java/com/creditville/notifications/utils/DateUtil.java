@@ -6,11 +6,13 @@ import org.springframework.stereotype.Service;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
 /**
  * Created by Chuks on 02/09/2021.
@@ -250,5 +252,46 @@ public class DateUtil {
     public LocalDate convertDateToLocalDate(String date) {
         var dueDate = date.split("T")[0];
         return LocalDate.parse(dueDate);
+    }
+
+    public String newDate(){
+        LocalDate localDate = LocalDate.now();//For reference
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyy");
+        return localDate.format(formatter);
+    }
+
+    public String getTimeStamp(){
+        return new SimpleDateFormat("yyyy-mm-dd'T'HH:mm:ss'+000000'").format(Calendar.getInstance().getTime());
+    }
+
+    public LocalDateTime getDate(){
+        ZoneId zoneId = ZoneId.of ( "Africa/Lagos" );
+        LocalDateTime ldt = new Date().toInstant().atZone(zoneId).toLocalDateTime();
+        //Get current date time
+        LocalDateTime now = LocalDateTime.now();
+
+        System.out.println("Before : " + now);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(GeneralUtil.DatePattern.thirdPattern);
+
+        String formatDateTime2 = ldt.format(formatter);
+
+        System.out.println("After : " + formatDateTime2);
+
+        return ldt;
+    }
+
+    public static String dateFormatter(String sDate){
+        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+        sdf1.setTimeZone(TimeZone.getTimeZone("Africa/Lagos"));
+        SimpleDateFormat sdf2 = new SimpleDateFormat("dd/MM/yyyy",Locale.ENGLISH);
+        sdf2.setTimeZone(TimeZone.getTimeZone("Africa/Lagos"));
+        String ds2 = null;
+        try {
+            ds2 = sdf2.format(sdf1.parse(sDate));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return ds2;
     }
 }

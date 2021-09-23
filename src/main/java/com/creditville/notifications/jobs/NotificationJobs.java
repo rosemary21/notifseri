@@ -24,6 +24,9 @@ public class NotificationJobs {
     @Value("${app.schedule.recurringCharges.enabled}")
     private Boolean recurringChargesEnabled;
 
+    @Value("${app.schedule.mandateDebitInstruction.enabled}")
+    private Boolean mandateDebitInstructionEnabled;
+
     @Value("${app.schedule.partialDebit.enabled}")
     private Boolean partialDebitEnabled;
 
@@ -143,6 +146,14 @@ public class NotificationJobs {
         if(partialDebitEnabled)
             partialDebitService.performPartialDebitOp();
         else log.info("Schedule for partial debit operation has reached it's schedule time but is operation is disabled from configuration".toUpperCase());
+    }
+
+    @Scheduled(cron = "${app.schedule.recurringCharges}")
+//    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
+    public void mandateDebitInstruction() {
+        if(mandateDebitInstructionEnabled)
+            dispatcherService.performRecurringMandateDebitInstruction();
+        else log.info("Schedule for recurring mandate charge (remita) has reached it's schedule time but notification is disabled from configuration".toUpperCase());
     }
 
     @Scheduled(cron = "${app.schedule.notifyTeam}")

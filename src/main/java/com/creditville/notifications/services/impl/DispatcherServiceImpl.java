@@ -88,6 +88,9 @@ public class DispatcherServiceImpl implements DispatcherService {
     @Value("${app.card.modeOfRepaymentKey}")
     private String cardModeOfRepaymentKey;
 
+    @Value("${app.remitta.modeOfRepaymentKey}")
+    private String remitaModeOfRepaymentKey;
+
     @Autowired
     private CardDetailsService cardDetailsService;
 
@@ -111,6 +114,9 @@ public class DispatcherServiceImpl implements DispatcherService {
 
     @Autowired
     private NotificationConfigService notificationConfigService;
+
+    @Autowired
+    private RemitaService remitaService;
 
     @Override
     public void performDueRentalOperation() {
@@ -1103,6 +1109,72 @@ public class DispatcherServiceImpl implements DispatcherService {
                         }catch (Exception ex) {
                             ex.printStackTrace();
                             log.info("An error occurred for client with id: ".toUpperCase() + cardDetails.getClientId());
+                        }
+                    }
+                    pageNumber++;
+                } else {
+                    pageNumber = null;
+                }
+            }
+        }catch (Exception cce) {
+            cce.printStackTrace();
+        }
+    }
+
+    @Override
+    public void performRecurringMandateDebitInstruction() {
+        try {
+            Integer pageNumber = 0;
+
+            while (pageNumber != null) {
+                List<Mandates> mandates = remitaService.getAllActiveMandates(pageNumber, 100);
+                if (!mandates.isEmpty()) {
+                    for (Mandates m : mandates) {
+                        try {
+                            LookUpClient lookUpClient = clientService.lookupClient(m.getClientId());
+                            String clientStatus = lookUpClient.getClient().getClientStatus();
+                            if (clientStatus.equals("ACTIVE") || clientStatus.contains("ARREARS")) {
+                                List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
+                                        .stream()
+                                        .filter(cl -> cl.getStatus().equalsIgnoreCase("ACTIVE") || cl.getStatus().contains("ARREARS"))
+                                        .collect(Collectors.toList());
+//                Since there can be only one open client loan at a time, check if the list is empty, if not, get the first element...
+                                if (!openClientLoanList.isEmpty()) {
+                                    LookUpClientLoan clientLoan = openClientLoanList.get(0);
+                                    LookUpLoanAccount lookUpLoanAccount = clientService.lookupLoanAccount(clientLoan.getId());
+                                    String modeOfRepayment = lookUpLoanAccount.getLoanAccount().getOptionalFields().getModeOfRepayment() == null ?
+                                            "" :
+                                            lookUpLoanAccount.getLoanAccount().getOptionalFields().getModeOfRepayment();
+                                    if (modeOfRepayment.equalsIgnoreCase(remitaModeOfRepaymentKey)) {
+                                        List<LookUpLoanInstalment> loanInstalments = lookUpLoanAccount.getLoanAccount().getInstalments();
+                                        if (!loanInstalments.isEmpty()) {
+                                            List<LookUpLoanInstalment> loanInstalmentsLtOrEqToday = loanInstalments
+                                                    .stream()
+                                                    .filter(lookUpLoanInstalment -> dateUtil.isPaymentDateLtOrEqToday(lookUpLoanInstalment.getObligatoryPaymentDate()))
+                                                    .collect(Collectors.toList());
+                                            if (!loanInstalmentsLtOrEqToday.isEmpty()) {
+                                                for (LookUpLoanInstalment dueDateInstalment : loanInstalmentsLtOrEqToday) {
+                                                    Client customer = lookUpClient.getClient();
+                                                    LocalDate obligatoryPaymentDate = dateUtil.convertDateToLocalDate(dueDateInstalment.getObligatoryPaymentDate());
+                                                    var principalDueAmount = dueDateInstalment.getCurrentState().getPrincipalDueAmount();
+                                                    if (principalDueAmount.compareTo(BigDecimal.ZERO) > 0) {
+                                                        BigDecimal totalDue = principalDueAmount
+                                                                .add(dueDateInstalment.getCurrentState().getInterestDueAmount());
+                                                        if(dueDateInstalment.getCurrentState().getFeeDueAmount() != null)
+                                                            totalDue = totalDue.add(dueDateInstalment.getCurrentState().getFeeDueAmount());
+                                                        BigDecimal newTotalDue = totalDue.multiply(new BigDecimal(100));
+                                                        cardDetailsService.initiateRemitaRecurringCharges(newTotalDue, clientLoan.getId(), obligatoryPaymentDate, customer.getExternalID());
+                                                    }
+                                                }
+                                            } else
+                                                log.info("Loan installments gt or eq to today is empty...");
+                                        } else log.info("Loan installments is empty...");
+                                    } else log.info("Mode of repayment is not known..." + modeOfRepayment);
+                                }
+                            }
+                        }catch (Exception ex) {
+                            ex.printStackTrace();
+                            log.info("An error occurred for client with id: ".toUpperCase() + m.getClientId());
                         }
                     }
                     pageNumber++;

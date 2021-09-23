@@ -3,6 +3,7 @@ package com.creditville.notifications.models.response;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -16,4 +17,5 @@ public class LookupLoanLoanAccount {
     private Date createdOn;
     private List<LookUpLoanInstalment> instalments;
     private LookUpLoanLoanAccountOptionalFields optionalFields;
+    private BigDecimal loanAmount;
 }
