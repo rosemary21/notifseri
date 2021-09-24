@@ -53,6 +53,7 @@ public class NotificationDbCli implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+        System.out.println("About running the notification of get allo collection officers");
         if(collectionOfficerService.getAllCollectionOfficers().isEmpty()) {
             collectionOfficerService.createNew("Abuja", "Adewonuola Adebayo", "adewonuola.adebayo@creditville.ng", "08036468906");
             collectionOfficerService.createNew("Port Harcourt", "Ruth Falade", "ruth.falade@creditville.ng", "08138808861");

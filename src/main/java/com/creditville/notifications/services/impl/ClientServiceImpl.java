@@ -90,7 +90,7 @@ public class ClientServiceImpl implements ClientService {
             String payload = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(lookupClient);
 //            System.out.println("Payload: "+ payload);
             String lookUpClientResp = httpCallService.doBasicPost((baseUrl + lookupClientUrl), payload);
-//            System.out.println("Lookup client response : "+ lookUpClientResp);
+            System.out.println("Lookup client response : "+ lookUpClientResp);
             return objectMapper.readValue(lookUpClientResp, LookUpClient.class);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
