@@ -13,4 +13,5 @@ import java.io.Serializable;
 public class LookUpLoanAccount implements Serializable {
     private LookupLoanLoanAccount loanAccount;
     private Client client;
+    private LookUpLoanSuggestedSchedule suggestedSchedule;
 }

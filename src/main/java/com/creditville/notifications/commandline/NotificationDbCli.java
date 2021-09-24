@@ -182,7 +182,7 @@ public class NotificationDbCli implements CommandLineRunner {
 //        result = (D7*D9) / (1.0 - Math.pow(1 + D9, -d11));
 
 
-        System.out.println("Result is: "+ this.calculatePMT(new BigDecimal("0.5"), 12, new BigDecimal("200000"), false));
+//        System.out.println("Result is: "+ this.calculatePMT(new BigDecimal("0.5"), 12, new BigDecimal("200000"), false));
     }
 
     private BigDecimal calculatePMT(BigDecimal rate, Integer months, BigDecimal presentValue, boolean t) {

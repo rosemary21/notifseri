@@ -6,7 +6,7 @@ import com.creditville.notifications.models.DTOs.CardTransactionsDto;
 
 public interface CardTransactionsService {
 
-    public void addCardTransaction(CardTransactions cardTransactions);
+    CardTransactions addCardTransaction(CardTransactions cardTransactions);
 
-    public void saveCardTransaction(CardTransactionsDto cardTransactionsDto);
+    CardTransactions saveCardTransaction(CardTransactionsDto cardTransactionsDto);
 }

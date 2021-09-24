@@ -2,6 +2,7 @@ package com.creditville.notifications.controllers;
 
 import com.creditville.notifications.exceptions.CustomCheckedException;
 import com.creditville.notifications.models.requests.HookEvent;
+import com.creditville.notifications.models.requests.RemitaHookEvent;
 import com.creditville.notifications.models.response.SuccessResponse;
 import com.creditville.notifications.services.TransactionService;
 import com.creditville.notifications.utils.ValidationUtil;
@@ -31,9 +32,15 @@ public class TransactionController {
         return new ResponseEntity<>(new SuccessResponse("Event received successfully", null), HttpStatus.OK);
     }
 
-    @PostMapping("/remitta/receive-hook-events")
-    public ResponseEntity<?> receiveRemittaHookEvents(@RequestBody HookEvent hookEvent, HttpServletRequest httpServletRequest) throws CustomCheckedException {
-        transactionService.handlePaystackTransactionEvent(hookEvent);
+    @PostMapping("/remitta/receive-activation-hook-events")
+    public ResponseEntity<?> receiveRemittaActivationHookEvents(@RequestBody RemitaHookEvent hookEvent, HttpServletRequest httpServletRequest) throws CustomCheckedException {
+        transactionService.handleRemitaActivationEvent(hookEvent);
+        return new ResponseEntity<>(new SuccessResponse("Event received successfully", null), HttpStatus.OK);
+    }
+
+    @PostMapping("/remitta/receive-debit-hook-events")
+    public ResponseEntity<?> receiveRemittaDebitHookEvents(@RequestBody RemitaHookEvent hookEvent, HttpServletRequest httpServletRequest) throws CustomCheckedException {
+        transactionService.handleRemitaDebitEvent(hookEvent);
         return new ResponseEntity<>(new SuccessResponse("Event received successfully", null), HttpStatus.OK);
     }
 }

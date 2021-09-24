@@ -4,19 +4,22 @@ import com.creditville.notifications.exceptions.CustomCheckedException;
 import com.creditville.notifications.instafin.common.AppConstants;
 import com.creditville.notifications.instafin.req.RepayLoanReq;
 import com.creditville.notifications.instafin.service.LoanRepaymentService;
-import com.creditville.notifications.models.CardDetails;
+import com.creditville.notifications.models.*;
 import com.creditville.notifications.models.DTOs.CardTransactionsDto;
+import com.creditville.notifications.models.DTOs.DebitInstructionDTO;
 import com.creditville.notifications.models.DTOs.PartialDebitDto;
-import com.creditville.notifications.models.PartialDebit;
-import com.creditville.notifications.models.PartialDebitAttempt;
 import com.creditville.notifications.models.requests.HookEvent;
 import com.creditville.notifications.models.requests.HookEventAuthorization;
 import com.creditville.notifications.models.requests.HookEventData;
+import com.creditville.notifications.models.requests.RemitaHookEvent;
 import com.creditville.notifications.models.response.*;
 import com.creditville.notifications.repositories.CardDetailsRepository;
+import com.creditville.notifications.repositories.CardTransactionRepository;
+import com.creditville.notifications.repositories.MandateRepository;
 import com.creditville.notifications.services.*;
 import com.creditville.notifications.utils.CardUtil;
 import com.creditville.notifications.utils.DateUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,18 +29,20 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class TransactionServiceImpl implements TransactionService {
     @Value("${paystack.charge.message}")
     private String successfulChargeEvent;
 
-    @Value("${remitta.charge.message}")
-    private String successfulRemittaChargeEvent;
+    @Value("${remitta.activation.message}")
+    private String remitaActivationMessage;
+
+    @Value("${remitta.debit.message}")
+    private String remitaDebitMessage;
 
     @Autowired
     private CardDetailsRepository cardDetailsRepository;
@@ -80,6 +85,15 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Autowired
     private DateUtil dateUtil;
+
+    @Autowired
+    private MandateRepository mandateRepository;
+
+    @Autowired
+    private CardTransactionRepository cardTransactionRepository;
+
+    @Value("${remitta.success.activation.code}")
+    private String successfulActivationStatusCode;
 
     @Override
     public void handlePaystackTransactionEvent(HookEvent hookEvent) {
@@ -195,111 +209,102 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public void handleRemittaTransactionEvent(HookEvent hookEvent) {
-        if(hookEvent.getEvent().equalsIgnoreCase(successfulRemittaChargeEvent)) {
-            if(hookEvent.getData() != null) {
-                if(hookEvent.getData().getAuthorization() != null) {
-                    CardDetails customerRecord = cardDetailsRepository.findByAuthorizationCode(hookEvent.getData().getAuthorization().getAuthorizationCode());
-                    if(customerRecord == null) {
-//                        Customer'a auth code is not found. Hence, this is a tokenization process. Do nothing because tokenization requires a response to front end...
-                        System.out.println("Received hook event for tokenization but no operation was performed due to the structure of our system...");
-                    }else {
-//                        Customer's record is found. Hence, this is a repayment process. Attempt repayment...
-                        CardTransactionsDto ctDTO = new CardTransactionsDto();
-                        RepayLoanReq repayLoanReq = new RepayLoanReq();
-                        LocalDate currentDate = LocalDate.now();
-                        boolean repaymentStatus = true;
-                        String errorMessage = null;
-                        String loanId = null;
-                        var dataObj = hookEvent.getData();
-                        var authObj = hookEvent.getData().getAuthorization();
+    public void handleRemitaActivationEvent(RemitaHookEvent hookEvent) {
+        if(hookEvent.getNotificationType().equalsIgnoreCase(remitaActivationMessage)) {
+            for (RemitaHookEvent.LineItem lineItem : hookEvent.getLineItems()) {
+                Mandates mandate = mandateRepository.findByMandateId(lineItem.getMandateId());
+                if (mandate.getStatusCode() != null && !mandate.getStatusCode().equalsIgnoreCase(successfulActivationStatusCode)) {
+                    mandate.setStatusCode("00");
+                    mandate.setRequestId(lineItem.getRequestId());
+                    mandate.setMandateId(lineItem.getMandateId());
+                    mandate.setAmount(new BigDecimal(lineItem.getAmount()));
+                    mandateRepository.save(mandate);
+                }
+            }
+        }
+    }
 
-                        BigDecimal chargedAmount = dataObj.getAmount();
-                        BigDecimal newChargedAmount = chargedAmount.divide(new BigDecimal(100)).setScale(2, RoundingMode.CEILING);
-
-//                            ctDTO.setAmount(new BigDecimal(dataObj.get("amount").toString()));
-                        ctDTO.setAmount(newChargedAmount);
-                        ctDTO.setCurrency(dataObj.getCurrency());
-                        ctDTO.setTransactionDate(dataObj.getPaidAt());
-                        ctDTO.setStatus(dataObj.getStatus());
-                        ctDTO.setReference(dataObj.getReference());
-
-                        ctDTO.setCardType(authObj.getCardType());
-
-                        ctDTO.setCardDetails(customerRecord);
-
-                        cardTransactionsService.saveCardTransaction(ctDTO);
-                        if(ctDTO.getStatus().equalsIgnoreCase("success")){
-                            //repay Loan
-                            try {
-                                LookUpClient client = clientService.lookupClient(customerRecord.getClientId());
-
-                                List<LookUpClientLoan> openClientLoanList = client.getLoans()
-                                        .stream()
-                                        .filter(cl -> cl.getStatus().equalsIgnoreCase("ACTIVE") || cl.getStatus().equalsIgnoreCase("IN_ARREARS"))
-                                        .collect(Collectors.toList());
-//                                    Since there can be only one open client loan at a time, check if the list is empty, if not, get the first element...
-                                if (!openClientLoanList.isEmpty()) {
-                                    LookUpClientLoan clientLoan = openClientLoanList.get(0);
-//                                    Check if it's a pd operation before checking below. It is a pd operation if previous loan before this month is unsettled and ammount is or there is an unsettled bal...
-//                                    If it is a pd operation, return unsettled loan ID...
-                                    try {
-                                        String unsettledLoanId = this.getUnsettledLoanId(clientLoan);
-                                        loanId = unsettledLoanId != null ? unsettledLoanId : clientLoan.getId();
-                                    }catch (CustomCheckedException cce) {
-                                        System.out.println("Unable to get unsettled loan ID. See reason below: \n"+ cce.getMessage());
-                                        loanId = clientLoan.getId();
-                                    }
-                                }
-                            }catch (CustomCheckedException cce) {
-                                System.out.println("An error occurred while performing lookup. See status below...");
-                                cce.printStackTrace();
-                            }
-                            repayLoanReq.setAccountID(loanId);
-//                                repayLoanReq.setAmount(new BigDecimal(dataObj.get("amount").toString()));
-                            repayLoanReq.setAmount(newChargedAmount);
+    @Override
+    public void handleRemitaDebitEvent(RemitaHookEvent hookEvent) {
+        if(hookEvent.getNotificationType().equalsIgnoreCase(remitaDebitMessage)) {
+            for (RemitaHookEvent.LineItem lineItem : hookEvent.getLineItems()) {
+                Mandates mandate = mandateRepository.findByMandateId(lineItem.getMandateId());
+                String errorMessage = null;
+                boolean repaymentStatus = true;
+                if (mandate != null) {
+                    CardTransactions existingTransaction = cardTransactionRepository.findFirstByRemitaRequestIdAndMandateIdAndStatusInOrderByLastUpdateDesc(mandate.getRequestId(), mandate.getMandateId(), Collections.singletonList("pending"));
+                    if (existingTransaction != null) {
+                        log.info("There is an existing transaction for record..." + mandate.getMandateId() + " ---- " + mandate.getRemitaTransRef());
+                        BigDecimal amount = new BigDecimal(lineItem.getAmount());
+                        if (amount.compareTo(BigDecimal.ZERO) > 0) {
+                            RepayLoanReq repayLoanReq = new RepayLoanReq();
+                            repayLoanReq.setAccountID(mandate.getLoanId());
+                            repayLoanReq.setAmount(amount);
                             repayLoanReq.setPaymentMethodName(AppConstants.InstafinPaymentMethod.PAYSTACK_PAYMENT_METHOD);
                             repayLoanReq.setTransactionBranchID(AppConstants.InstafinBranch.TRANSACTION_BRANCH_ID);
-                            repayLoanReq.setRepaymentDate(currentDate.toString());
-                            repayLoanReq.setNotes("Card loan repayment");
+                            repayLoanReq.setRepaymentDate(existingTransaction.getLastUpdate().toString());
+//                            repayLoanReq.setNotes("Card loan repayment");
+                            repayLoanReq.setNotes("Remita loan repayment");
                             var repaymentResp = loanRepaymentService.makeLoanRepayment(repayLoanReq);
-                            if (null == repaymentResp) {
-                                repaymentStatus = false;
-                                errorMessage = dataObj.getMessage();
+                            if (repaymentResp != null) {
+                                JSONObject repaymentResponseObject;
+                                try {
+                                    repaymentResponseObject = cardUtil.getJsonObjResponse(repaymentResp);
+                                    if (responseContainsValidationError(repaymentResponseObject)) {
+                                        errorMessage = repaymentResponseObject.get("message").toString();
+                                        repaymentStatus = false;
+                                    }
+                                } catch (Exception ex) {
+                                    ex.printStackTrace();
+                                    repaymentResponseObject = null;
+                                }
+                                if (repaymentResponseObject == null) {
+                                    boolean isEmpty = repaymentResp.trim().equals("");
+                                    errorMessage = isEmpty ?
+                                            "Charge successful but loan repayment failed. Reason: No response gotten from Instafin" :
+                                            repaymentResp;
+                                    if (isEmpty) repaymentStatus = false;
+                                }
                             } else {
-                                if (repaymentResp.trim().equals("")) {
-                                    repaymentStatus = false;
-                                    errorMessage = dataObj.getMessage();
+                                errorMessage = "Charge successful but loan repayment failed. Reason: No response gotten from Instafin";
+                                repaymentStatus = false;
+                            }
+
+                            if (!repaymentStatus) {
+                                existingTransaction.setStatus("repayment_failure");
+                                existingTransaction.setInstafinResponse(errorMessage);
+                                cardTransactionsService.addCardTransaction(existingTransaction);
+                            } else {
+                                existingTransaction.setStatus("REPAYMENT SUCCESSFUL");
+                                cardTransactionsService.addCardTransaction(existingTransaction);
+                            }
+
+                            Map<String, String> notificationData = new HashMap<>();
+                            notificationData.put("toName", tokenizationName);
+                            notificationData.put("customerName", tokenizationName);
+                            notificationData.put("toAddress", tokenizationEmail);
+                            notificationData.put("loanId", mandate.getLoanId());
+                            notificationData.put("todayDate", LocalDate.now().toString());
+                            notificationData.put("failureMessage", errorMessage);
+                            notificationData.put("paymentDate", existingTransaction.getLastUpdate().toString());
+                            String mailSubject = repaymentStatus ? repaymentSuccessSubject : repaymentFailureSubject;
+                            String templateLocation = repaymentStatus ? "email/repayment-success" : "email/repayment-failure";
+                            if (!emailService.alreadySentOutEmailToday(mandate.getEmail(), tokenizationName, mailSubject, existingTransaction.getLastUpdate())) {
+                                try {
+                                    notificationService.sendEmailNotification(mailSubject, notificationData, templateLocation);
+                                } catch (CustomCheckedException cce) {
+                                    cce.printStackTrace();
+                                    log.info("An error occurred while trying to notify team of repayment status: Error message: " + cce.getMessage());
                                 }
                             }
-                        }else {
-                            repaymentStatus = false;
-                            errorMessage = dataObj.getMessage();
+                        } else {
+                            System.out.println("Invalid amount provided by remita".toUpperCase() + " ---- " + hookEvent.toString());
                         }
-//                        Send out operation notification...
-                        this.sendOutOpNotification(loanId, errorMessage, currentDate, repaymentStatus);
+                    } else {
+                        log.info("An transaction record does not exist. See remita hook event: " + hookEvent.toString());
                     }
-                }else System.out.println("No Auuthorization information was returned for customer with email: "+ hookEvent.getData().getCustomer().getEmail());
-            }
-        }else {
-            System.out.println("Charge was not successful. See status below: \n" + hookEvent.getEvent());
-            String message = hookEvent.getData().getMessage();
-            System.out.println("Unsuccessful charge message is: "+ message);
-            if(message.equalsIgnoreCase("insufficient funds")) {
-//                Charge failed due to insufficient funds. Attempt partial debit...
-//                TODO check if PD is disabled for customer...
-                if(hookEvent.getData() != null) {
-                    if (hookEvent.getData().getAuthorization() != null) {
-                        HookEventData data = hookEvent.getData();
-                        HookEventAuthorization authorization = data.getAuthorization();
-                        cardDetailsService.makePartialDebit(
-                                new PartialDebitDto(
-                                        authorization.getAuthorizationCode(),
-                                        data.getAmount(),
-                                        data.getCustomer().getEmail()
-                                )
-                        );
-                    }
+                } else {
+                    log.info("An existing mandate does not exist. See remita hook event: " + hookEvent.toString());
                 }
             }
         }
@@ -403,5 +408,21 @@ public class TransactionServiceImpl implements TransactionService {
                 }
             }
         }
+    }
+
+    private boolean responseContainsValidationError(JSONObject jsonObject){
+        String[] validationErrors = new String[] {"LEGACY_VALIDATION_ERROR", "VALIDATION",
+                "NON_EXISTING_ACCOUNT", "INVALID_STATUS_CHANGE",
+                "ACCOUNT_ALREADY_DISBURSED", "NON_EXISTING_ACCOUNT_STATUS", "VALUE_BEFORE_APPROVAL_DATE",
+                "CLIENTS_NOT_FOUND", "PAYMENT_METHOD_UNAVAILABLE", "NON_EXISTING_BRANCH", "STATUS_CHANGE_DATE_INVALID",
+                "DISBURSEMENT_NOT_ALLOWED", "GENERIC_VALIDATION_ERROR"};
+        boolean contains = false;
+        for(String error : validationErrors) {
+            if(jsonObject.containsValue(error)) {
+                contains = true;
+                break;
+            }
+        }
+        return contains;
     }
 }

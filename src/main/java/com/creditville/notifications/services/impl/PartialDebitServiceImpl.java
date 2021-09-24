@@ -171,7 +171,7 @@ public class PartialDebitServiceImpl implements PartialDebitService {
 
                                         ctDTO.setCardDetails(cardDetails);
 
-                                        ctService.saveCardTransaction(ctDTO);
+                                        var savedCardTransaction = ctService.saveCardTransaction(ctDTO);
 
 //                                            Make loan repayment...
                                         repayLoanReq.setAccountID(pdRecord.getLoanId());
@@ -183,11 +183,11 @@ public class PartialDebitServiceImpl implements PartialDebitService {
                                         var repaymentResp = loanRepaymentService.makeLoanRepayment(repayLoanReq);
                                         if (null == repaymentResp) {
                                             repaymentStatus = false;
-                                            errorMessage = pdRespObj.get("message").toString();
+//                                            errorMessage = pdRespObj.get("message").toString();
                                         } else {
                                             if (repaymentResp.trim().equals("")) {
                                                 repaymentStatus = false;
-                                                errorMessage = pdRespObj.get("message").toString();
+//                                                errorMessage = pdRespObj.get("message").toString();
                                             } else {
 //                                                    Repayment successful...
                                                 PartialDebitAttempt partialDebitAttempt = !createNewPdAttempt ? this.getPartialDebitAttempt(pdRecord, LocalDate.now()) : new PartialDebitAttempt(pdRecord);
@@ -196,6 +196,19 @@ public class PartialDebitServiceImpl implements PartialDebitService {
                                                 partialDebitAttempt.setTotalNoOfAttempts(totalAttemptsInc);
                                                 this.savePartialDebitAttempt(partialDebitAttempt);
                                             }
+                                        }
+
+                                        if(!repaymentStatus) {
+                                            savedCardTransaction.setStatus("repayment_failure");
+                                            boolean isEmpty = repaymentResp != null && repaymentResp.trim().equals("");
+                                            errorMessage = isEmpty ?
+                                                    "Charge successful but loan repayment failed. Reason: No response gotten from Instafin" :
+                                                    repaymentResp;
+                                            savedCardTransaction.setInstafinResponse(repaymentResp);
+                                            ctService.addCardTransaction(savedCardTransaction);
+                                        }else {
+                                            savedCardTransaction.setStatus("REPAYMENT SUCCESSFUL");
+                                            ctService.addCardTransaction(savedCardTransaction);
                                         }
                                     }
                                 }

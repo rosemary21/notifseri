@@ -44,4 +44,22 @@ public class CardUtil {
         else
           return "N/A";
     }
+
+    public String checkNullStr(Object str){
+        if(null != str)
+            return (String) str;
+        else
+          return "N/A";
+    }
+
+    public String getObjectString(String param){
+        if(param.charAt(6) == '(') {
+            param = param.substring(7, param.length()-1);
+            //Remove qutation marks
+            param.replaceAll("\"", "");
+            System.out.println("ENTRY getObjectString -> param: "+param);
+            return param;
+        }
+        else return param;
+    }
 }

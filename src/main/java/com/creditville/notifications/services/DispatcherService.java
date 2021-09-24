@@ -22,6 +22,8 @@ public interface DispatcherService {
 
     void performRecurringChargesOperation();
 
+    void performRecurringMandateDebitInstruction();
+
     void performMiscOperation(LocalDate startDate, LocalDate endDate);
 
     void notifyTeamOfOperation() throws CustomCheckedException;
