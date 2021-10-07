@@ -36,7 +36,7 @@ public class SmsServiceImpl implements SmsService {
         headers.setBasicAuth(vansoUserName,vansoPassword);
         System.out.println("getting the vanso username"+vansoUserName);
         System.out.println("getting the vanso password"+vansoPassword);
-        System.out.println("getting the vanso object"+requestDTO.getSms().getText()+requestDTO.getSms().getSrc()+requestDTO.getSms().getText());
+//        System.out.println("getting the vanso object"+requestDTO.getSms().getText()+requestDTO.getSms().getSrc()+requestDTO.getSms().getText());
         Map<String, ResponseDTO> map = new HashMap<>();
         HttpEntity<SMSDTO> entity=new HttpEntity<SMSDTO>(requestDTO,headers);
         System.out.println("getting the single sms url"+singleSmsUrl);
