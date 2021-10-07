@@ -670,7 +670,8 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                 }
                                                 if(valueOfArrears.compareTo(BigDecimal.ZERO) > 0) {
                                                     notificationData.put("toName", useDefaultMailInfo ? defaultToName : customer.getName());
-                                                    notificationData.put("toAddress", toAddress);
+                                                   // notificationData.put("toAddress", toAddress);
+                                                    notificationData.put("toAddress","chioma.chukelu@creditville.ng");
                                                     notificationData.put("customerName", customer.getName());
                                                     notificationData.put("noOfArrears", String.valueOf(noOfArrears));
 //                                            notificationData.put("valueOfArrears", valueOfArrears.toString());
@@ -687,6 +688,12 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                     notificationData.put("accountName", accountName);
                                                     notificationData.put("accountNumber", accountNumber);
                                                     notificationData.put("bankName", bankName);
+                                                    notificationData.put("recoveryOfficer", coN);
+                                                    notificationData.put("PhoneNo", coP);
+                                                    notificationData.put("recoveryEmail", coE);
+                                                    notificationData.put("branchManager", brmN);
+                                                    notificationData.put("bMPhoneNo", brmPh);
+                                                    notificationData.put("bMEmail", brmE);
                                                     totalSuccessfulCounter++;
                                                     try {
                                                         notificationService.sendEmailNotification(arrearsSubject, notificationData, "email/arrears");
