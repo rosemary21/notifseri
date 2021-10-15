@@ -30,6 +30,8 @@ public class DispatcherServiceImpl implements DispatcherService {
 
     @Autowired
     private NotificationService notificationService;
+    @Autowired
+    private FinanceManagerService financeManagerService;
 
     @Autowired
     private DateUtil dateUtil;
@@ -145,6 +147,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                                     throw new CustomCheckedException("Customer branch is disabled. Notification would not be sent out");
                                 }
                             }
+                            System.out.println("getting the branch <><><><> "+client.getBranchName());
                             BranchManager branchManager = branchManagerService.getBranchManager(client.getBranchName());
                             LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());
                             List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
@@ -205,6 +208,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                     hasBranchManager = false;
                                                 } else {
                                                     brmN = branchManager.getOfficerName();
+                                                    System.out.println("getting the branch manager"+brmN);
                                                     brmE = branchManager.getOfficerEmail();
                                                     brmPh = branchManager.getOfficerPhoneNo();
                                                 }
@@ -577,6 +581,8 @@ public class DispatcherServiceImpl implements DispatcherService {
                         try {
 //                            CollectionOfficer collectionOfficer = collectionOfficerService.getCollectionOfficer(client.getBranchName());
                             RecoveryOfficer recoveryOfficer = recoveryOfficerService.getRecoveryOfficer(client.getBranchName());
+                            System.out.println("getting the branch name "+client.getBranchName());
+                            FinanceManager financeManager=financeManagerService.getBraManager(client.getBranchName());
                             Branch branch = branchService.getBranch(client.getBranchName());
                             if(!branch.getIsEnabled()) {
                                 log.info("Branch {} is disabled from receiving notifications. Hence, notification would not be sent out for client with ID {}", client.getBranchName(), client.getExternalID());
@@ -589,6 +595,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                                     throw new CustomCheckedException("Customer branch is disabled. Notification would not be sent out");
                                 }
                             }
+                            System.out.println("getting the client value"+client.getBranchName());
                             BranchManager branchManager = branchManagerService.getBranchManager(client.getBranchName());
                             LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());
                             List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
@@ -660,6 +667,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                 String brmN = "";
                                                 String brmE = "";
                                                 String brmPh = "";
+                                                String finEm="";
                                                 Boolean hasBranchManager = true;
                                                 if (branchManager == null) {
                                                     hasBranchManager = false;
@@ -668,6 +676,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                     brmE = branchManager.getOfficerEmail();
                                                     brmPh = branchManager.getOfficerPhoneNo();
                                                 }
+                                                finEm=financeManager.getOfficerEmail();
                                                 if(valueOfArrears.compareTo(BigDecimal.ZERO) > 0) {
                                                     notificationData.put("toName", useDefaultMailInfo ? defaultToName : customer.getName());
                                                    // notificationData.put("toAddress", toAddress);
@@ -694,6 +703,8 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                     notificationData.put("branchManager", brmN);
                                                     notificationData.put("bMPhoneNo", brmPh);
                                                     notificationData.put("bMEmail", brmE);
+                                                    notificationData.put("financeEmail",finEm);
+
                                                     totalSuccessfulCounter++;
                                                     try {
                                                         notificationService.sendEmailNotification(arrearsSubject, notificationData, "email/arrears");
