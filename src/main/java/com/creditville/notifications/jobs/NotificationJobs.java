@@ -9,7 +9,6 @@ import com.creditville.notifications.services.PartialDebitService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +20,7 @@ import org.springframework.stereotype.Component;
 public class NotificationJobs {
     @Autowired
     private DispatcherService dispatcherService;
-    
+
     @Value("${app.schedule.recurringCharges.enabled}")
     private Boolean recurringChargesEnabled;
 
@@ -37,7 +36,7 @@ public class NotificationJobs {
     @Autowired
     private NotificationConfigService notificationConfigService;
 
-    @Async("schedulePool1")
+    //    @Async("schedulePool1")
     @Scheduled(cron = "${app.schedule.dueRentalOne}")
 //    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
     public void dueRentalNotification() {
@@ -53,7 +52,7 @@ public class NotificationJobs {
         }
     }
 
-    @Async("schedulePool2")
+    //    @Async("schedulePool2")
     @Scheduled(cron = "${app.schedule.dueRentalTwo}")
 //    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
     public void dueRentalNotification2() {
@@ -69,7 +68,7 @@ public class NotificationJobs {
         }
     }
 
-    @Async("schedulePool3")
+    //    @Async("schedulePool3")
     @Scheduled(cron = "${app.schedule.dueRentalThree}")
 //    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
     public void dueRentalNotification3() {
@@ -85,7 +84,7 @@ public class NotificationJobs {
         }
     }
 
-//    @Async("schedulePool4")
+    //    @Async("schedulePool4")
     @Scheduled(cron = "${app.schedule.arrears}")
 //    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
     public void arrearsNotification() {
@@ -101,7 +100,7 @@ public class NotificationJobs {
         }
     }
 
-    @Async("schedulePool5")
+    //    @Async("schedulePool5")
     @Scheduled(cron = "${app.schedule.postMaturity}")
 //    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
     public void postMaturityNotification() {
@@ -117,7 +116,7 @@ public class NotificationJobs {
         }
     }
 
-//    @Async("schedulePool6")
+    //    @Async("schedulePool6")
     @Scheduled(cron = "${app.schedule.chequeLodgement}")
 //    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
     public void chequeLodgementNotification() {
