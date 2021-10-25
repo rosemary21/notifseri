@@ -33,6 +33,7 @@ public class CardTransactions {
     private Mandates mandates;
     @Transient
     private String gatewayResponse;
+
     private String mandateId;
     private String rrr;
     private String remitaRequestId;

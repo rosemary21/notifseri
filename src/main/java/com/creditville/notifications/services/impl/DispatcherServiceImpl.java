@@ -679,11 +679,11 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                 finEm=financeManager.getOfficerEmail();
                                                 if(valueOfArrears.compareTo(BigDecimal.ZERO) > 0) {
                                                     notificationData.put("toName", useDefaultMailInfo ? defaultToName : customer.getName());
-                                                   // notificationData.put("toAddress", toAddress);
-                                                    notificationData.put("toAddress","chioma.chukelu@creditville.ng");
+                                                    notificationData.put("toAddress", toAddress);
+//                                                    notificationData.put("toAddress","chioma.chukelu@creditville.ng");
                                                     notificationData.put("customerName", customer.getName());
                                                     notificationData.put("noOfArrears", String.valueOf(noOfArrears));
-//                                            notificationData.put("valueOfArrears", valueOfArrears.toString());
+//                                                  notificationData.put("valueOfArrears", valueOfArrears.toString());
                                                     notificationData.put("valueOfArrears", currencyUtil.getFormattedCurrency(valueOfArrears));
                                                     notificationData.put("collectionOfficer", coN);
                                                     notificationData.put("collectionPhoneNumber", coP);
