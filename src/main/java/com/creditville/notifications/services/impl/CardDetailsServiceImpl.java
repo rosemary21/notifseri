@@ -107,7 +107,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
         boolean isTokenized = false;
         try {
             var tranRespObj = cardUtil.getJsonObjResponse(authResp);
-            System.out.println("tranRespObj: "+tranRespObj);
+            log.info("tranRespObj: "+tranRespObj);
             if(null != tranRespObj && tranRespObj.containsKey("data")){
                 var dataObj =(JSONObject) tranRespObj.get("data");
                 var customerObj = (JSONObject) dataObj.get("customer");
@@ -128,7 +128,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                 cdDto.setClientId(clientId);
 
                 saveCustomerCardDetails(convertCardDetailsDtoToEntity(cdDto));
-                System.out.println("ENTRY cardAuthorization: >>>>>>>>> SAVED <<<<<<<<<<");
+                log.info("ENTRY cardAuthorization: >>>>>>>>> SAVED <<<<<<<<<<");
                 isTokenized = true;
             }
             String clientEmail = cdDto.getEmail();
@@ -247,7 +247,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
         var cardDetails = cardDetailsRepo.findByClientIdAndEmail(clientID, email);
         String errorMessage = null;
         if(null == cardDetails){
-            System.out.println("Card is not tokenized".toUpperCase());
+            log.info("Card is not tokenized".toUpperCase());
             repaymentStatus = false;
         }else {
             try {
@@ -263,7 +263,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                         ctDTO.setPaystackResponse(chargeResp);
 
                         var chargeRespObj = cardUtil.getJsonObjResponse(chargeResp);
-                        System.out.println("ENTRY -> recurringCharges response: " + chargeRespObj);
+                        log.info("ENTRY -> recurringCharges response: " + chargeRespObj);
                         if (null != chargeRespObj && chargeRespObj.containsKey("data")) {
                             var dataObj = (JSONObject) chargeRespObj.get("data");
                             var authObj = (JSONObject) dataObj.get("authorization");
@@ -407,7 +407,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                 notificationService.sendEmailNotification(mailSubject, notificationData, templateLocation);
             } catch (CustomCheckedException cce) {
                 cce.printStackTrace();
-                System.out.println("An error occurred while trying to notify team of repayment status");
+                log.error("An error occurred while trying to notify team of repayment status");
             }
         }
     }
@@ -417,9 +417,9 @@ public class CardDetailsServiceImpl implements CardDetailsService {
         String resp = null;
         try {
             var payload = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(partialDebitDto);
-            System.out.println("ENTRY -> makePartialDebit payload: "+ payload);
+            log.info("ENTRY -> makePartialDebit payload: "+ payload);
             resp = httpCallService.httpPaystackCall(psBaseUrl+partialDebitUrl, payload);
-            System.out.println("ENTRY -> makePartialDebit resp: "+resp);
+            log.info("ENTRY -> makePartialDebit resp: "+resp);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
@@ -432,9 +432,9 @@ public class CardDetailsServiceImpl implements CardDetailsService {
         String chargeResp = null;
         try {
             var payload = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(chargeDto);
-            System.out.println("ENTRY -> recurringCharges payload: "+ payload);
+            log.info("ENTRY -> recurringCharges payload: "+ payload);
             chargeResp = httpCallService.httpPaystackCall(psBaseUrl+psChargeAuthUrl, payload);
-//            System.out.println("chargeResp: "+chargeResp);
+            log.info("ENTRY -> chargeCard : Resp: "+chargeResp);
 
         } catch (JsonProcessingException e) {
             e.printStackTrace();
@@ -444,9 +444,9 @@ public class CardDetailsServiceImpl implements CardDetailsService {
 
     @Override
     public String verifyTransaction(String reference) {
-        System.out.println("reference: "+reference);
+        log.info("ENTRY -> verifyTransaction: reference: "+reference);
         var transResp = httpCallService.httpPaystackCall(psBaseUrl+psTransVerification+reference, null);
-//        System.out.println("transResp: "+transResp);
+        log.info("ENTRY -> verifyTransaction: transResp "+transResp);
         return transResp;
     }
 
