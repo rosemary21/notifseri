@@ -27,7 +27,7 @@ public class LoanRepaymentServiceImpl implements LoanRepaymentService {
     public String makeLoanRepayment(RepayLoanReq repayLoanReq) {
         try {
             var payload = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(repayLoanReq);
-            System.out.println("payload: "+payload);
+//            System.out.println("payload: "+payload);
             var repayLoanResp = httpCallService.doBasicPost(baseUrl+loanRepayUrl,payload);
 //            System.out.println("repayLoanResp: "+repayLoanResp);
             return repayLoanResp;

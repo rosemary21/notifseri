@@ -19,6 +19,11 @@ public class CardTransactionsDto {
     private String status;
 //    @Lob
     private String paystackResponse;
+    private String remitaResponse;
+    private String mandateId;
+    private String rrr;
+    private String remitaRequestId;
+    private String instafinResponse;
 
 //    @ManyToOne
     private CardDetails cardDetails;

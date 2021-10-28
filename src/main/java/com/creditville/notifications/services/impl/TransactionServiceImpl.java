@@ -4,19 +4,22 @@ import com.creditville.notifications.exceptions.CustomCheckedException;
 import com.creditville.notifications.instafin.common.AppConstants;
 import com.creditville.notifications.instafin.req.RepayLoanReq;
 import com.creditville.notifications.instafin.service.LoanRepaymentService;
-import com.creditville.notifications.models.CardDetails;
+import com.creditville.notifications.models.*;
 import com.creditville.notifications.models.DTOs.CardTransactionsDto;
+import com.creditville.notifications.models.DTOs.DebitInstructionDTO;
 import com.creditville.notifications.models.DTOs.PartialDebitDto;
-import com.creditville.notifications.models.PartialDebit;
-import com.creditville.notifications.models.PartialDebitAttempt;
 import com.creditville.notifications.models.requests.HookEvent;
 import com.creditville.notifications.models.requests.HookEventAuthorization;
 import com.creditville.notifications.models.requests.HookEventData;
+import com.creditville.notifications.models.requests.RemitaHookEvent;
 import com.creditville.notifications.models.response.*;
 import com.creditville.notifications.repositories.CardDetailsRepository;
+import com.creditville.notifications.repositories.CardTransactionRepository;
+import com.creditville.notifications.repositories.MandateRepository;
 import com.creditville.notifications.services.*;
 import com.creditville.notifications.utils.CardUtil;
 import com.creditville.notifications.utils.DateUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,15 +29,20 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class TransactionServiceImpl implements TransactionService {
     @Value("${paystack.charge.message}")
     private String successfulChargeEvent;
+
+    @Value("${remitta.activation.message}")
+    private String remitaActivationMessage;
+
+    @Value("${remitta.debit.message}")
+    private String remitaDebitMessage;
 
     @Autowired
     private CardDetailsRepository cardDetailsRepository;
@@ -77,6 +85,15 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Autowired
     private DateUtil dateUtil;
+
+    @Autowired
+    private MandateRepository mandateRepository;
+
+    @Autowired
+    private CardTransactionRepository cardTransactionRepository;
+
+    @Value("${remitta.success.activation.code}")
+    private String successfulActivationStatusCode;
 
     @Override
     public void handlePaystackTransactionEvent(HookEvent hookEvent) {
@@ -182,11 +199,112 @@ public class TransactionServiceImpl implements TransactionService {
                                 new PartialDebitDto(
                                         authorization.getAuthorizationCode(),
                                         data.getAmount(),
-                                        data.getCustomer().getEmail(),
-                                        partialDebitService.getLeastPartialDebitAmount(data.getAmount())
+                                        data.getCustomer().getEmail()
                                 )
                         );
                     }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void handleRemitaActivationEvent(RemitaHookEvent hookEvent) {
+        if(hookEvent.getNotificationType().equalsIgnoreCase(remitaActivationMessage)) {
+            for (RemitaHookEvent.LineItem lineItem : hookEvent.getLineItems()) {
+                Mandates mandate = mandateRepository.findByMandateId(lineItem.getMandateId());
+                if (mandate.getStatusCode() != null && !mandate.getStatusCode().equalsIgnoreCase(successfulActivationStatusCode)) {
+                    mandate.setStatusCode("00");
+                    mandate.setRequestId(lineItem.getRequestId());
+                    mandate.setMandateId(lineItem.getMandateId());
+                    mandate.setAmount(new BigDecimal(lineItem.getAmount()));
+                    mandateRepository.save(mandate);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void handleRemitaDebitEvent(RemitaHookEvent hookEvent) {
+        if(hookEvent.getNotificationType().equalsIgnoreCase(remitaDebitMessage)) {
+            for (RemitaHookEvent.LineItem lineItem : hookEvent.getLineItems()) {
+                Mandates mandate = mandateRepository.findByMandateId(lineItem.getMandateId());
+                String errorMessage = null;
+                boolean repaymentStatus = true;
+                if (mandate != null) {
+                    CardTransactions existingTransaction = cardTransactionRepository.findFirstByRemitaRequestIdAndMandateIdAndStatusInOrderByLastUpdateDesc(mandate.getRequestId(), mandate.getMandateId(), Collections.singletonList("pending"));
+                    if (existingTransaction != null) {
+                        log.info("There is an existing transaction for record..." + mandate.getMandateId() + " ---- " + mandate.getRemitaTransRef());
+                        BigDecimal amount = new BigDecimal(lineItem.getAmount());
+                        if (amount.compareTo(BigDecimal.ZERO) > 0) {
+                            RepayLoanReq repayLoanReq = new RepayLoanReq();
+                            repayLoanReq.setAccountID(mandate.getLoanId());
+                            repayLoanReq.setAmount(amount);
+                            repayLoanReq.setPaymentMethodName(AppConstants.InstafinPaymentMethod.PAYSTACK_PAYMENT_METHOD);
+                            repayLoanReq.setTransactionBranchID(AppConstants.InstafinBranch.TRANSACTION_BRANCH_ID);
+                            repayLoanReq.setRepaymentDate(existingTransaction.getLastUpdate().toString());
+//                            repayLoanReq.setNotes("Card loan repayment");
+                            repayLoanReq.setNotes("Remita loan repayment");
+                            var repaymentResp = loanRepaymentService.makeLoanRepayment(repayLoanReq);
+                            if (repaymentResp != null) {
+                                JSONObject repaymentResponseObject;
+                                try {
+                                    repaymentResponseObject = cardUtil.getJsonObjResponse(repaymentResp);
+                                    if (responseContainsValidationError(repaymentResponseObject)) {
+                                        errorMessage = repaymentResponseObject.get("message").toString();
+                                        repaymentStatus = false;
+                                    }
+                                } catch (Exception ex) {
+                                    ex.printStackTrace();
+                                    repaymentResponseObject = null;
+                                }
+                                if (repaymentResponseObject == null) {
+                                    boolean isEmpty = repaymentResp.trim().equals("");
+                                    errorMessage = isEmpty ?
+                                            "Charge successful but loan repayment failed. Reason: No response gotten from Instafin" :
+                                            repaymentResp;
+                                    if (isEmpty) repaymentStatus = false;
+                                }
+                            } else {
+                                errorMessage = "Charge successful but loan repayment failed. Reason: No response gotten from Instafin";
+                                repaymentStatus = false;
+                            }
+
+                            if (!repaymentStatus) {
+                                existingTransaction.setStatus("repayment_failure");
+                                existingTransaction.setInstafinResponse(errorMessage);
+                                cardTransactionsService.addCardTransaction(existingTransaction);
+                            } else {
+                                existingTransaction.setStatus("REPAYMENT SUCCESSFUL");
+                                cardTransactionsService.addCardTransaction(existingTransaction);
+                            }
+
+                            Map<String, String> notificationData = new HashMap<>();
+                            notificationData.put("toName", tokenizationName);
+                            notificationData.put("customerName", tokenizationName);
+                            notificationData.put("toAddress", tokenizationEmail);
+                            notificationData.put("loanId", mandate.getLoanId());
+                            notificationData.put("todayDate", LocalDate.now().toString());
+                            notificationData.put("failureMessage", errorMessage);
+                            notificationData.put("paymentDate", existingTransaction.getLastUpdate().toString());
+                            String mailSubject = repaymentStatus ? repaymentSuccessSubject : repaymentFailureSubject;
+                            String templateLocation = repaymentStatus ? "email/repayment-success" : "email/repayment-failure";
+                            if (!emailService.alreadySentOutEmailToday(mandate.getEmail(), tokenizationName, mailSubject, existingTransaction.getLastUpdate())) {
+                                try {
+                                    notificationService.sendEmailNotification(mailSubject, notificationData, templateLocation);
+                                } catch (CustomCheckedException cce) {
+                                    cce.printStackTrace();
+                                    log.info("An error occurred while trying to notify team of repayment status: Error message: " + cce.getMessage());
+                                }
+                            }
+                        } else {
+                            System.out.println("Invalid amount provided by remita".toUpperCase() + " ---- " + hookEvent.toString());
+                        }
+                    } else {
+                        log.info("An transaction record does not exist. See remita hook event: " + hookEvent.toString());
+                    }
+                } else {
+                    log.info("An existing mandate does not exist. See remita hook event: " + hookEvent.toString());
                 }
             }
         }
@@ -248,7 +366,7 @@ public class TransactionServiceImpl implements TransactionService {
                 maxAttemptsReached = true;
         }
         if(!maxAttemptsReached) {
-            String pdResp = cardDetailsService.makePartialDebit(new PartialDebitDto(authCode, amount, email, partialDebitService.getLeastPartialDebitAmount(amount)));
+            String pdResp = cardDetailsService.makePartialDebit(new PartialDebitDto(authCode, amount, email));
             if (pdResp != null) {
                 JSONObject pdRespObj = cardUtil.getJsonObjResponse(pdResp);
                 if (pdRespObj != null) {
@@ -290,5 +408,21 @@ public class TransactionServiceImpl implements TransactionService {
                 }
             }
         }
+    }
+
+    private boolean responseContainsValidationError(JSONObject jsonObject){
+        String[] validationErrors = new String[] {"LEGACY_VALIDATION_ERROR", "VALIDATION",
+                "NON_EXISTING_ACCOUNT", "INVALID_STATUS_CHANGE",
+                "ACCOUNT_ALREADY_DISBURSED", "NON_EXISTING_ACCOUNT_STATUS", "VALUE_BEFORE_APPROVAL_DATE",
+                "CLIENTS_NOT_FOUND", "PAYMENT_METHOD_UNAVAILABLE", "NON_EXISTING_BRANCH", "STATUS_CHANGE_DATE_INVALID",
+                "DISBURSEMENT_NOT_ALLOWED", "GENERIC_VALIDATION_ERROR"};
+        boolean contains = false;
+        for(String error : validationErrors) {
+            if(jsonObject.containsValue(error)) {
+                contains = true;
+                break;
+            }
+        }
+        return contains;
     }
 }

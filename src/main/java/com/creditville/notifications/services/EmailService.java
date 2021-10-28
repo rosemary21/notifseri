@@ -26,4 +26,6 @@ public interface EmailService {
     void createNewExcludedEmailAddresses(String ...emailAddressesToBeExcluded);
 
     void removeEmailAddressFromExceptionList(String emailAddress);
+
+    boolean emailAlreadyFailed(LocalDate paymentDate, String toAddress, String emailSubject);
 }

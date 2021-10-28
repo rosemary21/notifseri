@@ -3,6 +3,7 @@ package com.creditville.notifications.services.impl;
 import com.creditville.notifications.exceptions.CustomCheckedException;
 import com.creditville.notifications.instafin.req.RepayLoanReq;
 import com.creditville.notifications.instafin.service.LoanRepaymentService;
+import com.creditville.notifications.models.DTOs.CardTransactionsDto;
 import com.creditville.notifications.models.DTOs.ChargeDto;
 import com.creditville.notifications.models.DTOs.PartialDebitDto;
 import com.creditville.notifications.models.PartialDebit;
@@ -10,11 +11,13 @@ import com.creditville.notifications.models.PartialDebitAttempt;
 import com.creditville.notifications.models.response.Client;
 import com.creditville.notifications.models.response.LookUpLoanAccount;
 import com.creditville.notifications.models.response.LookUpLoanInstalment;
+import com.creditville.notifications.repositories.CardDetailsRepository;
 import com.creditville.notifications.repositories.PartialDebitAttemptRepository;
 import com.creditville.notifications.repositories.PartialDebitRepository;
 import com.creditville.notifications.services.*;
 import com.creditville.notifications.utils.CardUtil;
 import com.creditville.notifications.utils.DateUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,6 +29,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class PartialDebitServiceImpl implements PartialDebitService {
     @Autowired
@@ -69,6 +73,12 @@ public class PartialDebitServiceImpl implements PartialDebitService {
 
     @Autowired
     private NotificationService notificationService;
+
+    @Autowired
+    private CardDetailsRepository cardDetailsRepo;
+
+    @Autowired
+    private CardTransactionsService ctService;
 
     @Override
     public PartialDebit savePartialDebit(String authCode, String loanId, BigDecimal amount, String email, LocalDate paymentDate) {
@@ -131,15 +141,17 @@ public class PartialDebitServiceImpl implements PartialDebitService {
                         .add(loanInstalment.getCurrentState().getInterestDueAmount());
                 BigDecimal newTotalDue = totalDue.multiply(new BigDecimal(100));
                 if(totalDue.compareTo(BigDecimal.ZERO) > 0) {
-                    if(dateUtil.isPaymentDateBeforeOrWithinNumber(pdRecord.getPaymentDate(), 5)) {
-//                        Partial debit operation not greater five(5) days yet...
-                        ChargeDto chargeDto = new ChargeDto();
+//                    if(dateUtil.isPaymentDateBeforeOrWithinNumber(pdRecord.getPaymentDate(), 5)) {
+////                        Partial debit operation not greater five(5) days yet...
+//                        ChargeDto chargeDto = new ChargeDto();
                         RepayLoanReq repayLoanReq = new RepayLoanReq();
                         if (!maxAttemptsReached) {
+                            CardTransactionsDto ctDTO = new CardTransactionsDto();
+                            var cardDetails = cardDetailsRepo.findByClientIdAndEmail(lookUpLoanAccount.getClient().getExternalID(), pdRecord.getEmail());
                             String pdResp = cardDetailsService.makePartialDebit(new PartialDebitDto(
                                     pdRecord.getAuthorizationCode(),
                                     newTotalDue,
-                                    pdRecord.getEmail(), this.getLeastPartialDebitAmount(newTotalDue)));
+                                    pdRecord.getEmail()));
                             if (pdResp != null) {
                                 JSONObject pdRespObj = cardUtil.getJsonObjResponse(pdResp);
                                 if (pdRespObj != null) {
@@ -148,6 +160,19 @@ public class PartialDebitServiceImpl implements PartialDebitService {
 //                                            Partial debit successful...
                                         BigDecimal pdAmount = new BigDecimal(data.get("amount").toString());
                                         BigDecimal newPdAmount = pdAmount.divide(new BigDecimal(100)).setScale(2, RoundingMode.CEILING);
+
+                                        ctDTO.setAmount(newPdAmount);
+                                        ctDTO.setCurrency(pdRespObj.get("currency").toString());
+                                        ctDTO.setTransactionDate(pdRespObj.get("transaction_date").toString());
+                                        ctDTO.setStatus(pdRespObj.get("status").toString());
+                                        ctDTO.setReference(pdRespObj.get("reference").toString());
+
+                                        ctDTO.setCardType(pdRespObj.get("card_type").toString());
+
+                                        ctDTO.setCardDetails(cardDetails);
+
+                                        var savedCardTransaction = ctService.saveCardTransaction(ctDTO);
+
 //                                            Make loan repayment...
                                         repayLoanReq.setAccountID(pdRecord.getLoanId());
                                         repayLoanReq.setAmount(newPdAmount);
@@ -158,11 +183,11 @@ public class PartialDebitServiceImpl implements PartialDebitService {
                                         var repaymentResp = loanRepaymentService.makeLoanRepayment(repayLoanReq);
                                         if (null == repaymentResp) {
                                             repaymentStatus = false;
-                                            errorMessage = pdRespObj.get("message").toString();
+//                                            errorMessage = pdRespObj.get("message").toString();
                                         } else {
                                             if (repaymentResp.trim().equals("")) {
                                                 repaymentStatus = false;
-                                                errorMessage = pdRespObj.get("message").toString();
+//                                                errorMessage = pdRespObj.get("message").toString();
                                             } else {
 //                                                    Repayment successful...
                                                 PartialDebitAttempt partialDebitAttempt = !createNewPdAttempt ? this.getPartialDebitAttempt(pdRecord, LocalDate.now()) : new PartialDebitAttempt(pdRecord);
@@ -172,22 +197,35 @@ public class PartialDebitServiceImpl implements PartialDebitService {
                                                 this.savePartialDebitAttempt(partialDebitAttempt);
                                             }
                                         }
+
+                                        if(!repaymentStatus) {
+                                            savedCardTransaction.setStatus("repayment_failure");
+                                            boolean isEmpty = repaymentResp != null && repaymentResp.trim().equals("");
+                                            errorMessage = isEmpty ?
+                                                    "Charge successful but loan repayment failed. Reason: No response gotten from Instafin" :
+                                                    repaymentResp;
+                                            savedCardTransaction.setInstafinResponse(repaymentResp);
+                                            ctService.addCardTransaction(savedCardTransaction);
+                                        }else {
+                                            savedCardTransaction.setStatus("REPAYMENT SUCCESSFUL");
+                                            ctService.addCardTransaction(savedCardTransaction);
+                                        }
                                     }
                                 }
                             }
                         }
-                    }else {
-//                        Partial debit date has passed 5th Day, delete record from pd table and contact risk team or collection officer...
-                        this.deletePartialDebitRecord(pdRecord.getId());
-                        errorMessage = "Unable to totally charge customer after five days or persistent trials";
-                    }
+//                    }else {
+////                        Partial debit date has passed 5th Day, delete record from pd table and contact risk team or collection officer...
+//                        this.deletePartialDebitRecord(pdRecord.getId());
+//                        errorMessage = "Unable to totally charge customer after five days or persistent trials";
+//                    }
                 }else {
 //                        Customer is no longer owing...
                     this.deletePartialDebitRecord(pdRecord.getId());
                 }
             }catch (Exception ex) {
                 ex.printStackTrace();
-                System.out.println("Partial debit operation failed for record with ID: "+ pdRecord.getId() + ". Reason \n "+ ex.getMessage());
+                log.info("Partial debit operation failed for record with ID: "+ pdRecord.getId() + ". Reason \n "+ ex.getMessage());
             }
 //            Notify team...
             Map<String, String> notificationData = new HashMap<>();
@@ -206,16 +244,16 @@ public class PartialDebitServiceImpl implements PartialDebitService {
                     notificationService.sendEmailNotification(mailSubject, notificationData, templateLocation);
                 } catch (CustomCheckedException cce) {
                     cce.printStackTrace();
-                    System.out.println("An error occurred while trying to notify team of repayment status");
+                    log.info("An error occurred while trying to notify team of repayment status. See message: "+ cce.getMessage());
                 }
             }
         }
     }
 
     @Override
-    public String getLeastPartialDebitAmount(BigDecimal amount) {
+    public BigDecimal getLeastPartialDebitAmount(BigDecimal amount) {
         Objects.requireNonNull(amount, "Amount cannot be null");
         BigDecimal thirtyPercentOfAmount = new BigDecimal("0.30");
-        return amount.multiply(thirtyPercentOfAmount).setScale(2, RoundingMode.CEILING).toString();
+        return amount.multiply(thirtyPercentOfAmount).setScale(2, RoundingMode.CEILING);
     }
 }

@@ -17,13 +17,13 @@ public class CardTransactionServiceImpl implements CardTransactionsService {
     private CardUtil cardUtil;
 
     @Override
-    public void addCardTransaction(CardTransactions cardTransactions) {
-        cardTransactionRepo.save(cardTransactions);
+    public CardTransactions addCardTransaction(CardTransactions cardTransactions) {
+        return cardTransactionRepo.save(cardTransactions);
     }
 
     @Override
-    public void saveCardTransaction(CardTransactionsDto cardTransactionsDto) {
-        addCardTransaction(convertCardTransactionDtoToEntity(cardTransactionsDto));
+    public CardTransactions saveCardTransaction(CardTransactionsDto cardTransactionsDto) {
+        return addCardTransaction(convertCardTransactionDtoToEntity(cardTransactionsDto));
     }
 
     private CardTransactions convertCardTransactionDtoToEntity(CardTransactionsDto ctDTO){

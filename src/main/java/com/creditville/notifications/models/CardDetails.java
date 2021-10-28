@@ -30,8 +30,7 @@ public class CardDetails {
     private String signature;
     @Lob
     private String paystackResponse;
-//    @Version
-//    private Date lastUpdate;
+    private Date lastUpdate;
 
 //    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 //    private Collection<CardTransactions> transactions;

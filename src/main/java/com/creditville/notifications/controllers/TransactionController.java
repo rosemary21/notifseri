@@ -2,6 +2,7 @@ package com.creditville.notifications.controllers;
 
 import com.creditville.notifications.exceptions.CustomCheckedException;
 import com.creditville.notifications.models.requests.HookEvent;
+import com.creditville.notifications.models.requests.RemitaHookEvent;
 import com.creditville.notifications.models.response.SuccessResponse;
 import com.creditville.notifications.services.TransactionService;
 import com.creditville.notifications.utils.ValidationUtil;
@@ -24,10 +25,22 @@ public class TransactionController {
     @Autowired
     private TransactionService transactionService;
 
-    @PostMapping("/receive-hook-events")
-    public ResponseEntity<?> receiveHookEvents(@RequestBody HookEvent hookEvent, HttpServletRequest httpServletRequest) throws CustomCheckedException {
+    @PostMapping("/paystack/receive-hook-events")
+    public ResponseEntity<?> receivePaystackHookEvents(@RequestBody HookEvent hookEvent, HttpServletRequest httpServletRequest) throws CustomCheckedException {
         validationUtil.validatePaystackRequest(httpServletRequest);
         transactionService.handlePaystackTransactionEvent(hookEvent);
+        return new ResponseEntity<>(new SuccessResponse("Event received successfully", null), HttpStatus.OK);
+    }
+
+    @PostMapping("/remitta/receive-activation-hook-events")
+    public ResponseEntity<?> receiveRemittaActivationHookEvents(@RequestBody RemitaHookEvent hookEvent, HttpServletRequest httpServletRequest) throws CustomCheckedException {
+        transactionService.handleRemitaActivationEvent(hookEvent);
+        return new ResponseEntity<>(new SuccessResponse("Event received successfully", null), HttpStatus.OK);
+    }
+
+    @PostMapping("/remitta/receive-debit-hook-events")
+    public ResponseEntity<?> receiveRemittaDebitHookEvents(@RequestBody RemitaHookEvent hookEvent, HttpServletRequest httpServletRequest) throws CustomCheckedException {
+        transactionService.handleRemitaDebitEvent(hookEvent);
         return new ResponseEntity<>(new SuccessResponse("Event received successfully", null), HttpStatus.OK);
     }
 }

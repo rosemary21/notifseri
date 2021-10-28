@@ -5,16 +5,12 @@ import com.creditville.notifications.executor.HttpCallService;
 import com.creditville.notifications.instafin.common.AppConstants;
 import com.creditville.notifications.instafin.req.RepayLoanReq;
 import com.creditville.notifications.instafin.service.LoanRepaymentService;
-import com.creditville.notifications.models.CardDetails;
-import com.creditville.notifications.models.CardTransactions;
-import com.creditville.notifications.models.DTOs.CardDetailsDto;
-import com.creditville.notifications.models.DTOs.CardTransactionsDto;
-import com.creditville.notifications.models.DTOs.ChargeDto;
-import com.creditville.notifications.models.DTOs.PartialDebitDto;
-import com.creditville.notifications.models.PartialDebit;
-import com.creditville.notifications.models.PartialDebitAttempt;
+import com.creditville.notifications.models.*;
+import com.creditville.notifications.models.DTOs.*;
+import com.creditville.notifications.models.response.MandateResp;
 import com.creditville.notifications.repositories.CardDetailsRepository;
 import com.creditville.notifications.repositories.CardTransactionRepository;
+import com.creditville.notifications.repositories.MandateRepository;
 import com.creditville.notifications.services.*;
 import com.creditville.notifications.utils.CardUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -30,10 +26,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -94,6 +87,12 @@ public class CardDetailsServiceImpl implements CardDetailsService {
     @Autowired
     private PartialDebitService partialDebitService;
 
+    @Autowired
+    private MandateRepository mandateRepository;
+
+    @Autowired
+    private RemitaService remitaService;
+
     @Override
     public void saveCustomerCardDetails(CardDetails cardDetails) {
         cardDetailsRepo.save(cardDetails);
@@ -145,7 +144,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                 notificationService.sendEmailNotification(subject, notificationData, templateLocation);
             }catch (CustomCheckedException cce) {
                 cce.printStackTrace();
-                System.out.println("An error occurred while trying to notify team of tokenization status");
+                log.info("An error occurred while trying to notify team of tokenization status");
             }
         } catch (ParseException e) {
             e.printStackTrace();
@@ -239,6 +238,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
 
     @Override
     public void cardRecurringCharges(String email, BigDecimal amount, String loanId, LocalDate currentDate, String clientID) {
+        log.info("Email {}, Amount {}, Loan ID {}, Local Date {}, ClientID: {}", email, amount.toString(), loanId, currentDate.toString(), clientID);
         ChargeDto chargeDto = new ChargeDto();
         CardTransactionsDto ctDTO = new CardTransactionsDto();
         RepayLoanReq repayLoanReq = new RepayLoanReq();
@@ -253,6 +253,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
             try {
                 CardTransactions existingTransaction = cardTransactionRepository.findByCardDetailsAndStatusInAndLastUpdate(cardDetails, Collections.singletonList("success"), currentDate);
                 if (existingTransaction == null) {
+                    log.info("There is no such existing transaction. Creating one now...");
                     if(amount.compareTo(BigDecimal.ZERO) > 0) {
                         chargeDto.setAmount(amount);
                         chargeDto.setAuthorization_code(cardDetails.getAuthorizationCode());
@@ -263,8 +264,9 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                         ctDTO.setPaystackResponse(chargeResp);
 
                         var chargeRespObj = cardUtil.getJsonObjResponse(chargeResp);
-                        log.info("ENTRY -> recurringCharges response: " + chargeRespObj);
+//                        log.info("ENTRY -> recurringCharges response: " + chargeRespObj);
                         if (null != chargeRespObj && chargeRespObj.containsKey("data")) {
+                            log.info("Data response was gotten from PAYSTACK for client: {} with loan id: {}", cardDetails.getClientId(), loanId);
                             var dataObj = (JSONObject) chargeRespObj.get("data");
                             var authObj = (JSONObject) dataObj.get("authorization");
 
@@ -283,7 +285,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
 
                             ctDTO.setCardDetails(cardDetails);
 
-                            ctService.saveCardTransaction(ctDTO);
+                            var savedCardTransaction = ctService.saveCardTransaction(ctDTO);
                             if(ctDTO.getStatus().equalsIgnoreCase("success")){
                                 //repay Loan
                                 repayLoanReq.setAccountID(loanId);
@@ -294,85 +296,54 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                                 repayLoanReq.setRepaymentDate(currentDate.toString());
                                 repayLoanReq.setNotes("Card loan repayment");
                                 var repaymentResp = loanRepaymentService.makeLoanRepayment(repayLoanReq);
-                                if (null == repaymentResp) {
-                                    repaymentStatus = false;
-                                    errorMessage = chargeRespObj.get("message").toString();
-                                } else {
-                                    if (repaymentResp.trim().equals("")) {
-                                        repaymentStatus = false;
-                                        errorMessage = chargeRespObj.get("message").toString();
+                                if(repaymentResp != null) {
+                                    JSONObject repaymentResponseObject;
+                                    try{
+                                        repaymentResponseObject = cardUtil.getJsonObjResponse(repaymentResp);
+                                        if(responseContainsValidationError(repaymentResponseObject)) {
+                                            errorMessage = repaymentResponseObject.get("message").toString();
+                                            repaymentStatus = false;
+                                        }
+                                    }catch (Exception ex) {
+                                        ex.printStackTrace();
+                                        repaymentResponseObject = null;
                                     }
+                                    if(repaymentResponseObject == null) {
+                                        boolean isEmpty = repaymentResp.trim().equals("");
+                                        errorMessage = isEmpty ?
+                                                "Charge successful but loan repayment failed. Reason: No response gotten from Instafin" :
+                                                repaymentResp;
+                                        if(isEmpty) repaymentStatus = false;
+                                    }
+                                }else {
+                                    errorMessage = "Charge successful but loan repayment failed. Reason: No response gotten from Instafin";
+                                    repaymentStatus = false;
+                                }
+                                if(!repaymentStatus) {
+//                                    ctDTO.setStatus("repayment_failure");
+//                                    ctDTO.setInstafinResponse(errorMessage);
+//                                    ctService.saveCardTransaction(ctDTO);
+                                    savedCardTransaction.setStatus("repayment_failure");
+                                    savedCardTransaction.setInstafinResponse(errorMessage);
+                                    ctService.addCardTransaction(savedCardTransaction);
+
+                                }else {
+//                                    ctDTO.setInstafinResponse("REPAYMENT SUCCESSFUL");
+//                                    ctService.saveCardTransaction(ctDTO);
+                                    savedCardTransaction.setStatus("REPAYMENT SUCCESSFUL");
+                                    ctService.addCardTransaction(savedCardTransaction);
                                 }
                             }else {
-                                repaymentStatus = false;
-                                errorMessage = chargeRespObj.get("message").toString();
+//                                Charge failed. Attempt PD...
+                                Map<String, String> pdResponse = this.performPd(dataObj, chargeDto, repayLoanReq, loanId, currentDate, clientID);
+                                repaymentStatus = Boolean.valueOf(pdResponse.get("repaymentStatus"));
+                                errorMessage = pdResponse.get("errorMessage");
                             }
 
-                        } else {
-//                        Charge failed...
-                            if (chargeRespObj != null) {
-                                if (chargeRespObj.get("message") != null && chargeRespObj.get("message").toString().equalsIgnoreCase("insufficient funds")) {
-//                                Charge failed due to insufficient funds. Attempt partial debit...
-                                    PartialDebit partialDebit = partialDebitService.getPartialDebit(
-                                            chargeDto.getAuthorization_code(),
-                                            chargeDto.getAmount(),
-                                            chargeDto.getEmail());
-                                    boolean isNewPdRecord = false;
-                                    boolean maxAttemptsReached = false;
-                                    if (partialDebit == null) isNewPdRecord = true;
-                                    else {
-//                                        Check that partial debit attempts has not exceeded maximum (4)
-                                        if(partialDebitService.getPartialDebitAttempt(partialDebit, LocalDate.now()).getTotalNoOfAttempts() == 4)
-                                            maxAttemptsReached = true;
-                                    }
-                                    if(!maxAttemptsReached) {
-                                        String pdResp = this.makePartialDebit(new PartialDebitDto(
-                                                chargeDto.getAuthorization_code(),
-                                                chargeDto.getAmount(),
-                                                chargeDto.getEmail(), partialDebitService.getLeastPartialDebitAmount(chargeDto.getAmount())));
-                                        if (pdResp != null) {
-                                            JSONObject pdRespObj = cardUtil.getJsonObjResponse(pdResp);
-                                            if (pdRespObj != null) {
-                                                JSONObject data = cardUtil.getJsonObjResponse(pdRespObj.get("data").toString());
-                                                if (data.get("status").toString().equalsIgnoreCase("success")) {
-//                                            Partial debit successful...
-                                                    BigDecimal pdAmount = new BigDecimal(data.get("amount").toString());
-                                                    BigDecimal newPdAmount = pdAmount.divide(new BigDecimal(100)).setScale(2, RoundingMode.CEILING);
-//                                            Make loan repayment...
-                                                    repayLoanReq.setAccountID(loanId);
-//                                                    repayLoanReq.setAmount(pdAmount);
-                                                    repayLoanReq.setAmount(newPdAmount);
-                                                    repayLoanReq.setPaymentMethodName(AppConstants.InstafinPaymentMethod.PAYSTACK_PAYMENT_METHOD);
-                                                    repayLoanReq.setTransactionBranchID(AppConstants.InstafinBranch.TRANSACTION_BRANCH_ID);
-                                                    repayLoanReq.setRepaymentDate(currentDate.toString());
-                                                    repayLoanReq.setNotes("Paystack Card loan repayment");
-                                                    var repaymentResp = loanRepaymentService.makeLoanRepayment(repayLoanReq);
-                                                    if (null == repaymentResp) {
-                                                        repaymentStatus = false;
-                                                        errorMessage = pdRespObj.get("message").toString();
-                                                    } else {
-                                                        if (repaymentResp.trim().equals("")) {
-                                                            repaymentStatus = false;
-                                                            errorMessage = pdRespObj.get("message").toString();
-                                                        } else {
-//                                                    Repayment successful...
-                                                            if (isNewPdRecord)
-                                                                partialDebitService.savePartialDebit(chargeDto.getAuthorization_code(), loanId, chargeDto.getAmount(), chargeDto.getEmail(), currentDate);
-                                                            else {
-                                                                PartialDebitAttempt partialDebitAttempt = partialDebitService.getPartialDebitAttempt(partialDebit, LocalDate.now());
-                                                                int totalAttempts = partialDebitAttempt.getTotalNoOfAttempts();
-                                                                int totalAttemptsInc = (totalAttempts + 1);
-                                                                partialDebitAttempt.setTotalNoOfAttempts(totalAttemptsInc);
-                                                                partialDebitService.savePartialDebitAttempt(partialDebitAttempt);
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            } else repaymentStatus = false;
+                        }else {
+                            log.info("No response was gotten from PAYSTACK. Aborting operation for client: {} with loan id: {}", cardDetails.getClientId(), loanId);
+                            repaymentStatus = false;
+                            errorMessage = "No response gotten from paystack";
                         }
                     }else {
 //                        Customer is no longer owing...
@@ -385,6 +356,8 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                             partialDebitService.deletePartialDebitRecord(partialDebit.getId());
                         }
                     }
+                }else {
+                    log.info("An existing transaction already exists. See ID: "+ existingTransaction.getId());
                 }
             } catch (ParseException e) {
                 e.printStackTrace();
@@ -407,9 +380,174 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                 notificationService.sendEmailNotification(mailSubject, notificationData, templateLocation);
             } catch (CustomCheckedException cce) {
                 cce.printStackTrace();
-                log.error("An error occurred while trying to notify team of repayment status");
+                log.info("An error occurred while trying to notify team of repayment status: Error message: " +  cce.getMessage());
             }
         }
+    }
+
+    @Override
+    public void initiateRemitaRecurringCharges(BigDecimal amount, String loanId, LocalDate currentDate, String clientID) {
+        log.info("Amount {}, Loan ID {}, Local Date {}, ClientID: {}", amount.toString(), loanId, currentDate.toString(), clientID);
+        Mandates mandate = mandateRepository.findByClientIdAndLoanId(clientID, loanId);
+        if(null == mandate){
+            log.info("Mandate record does not exist...".toUpperCase());
+        }else {
+            CardTransactions existingTransaction = cardTransactionRepository.findByRemitaRequestIdAndMandateIdAndStatusInAndLastUpdate(mandate.getRequestId(), mandate.getMandateId(), Arrays.asList("success", "pending"), currentDate);
+            if (existingTransaction == null) {
+                log.info("There is no such existing transaction. Creating one now...");
+                if(amount.compareTo(BigDecimal.ZERO) > 0) {
+                    DebitInstructionDTO debitInstructionDTO = new DebitInstructionDTO();
+                    debitInstructionDTO.setTotalAmount(mandate.getAmount().toString());
+                    debitInstructionDTO.setFundingAccount(mandate.getAccount());
+                    debitInstructionDTO.setFundingBankCode(mandate.getBankCode());
+                    debitInstructionDTO.setClientId(mandate.getClientId());
+                    debitInstructionDTO.setLoanId(mandate.getLoanId());
+                    MandateResp debitInstructionResp = null;
+                    try {
+                        debitInstructionResp = remitaService.sendDebitInstruction(debitInstructionDTO);
+                    } catch (CustomCheckedException e) {
+                        e.printStackTrace();
+                        return;
+                    }
+                    if(debitInstructionResp == null) return;
+                    CardTransactionsDto ctDTO = new CardTransactionsDto();
+                    ctDTO.setRemitaResponse(debitInstructionResp.toString());
+                    ctDTO.setAmount(mandate.getAmount());
+                    ctDTO.setCurrency("NGN");
+                    ctDTO.setTransactionDate(currentDate.toString());
+                    ctDTO.setStatus("pending");
+                    ctDTO.setReference(debitInstructionResp.getTransactionRef());
+                    ctDTO.setMandateId(mandate.getMandateId());
+                    ctService.saveCardTransaction(ctDTO);
+                }else {
+//                        Customer is no longer owing...
+                    System.out.println("Customer is no longer owing".toUpperCase());
+                }
+            }else {
+                log.info("An existing transaction already exists. See ID: "+ existingTransaction.getId());
+            }
+        }
+    }
+
+    private Map<String, String> performPd(JSONObject chargeRespObj, ChargeDto chargeDto, RepayLoanReq repayLoanReq, String loanId, LocalDate currentDate, String clientId) throws ParseException {
+        String errorMessage;
+        Map<String, String> responseMap = new HashMap<>();
+        CardTransactionsDto ctDTO = new CardTransactionsDto();
+        var cardDetails = cardDetailsRepo.findByClientIdAndEmail(clientId, chargeDto.getEmail());
+        if (chargeRespObj.get("gateway_response") != null && (chargeRespObj.get("gateway_response").toString().equalsIgnoreCase("insufficient funds") || chargeRespObj.get("gateway_response").toString().equalsIgnoreCase("not sufficient funds"))) {
+//          Charge failed due to insufficient funds. Attempt partial debit...
+            PartialDebit partialDebit = partialDebitService.getPartialDebit(
+                    chargeDto.getAuthorization_code(),
+                    chargeDto.getAmount(),
+                    chargeDto.getEmail());
+            boolean isNewPdRecord = false;
+            boolean maxAttemptsReached = false;
+            if (partialDebit == null) isNewPdRecord = true;
+            else {
+//              Check that partial debit attempts has not exceeded maximum (4)
+                if(partialDebitService.getPartialDebitAttempt(partialDebit, LocalDate.now()).getTotalNoOfAttempts() == 4)
+                    maxAttemptsReached = true;
+            }
+            if(!maxAttemptsReached) {
+                String pdResp = this.makePartialDebit(new PartialDebitDto(
+                        chargeDto.getAuthorization_code(),
+                        chargeDto.getAmount(),
+                        chargeDto.getEmail()));
+                ctDTO.setPaystackResponse(pdResp);
+                if (pdResp != null) {
+                    JSONObject pdRespObj = cardUtil.getJsonObjResponse(pdResp);
+                    if (pdRespObj != null && pdRespObj.containsKey("data")) {
+                        JSONObject data = cardUtil.getJsonObjResponse(pdRespObj.get("data").toString());
+                        if (data.get("status").toString().equalsIgnoreCase("success")) {
+//                          Partial debit successful...
+                            BigDecimal pdAmount = new BigDecimal(data.get("amount").toString());
+                            BigDecimal newPdAmount = pdAmount.divide(new BigDecimal(100)).setScale(2, RoundingMode.CEILING);
+
+                            ctDTO.setAmount(newPdAmount);
+                            ctDTO.setCurrency(pdRespObj.get("currency").toString());
+                            ctDTO.setTransactionDate(pdRespObj.get("transaction_date").toString());
+                            ctDTO.setStatus(pdRespObj.get("status").toString());
+                            ctDTO.setReference(pdRespObj.get("reference").toString());
+
+                            ctDTO.setCardType(pdRespObj.get("card_type").toString());
+
+                            ctDTO.setCardDetails(cardDetails);
+
+                            var savedCardTransaction = ctService.saveCardTransaction(ctDTO);
+
+//                          Make loan repayment...
+                            repayLoanReq.setAccountID(loanId);
+//                                                    repayLoanReq.setAmount(pdAmount);
+                            repayLoanReq.setAmount(newPdAmount);
+                            repayLoanReq.setPaymentMethodName(AppConstants.InstafinPaymentMethod.PAYSTACK_PAYMENT_METHOD);
+                            repayLoanReq.setTransactionBranchID(AppConstants.InstafinBranch.TRANSACTION_BRANCH_ID);
+                            repayLoanReq.setRepaymentDate(currentDate.toString());
+                            repayLoanReq.setNotes("Paystack Card loan repayment");
+                            var repaymentResp = loanRepaymentService.makeLoanRepayment(repayLoanReq);
+                            if(repaymentResp != null) {
+                                JSONObject repaymentResponseObject;
+                                try{
+                                    repaymentResponseObject = cardUtil.getJsonObjResponse(repaymentResp);
+                                    if(responseContainsValidationError(repaymentResponseObject)) {
+                                        errorMessage = repaymentResponseObject.get("message").toString();
+                                        responseMap.put("repaymentStatus", Boolean.toString(false));
+                                    }else {
+                                        errorMessage = null;
+                                        responseMap.put("repaymentStatus", Boolean.toString(true));
+//                                        Repayment successful...
+                                        if (isNewPdRecord)
+                                            partialDebitService.savePartialDebit(chargeDto.getAuthorization_code(), loanId, chargeDto.getAmount(), chargeDto.getEmail(), currentDate);
+                                        else {
+                                            PartialDebitAttempt partialDebitAttempt = partialDebitService.getPartialDebitAttempt(partialDebit, LocalDate.now());
+                                            int totalAttempts = partialDebitAttempt.getTotalNoOfAttempts();
+                                            int totalAttemptsInc = (totalAttempts + 1);
+                                            partialDebitAttempt.setTotalNoOfAttempts(totalAttemptsInc);
+                                            partialDebitService.savePartialDebitAttempt(partialDebitAttempt);
+                                        }
+                                    }
+                                    responseMap.put("errorMessage", errorMessage);
+                                }catch (Exception ex) {
+                                    ex.printStackTrace();
+                                    repaymentResponseObject = null;
+                                }
+                                if(repaymentResponseObject == null) {
+                                    boolean isEmpty = repaymentResp.trim().equals("");
+                                    errorMessage = isEmpty ?
+                                            "Charge successful but loan repayment failed. Reason: No response gotten from Instafin" :
+                                            repaymentResp;
+                                    if(isEmpty) {
+                                        responseMap.put("repaymentStatus", Boolean.toString(false));
+                                        responseMap.put("errorMessage", errorMessage);
+                                    }
+                                }
+                            }else {
+                                errorMessage = "Charge successful but loan repayment failed. Reason: No response gotten from Instafin";
+                                responseMap.put("repaymentStatus", Boolean.toString(false));
+                                responseMap.put("errorMessage", errorMessage);
+                            }
+
+                            if(responseMap.get("repaymentStatus").equals("false")) {
+                                savedCardTransaction.setStatus("repayment_failure");
+                                savedCardTransaction.setInstafinResponse(responseMap.get("errorMessage"));
+                                ctService.addCardTransaction(savedCardTransaction);
+                            }else {
+                                savedCardTransaction.setStatus("REPAYMENT SUCCESSFUL");
+                                ctService.addCardTransaction(savedCardTransaction);
+                            }
+                        }
+                    }
+                }
+            }
+        }else {
+            if(chargeRespObj.get("gateway_response") != null) {
+                responseMap.put("repaymentStatus", Boolean.toString(false));
+                responseMap.put("errorMessage", chargeRespObj.get("gateway_response").toString());
+            }else {
+                responseMap.put("repaymentStatus", Boolean.toString(false));
+                responseMap.put("errorMessage", "No gateway response returned from Paystack");
+            }
+        }
+        return responseMap;
     }
 
     @Override
@@ -434,8 +572,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
             var payload = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(chargeDto);
             log.info("ENTRY -> recurringCharges payload: "+ payload);
             chargeResp = httpCallService.httpPaystackCall(psBaseUrl+psChargeAuthUrl, payload);
-            log.info("ENTRY -> chargeCard : Resp: "+chargeResp);
-
+            log.info("recurringCharges response: "+chargeResp);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
@@ -444,9 +581,9 @@ public class CardDetailsServiceImpl implements CardDetailsService {
 
     @Override
     public String verifyTransaction(String reference) {
-        log.info("ENTRY -> verifyTransaction: reference: "+reference);
+        log.info("Verify transaction reference: "+reference);
         var transResp = httpCallService.httpPaystackCall(psBaseUrl+psTransVerification+reference, null);
-        log.info("ENTRY -> verifyTransaction: transResp "+transResp);
+//        System.out.println("transResp: "+transResp);
         return transResp;
     }
 
@@ -461,5 +598,21 @@ public class CardDetailsServiceImpl implements CardDetailsService {
     @Override
     public List<CardDetails> getAllCardDetails(Integer pageNo, Integer pageSize) {
         return cardDetailsRepo.findAllByStatusIn(Collections.singletonList("success"), PageRequest.of(pageNo, pageSize)).getContent();
+    }
+
+    private boolean responseContainsValidationError(JSONObject jsonObject){
+        String[] validationErrors = new String[] {"LEGACY_VALIDATION_ERROR", "VALIDATION",
+                "NON_EXISTING_ACCOUNT", "INVALID_STATUS_CHANGE",
+                "ACCOUNT_ALREADY_DISBURSED", "NON_EXISTING_ACCOUNT_STATUS", "VALUE_BEFORE_APPROVAL_DATE",
+                "CLIENTS_NOT_FOUND", "PAYMENT_METHOD_UNAVAILABLE", "NON_EXISTING_BRANCH", "STATUS_CHANGE_DATE_INVALID",
+                "DISBURSEMENT_NOT_ALLOWED", "GENERIC_VALIDATION_ERROR"};
+        boolean contains = false;
+        for(String error : validationErrors) {
+            if(jsonObject.containsValue(error)) {
+                contains = true;
+                break;
+            }
+        }
+        return contains;
     }
 }

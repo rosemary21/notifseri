@@ -1,15 +1,17 @@
 package com.creditville.notifications.executor;
 
 import com.creditville.notifications.exceptions.CustomCheckedException;
+import com.creditville.notifications.models.requests.HeaderParam;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-
+@Slf4j
 @Service
 public class HttpCallService {
 
@@ -56,7 +58,7 @@ public class HttpCallService {
             throw new CustomCheckedException(e.getMessage(), e.getCause());
         }
         if(httpResponse.getStatus() == 200) return  httpResponse.getBody();
-        else throw new CustomCheckedException("Unable to perform basic post operation with status code: "+ httpResponse.getStatus());
+        else throw new CustomCheckedException("Unable to perform basic post operation with status code: "+ httpResponse.getStatus() + ". Payload is \n "+ payload);
     }
 
     public String httpPaystackCall(String url, String payload){
@@ -72,6 +74,40 @@ public class HttpCallService {
             }else {
                 response = Unirest.get(url)
                         .header("Authorization","Bearer "+ psBasicAuth)
+                        .header("Content-Type","application/json")
+                        .asString();
+            }
+
+        } catch (UnirestException e) {
+            e.printStackTrace();
+        }
+        return response.getBody();
+    }
+
+    public String remitaHttpUrlCall(String url, String payload, HeaderParam headerParam){
+        HttpResponse<String> response = null;
+
+        log.info("ENTRY -> remitaHttpUrlCall: {} ",url);
+        try {
+            if(payload != null && null != headerParam){
+                response = Unirest.post(url)
+                        .header("Content-Type","application/json")
+                        .header("MERCHANT_ID",headerParam.getMerchantId())
+                        .header("API_KEY",headerParam.getApiKey())
+                        .header("REQUEST_ID",headerParam.getRequestId())
+                        .header("REQUEST_TS", String.valueOf(headerParam.getRequest_ts()))
+                        .header("API_DETAILS_HASH",headerParam.getApiDetailsHash())
+                        .body(payload)
+                        .asString();
+            }else if(payload != null && null == headerParam){
+                response = Unirest.post(url)
+                        .header("Content-Type","application/json")
+                        .body(payload)
+                        .asString();
+
+            } else {
+
+                response = Unirest.get(url)
                         .header("Content-Type","application/json")
                         .asString();
             }

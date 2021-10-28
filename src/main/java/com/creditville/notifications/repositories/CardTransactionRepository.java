@@ -15,4 +15,12 @@ public interface CardTransactionRepository extends JpaRepository<CardTransaction
     Collection<CardTransactions> findByCardDetails_Email(String email);
 
     CardTransactions findByCardDetailsAndStatusInAndLastUpdate(CardDetails cardDetails, List<String> status, LocalDate LastUpdateDate);
+
+    CardTransactions findByRemitaRequestIdOrderByCreatedOnDesc(String requestId);
+
+    CardTransactions findByRemitaRequestIdAndMandateId(String requestId, String mandateId);
+
+    CardTransactions findByRemitaRequestIdAndMandateIdAndStatusInAndLastUpdate(String requestId, String mandateId, List<String> status, LocalDate LastUpdateDate);
+
+    CardTransactions findFirstByRemitaRequestIdAndMandateIdAndStatusInOrderByLastUpdateDesc(String requestId, String mandateId, List<String> status);
 }
