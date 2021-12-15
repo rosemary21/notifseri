@@ -1215,10 +1215,10 @@ public class DispatcherServiceImpl implements DispatcherService {
                         try {
                             LookUpClient lookUpClient = clientService.lookupClient(m.getClientId());
                             String clientStatus = lookUpClient.getClient().getClientStatus();
-                            if (clientStatus.equals("ACTIVE") || clientStatus.contains("ARREARS")) {
+                            if (clientStatus.equals("ACTIVE") || clientStatus.contains("IN_ARREARS")) {
                                 List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
                                         .stream()
-                                        .filter(cl -> cl.getStatus().equalsIgnoreCase("ACTIVE") || cl.getStatus().contains("ARREARS"))
+                                        .filter(cl -> cl.getStatus().equalsIgnoreCase("ACTIVE") || cl.getStatus().contains("IN_ARREARS"))
                                         .collect(Collectors.toList());
 //                Since there can be only one open client loan at a time, check if the list is empty, if not, get the first element...
                                 if (!openClientLoanList.isEmpty()) {
