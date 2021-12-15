@@ -120,7 +120,7 @@
         </tr>
         <tr th:if="${hasBranchManager == 'true' }">
             <td width="70%" height="36">
-                <font face="Arial,sans-serif" color="#000000" size="3">We appreciate your relationship with us. For further assistance, please call <b th:text="${recoveryOfficer}"></b> on <b th:text="${PhoneNo}"></b> or email on <b th:text="${recoveryEmail}"></b>,<b th:text="${branchManager}"></b> on <b th:text="${bMPhoneNo}"></b> or email on <b th:text="${bMEmail}"></b> or <b th:text="${financeEmail}">Finance Manager email address</b> .</font>
+              <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">We appreciate your relationship with us. For further assistance, please call <b th:text="${recoveryOfficer}"></b> on <b th:text="${PhoneNo}"></b> or email on <b th:text="${recoveryEmail}"></b>, &nbsp;<b th:text="${branchManager}"></b> on <b th:text="${bMPhoneNo}"></b> or email on <b th:text="${bMEmail}"></b> or <b th:text="${financeName}">Finance Manager Name</b> on <b th:text="${financePhoneNo}"></b> or email on <b th:text="${financeEmail}"></b> .</font>
             </td>
         </tr>
 
@@ -195,7 +195,7 @@
                 </font>
             </div>
             <div style="text-align: left; height: auto; width: 100%; padding-bottom: 1%; padding-top: 1%; float: left; display: inline-block" th:if="${hasBranchManager == 'true' }">
-                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">We appreciate your relationship with us. For further assistance, please call <b th:text="${recoveryOfficer}"></b> on <b th:text="${PhoneNo}"></b> or email on <b th:text="${recoveryEmail}"></b>,<b th:text="${branchManager}"></b> on <b th:text="${bMPhoneNo}"></b> or email on <b th:text="${bMEmail}"></b> or <b th:text="${financeEmail}">Finance Manager email address</b> .</font>
+                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">We appreciate your relationship with us. For further assistance, please call <b th:text="${recoveryOfficer}"></b> on <b th:text="${PhoneNo}"></b> or email on <b th:text="${recoveryEmail}"></b>, &nbsp; &nbsp;<b th:text="${branchManager}"></b> on <b th:text="${bMPhoneNo}"></b> or email on <b th:text="${bMEmail}"></b> or <b th:text="${financeName}">Finance Manager email address</b> on <b th:text="${financePhoneNo}"></b> or email on <b th:text="${financeEmail}"></b> .</font>
             </div>
 <!--            <div style="text-align: left; height: auto; width: 100%; padding-bottom: 1%; padding-top: 1%; float: left; display: inline-block" th:if="${hasBranchManager == 'true' }">-->
 <!--                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">You can also reach the branch Manager <b th:text="${branchManagerName}">Branch Manager name</b> on <b th:text="${branchManagerPhoneNumber}">Branch Manager Phone No</b> or email on <b th:text="${branchManagerEmail}">Branch Manager email address</b> or <b th:text="${financeEmail}">Finance Manager email address</b> .</font>-->

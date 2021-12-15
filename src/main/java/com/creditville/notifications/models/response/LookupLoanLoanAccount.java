@@ -18,4 +18,5 @@ public class LookupLoanLoanAccount {
     private List<LookUpLoanInstalment> instalments;
     private LookUpLoanLoanAccountOptionalFields optionalFields;
     private BigDecimal loanAmount;
+   private  String maximumRepayableAsOfToday;
 }

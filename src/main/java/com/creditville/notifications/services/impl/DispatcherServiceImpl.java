@@ -6,6 +6,7 @@ import com.creditville.notifications.models.response.*;
 import com.creditville.notifications.services.*;
 import com.creditville.notifications.utils.CurrencyUtil;
 import com.creditville.notifications.utils.DateUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -116,6 +117,8 @@ public class DispatcherServiceImpl implements DispatcherService {
 
     @Autowired
     private NotificationConfigService notificationConfigService;
+    @Autowired
+    private ObjectMapper om;
 
 
 
@@ -180,6 +183,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                                         if (thisMonthInstalment != null) {
                                             Client customer = lookUpClient.getClient();
                                             LocalDate obligatoryPaymentDate = dateUtil.convertDateToLocalDate(thisMonthInstalment.getObligatoryPaymentDate());
+                                            String valueDate=dateUtil.convertDateToYear(obligatoryPaymentDate);
                                             String toAddress = useDefaultMailInfo ? defaultToAddress : customer.getEmail();
                                             if (!emailService.alreadySentOutEmailToday(
                                                     toAddress,
@@ -220,7 +224,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                     notificationData.put("toAddress", toAddress);
                                                     notificationData.put("customerName", customer.getName());
                                                     notificationData.put("paymentMonth", dateUtil.getMonthByDate(thisMonthInstalment.getObligatoryPaymentDate()));
-                                                    notificationData.put("paymentDate", obligatoryPaymentDate.toString());
+                                                    notificationData.put("paymentDate", valueDate);
                                                     notificationData.put("paymentYear", Integer.toString(dateUtil.getYearByDate(thisMonthInstalment.getObligatoryPaymentDate())));
 //                                                notificationData.put("rentalAmount", thisMonthInstalment.getCurrentState().getPrincipalDueAmount().toString());
                                                     notificationData.put("rentalAmount", currencyUtil.getFormattedCurrency(rentalAmount));
@@ -668,6 +672,8 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                 String brmE = "";
                                                 String brmPh = "";
                                                 String finEm="";
+                                                String finNam="";
+                                                String finPh="";
                                                 Boolean hasBranchManager = true;
                                                 if (branchManager == null) {
                                                     hasBranchManager = false;
@@ -677,10 +683,11 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                     brmPh = branchManager.getOfficerPhoneNo();
                                                 }
                                                 finEm=financeManager.getOfficerEmail();
+                                                finNam=financeManager.getOfficerName();
+                                                finPh=financeManager.getOfficerPhoneNo();
                                                 if(valueOfArrears.compareTo(BigDecimal.ZERO) > 0) {
                                                     notificationData.put("toName", useDefaultMailInfo ? defaultToName : customer.getName());
                                                     notificationData.put("toAddress", toAddress);
-//                                                    notificationData.put("toAddress","chioma.chukelu@creditville.ng");
                                                     notificationData.put("customerName", customer.getName());
                                                     notificationData.put("noOfArrears", String.valueOf(noOfArrears));
 //                                                  notificationData.put("valueOfArrears", valueOfArrears.toString());
@@ -704,6 +711,9 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                     notificationData.put("bMPhoneNo", brmPh);
                                                     notificationData.put("bMEmail", brmE);
                                                     notificationData.put("financeEmail",finEm);
+                                                    notificationData.put("financeName",finNam);
+                                                    notificationData.put("financePhoneNo",finPh);
+
 
                                                     totalSuccessfulCounter++;
                                                     try {
@@ -753,6 +763,11 @@ public class DispatcherServiceImpl implements DispatcherService {
                     for (Client client : clients) {
                         try {
                             CollectionOfficer collectionOfficer = collectionOfficerService.getCollectionOfficer(client.getBranchName());
+                            System.out.println("getting the branch name "+client.getBranchName());
+                            RecoveryOfficer recoveryOfficer=recoveryOfficerService.getRecoveryOfficer(client.getBranchName());
+                            BranchManager branchManager=branchManagerService.getBranchManager(client.getBranchName());
+                            FinanceManager financeManager=financeManagerService.getBraManager(client.getBranchName());
+                            log.info("getting the branch name {}",client.getBranchName());
                             Branch branch = branchService.getBranch(client.getBranchName());
                             if(!branch.getIsEnabled()) {
                                 log.info("Branch {} is disabled from receiving notifications. Hence, notification would not be sent out for client with ID {}", client.getBranchName(), client.getExternalID());
@@ -766,6 +781,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                                 }
                             }
                             LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());
+//                            LookUpClient lookUpClient = clientService.lookupClient("0000001006");
                             List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
                                     .stream()
 //                                .filter(cl -> !cl.getStatus().equalsIgnoreCase("CLOSED"))
@@ -776,7 +792,10 @@ public class DispatcherServiceImpl implements DispatcherService {
                                 LookUpClientLoan clientLoan = openClientLoanList.get(0);
 //                            System.out.println("Open client loan is: " + clientLoan.getId() + ". Status: " + clientLoan.getStatus());
                                 LookUpLoanAccount lookUpLoanAccount = clientService.lookupLoanAccount(clientLoan.getId());
+//                                LookUpLoanAccount lookUpLoanAccount = clientService.lookupLoanAccount("1000001006");
+                                System.out.println("lookUpLoanAccount init: "+om.writerWithDefaultPrettyPrinter().writeValueAsString(lookUpLoanAccount));
                                 List<LookUpLoanInstalment> loanInstalments = lookUpLoanAccount.getLoanAccount().getInstalments();
+                                System.out.println("loanInstalments is: "+om.writerWithDefaultPrettyPrinter().writeValueAsString(loanInstalments));
                                 if (!loanInstalments.isEmpty()) {
                                     List<LookUpLoanInstalment> loanInstalmentsGtToday = loanInstalments
                                             .stream()
@@ -787,8 +806,10 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                 .stream()
                                                 .filter(lookUpLoanInstalment -> dateUtil.isPaymentDateLtOrEqToday(lookUpLoanInstalment.getObligatoryPaymentDate()))
                                                 .collect(Collectors.toList());
+                                        System.out.println("loanInstalmentsLtOrEqToday is: "+om.writerWithDefaultPrettyPrinter().writeValueAsString(loanInstalmentsLtOrEqToday));
                                         if (!loanInstalmentsLtOrEqToday.isEmpty()) {
                                             LookUpLoanInstalment latestInstalment = loanInstalmentsLtOrEqToday.get((loanInstalmentsLtOrEqToday.size() - 1));
+                                            System.out.println("latestInstalment is.: "+om.writerWithDefaultPrettyPrinter().writeValueAsString(latestInstalment));
                                             if (latestInstalment.getCurrentState().getPrincipalDueAmount().compareTo(BigDecimal.ZERO) > 0) {
 //                                    Customer is owing but maturity date exceeded...
                                                 Client customer = lookUpClient.getClient();
@@ -804,6 +825,15 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                     String coN;
                                                     String coE;
                                                     String coP;
+                                                    String roN="";
+                                                    String roE="";
+                                                    String roP="";
+                                                    String boN="";
+                                                    String boE="";
+                                                    String boP="";
+                                                    String FiN="";
+                                                    String FiE="";
+                                                    String FiP="";
                                                     if (collectionOfficer == null) {
                                                         coN = defaultCollectionOfficer;
                                                         coE = collectionEmail;
@@ -813,6 +843,25 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                         coE = collectionOfficer.getOfficerEmail();
                                                         coP = collectionOfficer.getOfficerPhoneNo();
                                                     }
+                                                    System.out.println("Getting the recovery officer "+recoveryOfficer);
+                                                    System.out.println("Getting the branch manager "+branchManager);
+                                                    if(recoveryOfficer!=null){
+                                                        roN=recoveryOfficer.getOfficerName();
+                                                        roE=recoveryOfficer.getOfficerEmail();
+                                                        roP=recoveryOfficer.getOfficerPhoneNo();
+
+                                                    }
+                                                    if(branchManager!=null){
+                                                        boN=branchManager.getOfficerName();
+                                                        boE=branchManager.getOfficerEmail();
+                                                        boP=branchManager.getOfficerPhoneNo();
+                                                    }
+                                                    if(financeManager!=null){
+                                                        FiN=financeManager.getOfficerName();
+                                                        FiE=financeManager.getOfficerEmail();
+                                                        FiP=financeManager.getOfficerPhoneNo();
+                                                    }
+
                                                     BigDecimal outstandingBalance = latestInstalment.getCurrentState().getPrincipalDueAmount().add(latestInstalment.getCurrentState().getInterestDueAmount());
                                                     if(latestInstalment.getCurrentState().getFeeDueAmount() != null)
                                                         outstandingBalance = outstandingBalance.add(latestInstalment.getCurrentState().getFeeDueAmount());
@@ -820,12 +869,24 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                         notificationData.put("toName", useDefaultMailInfo ? defaultToName : customer.getName());
                                                         notificationData.put("toAddress", toAddress);
                                                         notificationData.put("customerName", customer.getName());
-                                                        notificationData.put("maturityDate", dateUtil.convertDateToLocalDate(latestInstalment.getObligatoryPaymentDate()).toString());
+                                                        notificationData.put("maturityDate", dateUtil.convertLocalDateToString(latestInstalment.getObligatoryPaymentDate()));
 //                                                notificationData.put("outstandingBalance", latestInstalment.getCurrentState().getPrincipalDueAmount().toString());
-                                                        notificationData.put("outstandingBalance", currencyUtil.getFormattedCurrency(outstandingBalance));
+                                                        System.out.println("Getting the outstanding balance {}"+outstandingBalance);
+//                                                        notificationData.put("outstandingBalance", currencyUtil.getFormattedCurrency(outstandingBalance));
+                                                        notificationData.put("outstandingBalance",currencyUtil.getFormattedCurrency(new BigDecimal(lookUpLoanAccount.getLoanAccount().getMaximumRepayableAsOfToday())));
                                                         notificationData.put("collectionOfficer", coN);
                                                         notificationData.put("collectionPhoneNumber", coP);
                                                         notificationData.put("collectionEmail", coE);
+                                                        notificationData.put("branchEmail", boE);
+                                                        notificationData.put("branchPhoneNumber", boP);
+                                                        notificationData.put("branchManager", boN);
+                                                        notificationData.put("financeName",FiN);
+                                                        notificationData.put("financePhoneNo", FiP);
+                                                        notificationData.put("financeEmail", FiE);
+                                                        notificationData.put("recoveryEmail", roE);
+                                                        notificationData.put("recoveryPhoneNumber", roP);
+                                                        notificationData.put("recoveryOfficer", roN);
+                                                        notificationData.put("branchEmail", coE);
                                                         notificationData.put("companyName", companyName);
                                                         notificationData.put("loanId", clientLoan.getId());
                                                         notificationData.put("accountName", accountName);
