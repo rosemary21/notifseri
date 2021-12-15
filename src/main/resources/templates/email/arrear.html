@@ -49,7 +49,7 @@
         </tr>
         <tr>
             <td bgcolor="#003057" align="left" width="80%" height="60">
-                <font face="Arial,sans-serif" color="#fff" size="4"><b>&nbsp;&nbsp;&nbsp;&nbsp;Due Rental Notification</b></font>
+                <font face="Arial,sans-serif" color="#fff" size="4"><b>&nbsp;&nbsp;&nbsp;&nbsp;Arrears Notification</b></font>
             </td>
         </tr>
         </tbody>
@@ -87,14 +87,40 @@
             <td width="70%" height="8"></td>
         </tr>
         <tr>
-            <td width="70%" height="33"><font face="Arial,sans-serif" color="#000000" size="3">This is to notify you that your <b th:text="${paymentMonth}">payment month</b> <b th:text="${paymentYear}">year</b> instalment will be due payable on <b th:text="${paymentDate}">payment date</b>. Kindly fund your bank account with your instalment amount of <b th:text="${rentalAmount}">rental amount</b> to accommodate the repayment as we present your repayment instrument.</font></td>
+            <td width="70%" height="33"><font face="Arial,sans-serif" color="#000000" size="3">This is to notify you that you have <b th:text="${noOfArrears}">no of arrears</b> overdue instalments valued <b th:text="${valueOfArrears}">value of arrears</b> on your account. Kindly effect payment immediately.</font></td>
+        </tr>
+        <tr>
+            <td width="70%" height="8"></td>
+        </tr>
+        <tr>
+            <td width="70%" height="36"><font face="Arial,sans-serif" color="#000000" size="3">If you intend making a direct transfer into our account , kindly use the bank details below and notify <b th:text="${companyName}">company name </b> on recovery@creditville.ng.</font></td>
+        </tr>
+        <tr>
+            <td width="70%" height="8"></td>
+        </tr>
+        <tr>
+            <td width="70%" height="36"><font face="Arial,sans-serif" color="#000000" size="3">Please endeavour to quote your loan ID <b th:text="${loanId}">loan id</b> on every payment made via an alternative channel, for ease of reconciliation. <br/>
+                <u>Please avoid the use of POS terminals and ATM for your Loan repayments due to their limitation with transaction descriptions.</u></font>
+            </td>
+        </tr>
+        <tr>
+            <td width="70%" height="16"></td>
+        </tr>
+        <tr>
+            <td width="70%" height="36">
+                <font face="Arial,sans-serif" color="#000000" size="3">Our account detail is: <br/>
+                    Account Name:     <b th:text="${accountName}">account name</b> <br>
+                    Account Number:   <b th:text="${accountNumber}">account number</b> <br>
+                    Bank Name:        <b th:text="${bankName}">bank name</b>.
+                </font>
+            </td>
         </tr>
         <tr>
             <td width="70%" height="8"></td>
         </tr>
         <tr>
             <td width="70%" height="36">
-                <font face="Arial,sans-serif" color="#000000" size="3">We appreciate your relationship with us. For further assistance, please call <b th:text="${collectionOfficer}">collection officer</b> on <b th:text="${collectionPhoneNumber}">collection phone number</b> or email on <b th:text="${collectionEmail}">collection email</b>.</font>
+                <font face="Arial,sans-serif" color="#000000" size="3">We appreciate your relationship with us. For further assistance, please call <b th:text="${recoveryOfficer}"></b> on <b th:text="${PhoneNo}"></b> or email on <b th:text="${recoveryEmail}"></b>,<b th:text="${branchManager}"></b> on <b th:text="${bMPhoneNo}"></b> or email on <b th:text="${bMEmail}"></b> .</font>
             </td>
         </tr>
         <tr>
@@ -109,43 +135,8 @@
             <td width="70%" height="8"></td>
         </tr>
         <tr>
-            <td width="70%" height="36"><font face="Arial,sans-serif" color="#000000" size="3">If you intend making a direct transfer into our account, kindly use the bank details below 48 hours before the <b th:text="${paymentDate}">payment date</b> and notify <b th:text="${companyName}">company name</b> to avoid wrongful presentation of your repayment instrument.</font></td>
-        </tr>
-        <tr>
-            <td width="70%" height="8"></td>
-        </tr>
-        <tr>
             <td width="70%" height="36">
-                <font face="Arial,sans-serif" color="#000000" size="3">Please endeavour to quote your loan ID <b th:text="${loanId}">loan id</b> on every payment made via an alternative channel, for ease of reconciliation.</font>
-            </td>
-        </tr>
-        <tr>
-            <td width="70%" height="8"></td>
-        </tr>
-        <tr>
-            <td width="70%" height="36"><font face="Arial,sans-serif" color="#000000" size="3">
-                <u>Please avoid the use of POS terminals and ATM for your loan repayments due to their limitation with transaction descriptions.</u>
-            </font>
-            </td>
-        </tr>
-        <tr>
-            <td width="70%" height="16"></td>
-        </tr>
-        <tr>
-            <td width="70%" height="36">
-                <font face="Arial,sans-serif" color="#000000" size="3">
-                    Account Name:     <b th:text="${accountName}">account name</b> <br>
-                    Account Number:   <b th:text="${accountNumber}">account number</b> <br>
-                    Bank Name:        <b th:text="${bankName}">bank name</b>.
-                </font>
-            </td>
-        </tr>
-        <tr>
-            <td width="70%" height="16"></td>
-        </tr>
-        <tr>
-            <td width="70%" height="60">
-                <font face="Arial,sans-serif" color="#000000" size="3">Kindly Ignore if payment has been made.</font>
+                <font face="Arial,sans-serif" color="#000000" size="3">Please note that default accrues on all outstanding balances until full liquidation.</font>
             </td>
         </tr>
         <tr>
@@ -179,7 +170,7 @@
         <div align="left" style="width: 90%; float: left; display: table; padding-top: 2%">
             <div style="text-align: left; height: auto; width: 100%; padding-top: 4%; background-color: #003057; padding-left: 16px; padding-right: 4px; padding-bottom: 20px;float: left; display: inline-block">
                 <font style="font-size: 15px" face="Arial,sans-serif" color="#fff">
-                    <b>&nbsp;&nbsp;Due Rental Notification</b>
+                    <b>&nbsp;&nbsp;Arrears Notification</b>
                 </font>
             </div>
             <div style="text-align: left; height: 50px; width: auto; float: left; display: inline-block; margin: 3% 0; background-color: #c2cbda; min-width: 35%">
@@ -189,40 +180,37 @@
                 <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">Hope this mail finds you well.</font>
             </div>
             <div style="text-align: left; height: auto; width: 100%; padding-bottom: 1%; padding-top: 1%; float: left; display: inline-block">
-                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">This is to notify you that your <b th:text="${paymentMonth}">payment month</b> <b th:text="${paymentYear}">year</b> instalment will be due payable on <b th:text="${paymentDate}">payment date</b>. Kindly fund your bank account with your instalment amount of <b th:text="${rentalAmount}">rental amount</b> to accommodate the repayment as we present your repayment instrument.</font>
+                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">This is to notify you that you have <b th:text="${noOfArrears}">no of arrears</b> overdue instalments valued <b th:text="${valueOfArrears}">value of arrears</b> on your account. Kindly effect payment immediately.</font>
             </div>
             <div style="text-align: left; height: auto; width: 100%; padding-bottom: 1%; padding-top: 1%; float: left; display: inline-block">
-                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">We appreciate your relationship with us. For further assistance, please call <b th:text="${collectionOfficer}">collection officer</b> on <b th:text="${collectionPhoneNumber}">collection phone number</b> or email on <b th:text="${collectionEmail}">collection email</b>.</font>
-            </div>
-            <div style="text-align: left; height: auto; width: 100%; padding-bottom: 1%; padding-top: 1%; float: left; display: inline-block" th:if="${hasBranchManager == 'true'}">
-                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">You can also reach the branch Manager <b th:text="${branchManagerName}">Branch Manager name</b> on <b th:text="${branchManagerPhoneNumber}">Branch Manager Phone No</b> or email on <b th:text="${branchManagerEmail}">Branch Manager email address</b>.</font>
+                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">If you intend making a direct transfer into our account , kindly use the bank details below and notify <b th:text="${companyName}">company name</b>.</font>
             </div>
             <div style="text-align: left; height: auto; width: 100%; padding-bottom: 1%; padding-top: 1%; float: left; display: inline-block">
-                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">If you intend making a direct transfer into our account, kindly use the bank details below 48 hours before the <b th:text="${paymentDate}">payment date</b> and notify <b th:text="${companyName}">company name</b> to avoid wrongful presentation of your repayment instrument.</font>
-            </div>
-            <div style="text-align: left; height: auto; width: 100%; padding-bottom: 1%; padding-top: 1%; float: left; display: inline-block">
-                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">Please endeavour to quote your loan ID <b th:text="${loanId}">loan id</b> on every payment made via an alternative channel, for ease of reconciliation.</font>
-            </div>
-            <div style="text-align: left; height: auto; width: 100%; padding-bottom: 1%; padding-top: 1%; float: left; display: inline-block">
-                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">
-                    <u>Please avoid the use of POS terminals and ATM for your loan repayments due to their limitation with transaction descriptions.</u>
+                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">Please endeavour to quote your loan ID <b th:text="${loanId}">loan id</b> on every payment made via an alternative channel, for ease of reconciliation. <br/>
+                    <u>Please avoid the use of POS terminals and ATM for your Loan repayments due to their limitation with transaction descriptions.</u>
                 </font>
             </div>
             <div style="text-align: left; height: auto; width: 100%; padding-bottom: 1%; padding-top: 1%; float: left; display: inline-block">
-                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">
+                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">Our account detail is: <br/>
                     Account Name:     <b th:text="${accountName}">account name</b> <br>
                     Account Number:   <b th:text="${accountNumber}">account number</b> <br>
                     Bank Name:        <b th:text="${bankName}">bank name</b>.
                 </font>
             </div>
-            <div style="text-align: left; height: auto; width: 100%; padding-bottom: 1%; padding-top: 3%; float: left; display: inline-block">
-                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">Kindly Ignore if payment has been made.</font>
+            <div style="text-align: left; height: auto; width: 100%; padding-bottom: 1%; padding-top: 1%; float: left; display: inline-block">
+                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">We appreciate your relationship with us. For further assistance, please call <b th:text="${collectionOfficer}">collection officer</b> on <b th:text="${collectionPhoneNumber}">collection phone number</b> or email on <b th:text="${collectionEmail}">collection email</b>.</font>
             </div>
-            <div style="text-align: left; height: auto; width: 100%; padding-bottom: 1%; padding-top: 3%; float: left; display: inline-block">
+            <div style="text-align: left; height: auto; width: 100%; padding-bottom: 1%; padding-top: 1%; float: left; display: inline-block" th:if="${hasBranchManager == 'true' }">
+                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">You can also reach the branch Manager <b th:text="${branchManagerName}">Branch Manager name</b> on <b th:text="${branchManagerPhoneNumber}">Branch Manager Phone No</b> or <b th:text="${financeEmail}">Finance Manager email address</b> .</font>
+            </div>
+            <div style="text-align: left; height: auto; width: 100%; padding-bottom: 1%; padding-top: 1%; float: left; display: inline-block">
+                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">Please note that default accrues on all outstanding balances until full liquidation.</font>
+            </div>
+            <div style="text-align: left; height: auto; width: 100%; padding-bottom: 1%; padding-top: 1%; float: left; display: inline-block">
                 <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">Thank you for your understanding.</font>
             </div>
             <div style="text-align: left; height: auto; width: 100%; padding-bottom: 1%; padding-top: 3%; float: left; display: inline-block">
-                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">Creditville Nig Ltd</font>
+                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">Creditville Collection Team</font>
             </div>
         </div>
     </div>

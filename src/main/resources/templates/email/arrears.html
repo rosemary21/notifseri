@@ -93,7 +93,7 @@
             <td width="70%" height="8"></td>
         </tr>
         <tr>
-            <td width="70%" height="36"><font face="Arial,sans-serif" color="#000000" size="3">If you intend making a direct transfer into our account , kindly use the bank details below and notify <b th:text="${companyName}">company name</b>.</font></td>
+            <td width="70%" height="36"><font face="Arial,sans-serif" color="#000000" size="3">If you intend making a direct transfer into our account , kindly use the bank details below and notify <b th:text="${companyName}">company name </b> on recovery@creditville.ng.</font></td>
         </tr>
         <tr>
             <td width="70%" height="8"></td>
@@ -118,19 +118,16 @@
         <tr>
             <td width="70%" height="8"></td>
         </tr>
-        <tr>
+        <tr th:if="${hasBranchManager == 'true' }">
             <td width="70%" height="36">
-                <font face="Arial,sans-serif" color="#000000" size="3">We appreciate your relationship with us. For further assistance, please call <b th:text="${collectionOfficer}">collection officer</b> on <b th:text="${collectionPhoneNumber}">collection phone number</b> or email on <b th:text="${collectionEmail}">collection email</b>.</font>
+              <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">We appreciate your relationship with us. For further assistance, please call <b th:text="${recoveryOfficer}"></b> on <b th:text="${PhoneNo}"></b> or email on <b th:text="${recoveryEmail}"></b>, &nbsp;<b th:text="${branchManager}"></b> on <b th:text="${bMPhoneNo}"></b> or email on <b th:text="${bMEmail}"></b> or <b th:text="${financeName}">Finance Manager Name</b> on <b th:text="${financePhoneNo}"></b> or email on <b th:text="${financeEmail}"></b> .</font>
             </td>
         </tr>
+
         <tr>
             <td width="70%" height="8"></td>
         </tr>
-        <tr>
-            <td width="70%" height="36" th:if="${hasBranchManager == 'true'}">
-                <font face="Arial,sans-serif" color="#000000" size="3">You can also reach the branch Manager <b th:text="${branchManagerName}">Branch Manager name</b> on <b th:text="${branchManagerPhoneNumber}">Branch Manager Phone No</b> or email on <b th:text="${branchManagerEmail}">Branch Manager email address</b>.</font>
-            </td>
-        </tr>
+
         <tr>
             <td width="70%" height="8"></td>
         </tr>
@@ -152,7 +149,7 @@
         </tr>
         <tr>
             <td width="70%" height="60">
-                <font face="Arial,sans-serif" color="#000000" size="3">Creditville Collection Team</font>
+                <font face="Arial,sans-serif" color="#000000" size="3">Creditville</font>
             </td>
         </tr>
         </tbody>
@@ -197,12 +194,12 @@
                     Bank Name:        <b th:text="${bankName}">bank name</b>.
                 </font>
             </div>
-            <div style="text-align: left; height: auto; width: 100%; padding-bottom: 1%; padding-top: 1%; float: left; display: inline-block">
-                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">We appreciate your relationship with us. For further assistance, please call <b th:text="${collectionOfficer}">collection officer</b> on <b th:text="${collectionPhoneNumber}">collection phone number</b> or email on <b th:text="${collectionEmail}">collection email</b>.</font>
+            <div style="text-align: left; height: auto; width: 100%; padding-bottom: 1%; padding-top: 1%; float: left; display: inline-block" th:if="${hasBranchManager == 'true' }">
+                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">We appreciate your relationship with us. For further assistance, please call <b th:text="${recoveryOfficer}"></b> on <b th:text="${PhoneNo}"></b> or email on <b th:text="${recoveryEmail}"></b>, &nbsp; &nbsp;<b th:text="${branchManager}"></b> on <b th:text="${bMPhoneNo}"></b> or email on <b th:text="${bMEmail}"></b> or <b th:text="${financeName}">Finance Manager email address</b> on <b th:text="${financePhoneNo}"></b> or email on <b th:text="${financeEmail}"></b> .</font>
             </div>
-            <div style="text-align: left; height: auto; width: 100%; padding-bottom: 1%; padding-top: 1%; float: left; display: inline-block" th:if="${hasBranchManager == 'true'}">
-                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">You can also reach the branch Manager <b th:text="${branchManagerName}">Branch Manager name</b> on <b th:text="${branchManagerPhoneNumber}">Branch Manager Phone No</b> or email on <b th:text="${branchManagerEmail}">Branch Manager email address</b>.</font>
-            </div>
+<!--            <div style="text-align: left; height: auto; width: 100%; padding-bottom: 1%; padding-top: 1%; float: left; display: inline-block" th:if="${hasBranchManager == 'true' }">-->
+<!--                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">You can also reach the branch Manager <b th:text="${branchManagerName}">Branch Manager name</b> on <b th:text="${branchManagerPhoneNumber}">Branch Manager Phone No</b> or email on <b th:text="${branchManagerEmail}">Branch Manager email address</b> or <b th:text="${financeEmail}">Finance Manager email address</b> .</font>-->
+<!--            </div>-->
             <div style="text-align: left; height: auto; width: 100%; padding-bottom: 1%; padding-top: 1%; float: left; display: inline-block">
                 <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">Please note that default accrues on all outstanding balances until full liquidation.</font>
             </div>
@@ -210,7 +207,7 @@
                 <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">Thank you for your understanding.</font>
             </div>
             <div style="text-align: left; height: auto; width: 100%; padding-bottom: 1%; padding-top: 3%; float: left; display: inline-block">
-                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">Creditville Collection Team</font>
+                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">Creditville</font>
             </div>
         </div>
     </div>

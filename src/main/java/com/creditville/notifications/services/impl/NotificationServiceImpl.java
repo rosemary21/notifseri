@@ -132,6 +132,11 @@ public class NotificationServiceImpl implements NotificationService {
             context.setVariable("customMailSubject", sendEmailRequest.getMailSubject());
             context.setVariable("customCustomerName", sendEmailRequest.getMailData().get("toName").textValue());
         }
+        if(mailTemplate.equals("disburseemail")){
+            context.setVariable("message", sendEmailRequest.getMailData().get("message").textValue());
+            context.setVariable("loanId", sendEmailRequest.getMailData().get("loanId").textValue());
+            context.setVariable("emailTo",sendEmailRequest.getMailData().get("emailTo").textValue());
+        }
         String templateLocation = this.getTemplateLocation(sendEmailRequest.getMailTemplate());
         String content = templateEngine.process(templateLocation, context);
         if(mailData.get("toAddress") == null) throw new CustomCheckedException("To address cannot be null");
@@ -162,6 +167,7 @@ public class NotificationServiceImpl implements NotificationService {
             } else bccAddressList.add(bccAddresses);
         }
 
+        System.out.println("getting the toAddressList {}"+toAddressList);
         EmailPopulatingBuilder emailPopulatingBuilder = EmailBuilder.startingBlank()
                 .from(senderName, senderEmail)
                 .to(null, toAddressList)
@@ -175,7 +181,6 @@ public class NotificationServiceImpl implements NotificationService {
                         .buildEmail() :
                 emailPopulatingBuilder
                         .buildEmail();
-//        System.out.println("Email: "+ email.getHTMLText());
         if(notificationsEnabled) {
             try {
                 if(!emailService.isEmailExcluded(mailData.get("toAddress").textValue())) {
@@ -257,6 +262,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     private String getTemplateLocation(String templateName) throws CustomCheckedException {
+        System.out.println("getting the template name {}"+templateName);
         switch (templateName) {
             case "cardTokenization":
                 return "email/card-tokenization";
@@ -290,6 +296,8 @@ public class NotificationServiceImpl implements NotificationService {
                 return "email/activate-otp";
             case "sendForm":
                 return "email/send-form";
+            case "disburseemail":
+                return "email/disburse";
             default:
                 throw new CustomCheckedException("Invalid template name provided");
         }

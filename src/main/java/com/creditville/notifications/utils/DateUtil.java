@@ -254,6 +254,16 @@ public class DateUtil {
         return LocalDate.parse(dueDate);
     }
 
+    public  String convertLocalDateToString(String date){
+        var dueDate = date.split("T")[0];
+         LocalDate localDate= LocalDate.parse(dueDate);
+         return convertDateToYear(localDate);
+    }
+
+    public String convertDateToYear(LocalDate localDate){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyy");
+        return localDate.format(formatter);
+    }
     public String newDate(){
         LocalDate localDate = LocalDate.now();//For reference
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyy");
