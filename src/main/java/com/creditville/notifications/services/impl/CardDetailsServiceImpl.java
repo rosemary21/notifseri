@@ -271,7 +271,6 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                             var authObj = (JSONObject) dataObj.get("authorization");
 
                             BigDecimal chargedAmount = new BigDecimal(dataObj.get("amount").toString());
-//                            BigDecimal newChargedAmount = chargedAmount.divide(new BigDecimal(100), RoundingMode.DOWN);
                             BigDecimal newChargedAmount = chargedAmount.divide(new BigDecimal(100)).setScale(2, RoundingMode.CEILING);
 
 //                            ctDTO.setAmount(new BigDecimal(dataObj.get("amount").toString()));

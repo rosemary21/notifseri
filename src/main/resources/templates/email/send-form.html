@@ -93,6 +93,39 @@
             <td width="70%" height="8"></td>
         </tr>
         <tr>
+            <td width="70%" height="33"><font face="Arial,sans-serif" color="#000000" size="3">Below is your loan details.</font></td>
+        </tr>
+        <tr>
+            <td width="70%" height="8"></td>
+        </tr>
+        <tr>
+            <td width="70%" height="33"><font face="Arial,sans-serif" color="#000000" size="3">•	Purpose: <b>Loan Repayment</b></font></td>
+        </tr>
+        <tr>
+            <td width="70%" height="33"><font face="Arial,sans-serif" color="#000000" size="3">•	Amount:  <b th:text="${paymentDue}"></b></font></td>
+        </tr>
+        <tr>
+            <td width="70%" height="33"><font face="Arial,sans-serif" color="#000000" size="3">•	Frequency: <b>Monthly</b></font></td>
+        </tr>
+        <tr>
+            <td width="70%" height="33"><font face="Arial,sans-serif" color="#000000" size="3">•	Number of Repayments: <b th:text="${tenor}"></b></font></td>
+        </tr>
+        <tr>
+            <td width="70%" height="33"><font face="Arial,sans-serif" color="#000000" size="3">•	Total repayable Amount: <b th:text="${totalRepayable}"></b></font></td>
+        </tr>
+        <tr>
+            <td width="70%" height="33"><font face="Arial,sans-serif" color="#000000" size="3">•	Start Date: <b th:text="${startDate}"></b></font></td>
+        </tr>
+        <tr>
+            <td width="70%" height="33"><font face="Arial,sans-serif" color="#000000" size="3">•	End Date: <b th:text="${endDate}"></b></font></td>
+        </tr>
+        <tr>
+            <td width="70%" height="33"><font face="Arial,sans-serif" color="#000000" size="3">•	Remita Retrieval Reference:  <b th:text="${mandateId}"></b></font></td>
+        </tr>
+        <tr>
+            <td width="70%" height="8"></td>
+        </tr>
+        <tr>
             <td width="70%" height="36"><font face="Arial,sans-serif" color="#000000" size="3">Kindly click the link below to generate a mandate form to take along with you to your bank for automatic activation:</font></td>
         </tr>
         <tr>
@@ -106,7 +139,7 @@
         </tr>
         <tr>
             <td width="70%" height="60">
-                <font face="Arial,sans-serif" color="#000000" size="3">Creditville Finance Limited</font>
+                <font face="Arial,sans-serif" color="#000000" size="3">Creditville Limited</font>
             </td>
         </tr>
         </tbody>
@@ -143,7 +176,7 @@
                 <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">Generate Form Link: <a href="#" th:href="${formLink}"><b th:text="${'Click Here'}">form link</b></a></font>
             </div>
             <div style="text-align: left; height: auto; width: 100%; padding-bottom: 1%; padding-top: 3%; float: left; display: inline-block">
-                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">Creditville Finance Limited</font>
+                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">Creditville Limited</font>
             </div>
         </div>
     </div>

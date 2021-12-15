@@ -103,7 +103,6 @@ public class RemitaServiceImpl implements RemitaService {
             var debitRespObj = cardUtil.getJsonObjResponse(cardUtil.getObjectString(debitResp));
 
             if(debitRespObj.get("statuscode").toString().equalsIgnoreCase("069")){
-                System.out.println("I got here!!");
                 //repay Loan
 //                var loanRepaymentResp = repayLoan(debitDto);
 
