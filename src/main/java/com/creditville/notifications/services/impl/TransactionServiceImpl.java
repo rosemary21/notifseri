@@ -240,7 +240,7 @@ public class TransactionServiceImpl implements TransactionService {
                             RepayLoanReq repayLoanReq = new RepayLoanReq();
                             repayLoanReq.setAccountID(mandate.getLoanId());
                             repayLoanReq.setAmount(amount);
-                            repayLoanReq.setPaymentMethodName(AppConstants.InstafinPaymentMethod.PAYSTACK_PAYMENT_METHOD);
+                            repayLoanReq.setPaymentMethodName(AppConstants.InstafinPaymentMethod.REMITA_PAYMENT_METHOD);
                             repayLoanReq.setTransactionBranchID(AppConstants.InstafinBranch.TRANSACTION_BRANCH_ID);
                             repayLoanReq.setRepaymentDate(existingTransaction.getLastUpdate().toString());
 //                            repayLoanReq.setNotes("Card loan repayment");
