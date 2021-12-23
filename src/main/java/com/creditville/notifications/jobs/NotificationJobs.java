@@ -1,11 +1,13 @@
 package com.creditville.notifications.jobs;
 
+import com.creditville.notifications.disburse.service.LoanDisbursementService;
 import com.creditville.notifications.exceptions.CustomCheckedException;
 import com.creditville.notifications.models.NotificationGeneralConfig;
 import com.creditville.notifications.models.NotificationType;
 import com.creditville.notifications.services.DispatcherService;
 import com.creditville.notifications.services.NotificationConfigService;
 import com.creditville.notifications.services.PartialDebitService;
+import com.creditville.notifications.services.TransferService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,9 +40,12 @@ public class NotificationJobs {
     @Autowired
     private NotificationConfigService notificationConfigService;
 
-      //  @Async("schedulePool1")
+    @Autowired
+    TransferService transferService;
+
+//      //  @Async("schedulePool1")
 //    @Scheduled(cron = "${app.schedule.dueRentalOne}")
-//    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
+//   // @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
 //    public void dueRentalNotification() {
 //        try {
 //            NotificationGeneralConfig dueRentalOneConfig = notificationConfigService.getNotificationGeneralConfig(NotificationType.DUE_RENTAL_ONE.name());
@@ -86,7 +91,18 @@ public class NotificationJobs {
 //        }
 //    }
 //
-//      //  @Async("schedulePool4")
+
+    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
+    public void disburselaon() {
+        try {
+            transferService.disburseLoan();
+        }catch (Exception cce) {
+            cce.printStackTrace();
+            log.info(cce.getMessage());
+        }
+    }
+
+      //  @Async("schedulePool4")
 //    @Scheduled(cron = "${app.schedule.arrears}")
 ////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
 //    public void arrearsNotification() {
