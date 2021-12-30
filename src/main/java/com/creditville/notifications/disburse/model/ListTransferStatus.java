@@ -8,5 +8,5 @@ import java.util.List;
 public class ListTransferStatus {
     private boolean status;
     private String message;
-    private List<ListenRecipientData> data;
+    private ListenRecipientData data;
 }

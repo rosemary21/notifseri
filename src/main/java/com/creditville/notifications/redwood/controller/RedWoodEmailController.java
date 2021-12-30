@@ -21,7 +21,8 @@ public class RedWoodEmailController {
     @CrossOrigin
     @PostMapping("/send")
     public ResponseEntity<?> sendOutEmail(@Valid @RequestBody EmailRequest sendEmailRequest) throws CustomCheckedException {
-        System.out.println("Äbout sending email address"+sendEmailRequest);
+        System.out.println("Äbout sending email address"+sendEmailRequest.getEmail());
+        System.out.println("Äbout sending name"+sendEmailRequest.getName());
         notificationService.sendEmailNotification(sendEmailRequest);
         return new ResponseEntity<>(new SuccessResponse("Mail dispatched successfully"), HttpStatus.OK);
     }

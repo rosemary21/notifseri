@@ -13,6 +13,8 @@ import com.creditville.notifications.services.TransferService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.Unirest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -65,14 +67,11 @@ public class TransferServiceImpl implements TransferService {
         try
         {
             log.info("getting the reference code {}",code);
-
             org.springframework.http.HttpHeaders headers = new HttpHeaders();
-            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(payStackurl+listenStatusurl)
-                    .queryParam("", code);
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(payStackurl+listenStatusurl+code);
             headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
             headers.setBearerAuth(payStackAuth);
             HttpEntity<String> entity = new HttpEntity<String>(headers);
-            log.info("getting the url {}",builder.toUriString());
             ResponseEntity<ListTransferStatus> accountStatus= restTemplate.exchange(builder.toUriString(), HttpMethod.GET,entity,ListTransferStatus.class);
             return accountStatus.getBody();
         }
@@ -92,12 +91,14 @@ public class TransferServiceImpl implements TransferService {
                     if(!(disbursementHistory.getReference().isEmpty())){
                         log.info("getting the reference {}",disbursementHistory.getReference());
                         ListTransferStatus listTransferStatus=ListenTransferStatus(disbursementHistory.getReference());
-                        if(listTransferStatus.getData().get(0).getStatus().equals("success")){
+                        if(listTransferStatus.getData().getStatus().equals("success")){
                             RequestDisburseDto requestDisburseDto=new RequestDisburseDto();
                             requestDisburseDto.setAmount(disbursementHistory.getAmount());
                             requestDisburseDto.setLoanAccount(disbursementHistory.getAccountId());
-                            requestDisburseDto.setFirstRepaymentMethod(disbursementHistory.getFirstRepaymentDate());
+                            log.info("getting the first repayment date {}",disbursementHistory.getFirstRepaymentMethod());
+                            requestDisburseDto.setFirstRepaymentMethod(disbursementHistory.getFirstRepaymentMethod());
                             DisburseLoanResponse disburseLoanResponse =loanDisbursementService.disburseLoanResponse(requestDisburseDto);
+                            log.info("gettig the disburse laon {}",disburseLoanResponse);
                             if(disburseLoanResponse!=null){
                                 PayStackTransfer payStackTransfer=payStackTransferRepository.findByReferenceCode(disbursementHistory.getReference());
                                 payStackTransfer.setTransactionStatus("S");
@@ -132,7 +133,7 @@ public class TransferServiceImpl implements TransferService {
                                 disburseFailNotification(disbursementHistory);
                             }
                         }
-                        if(listTransferStatus.getData().get(0).getStatus().equals("failed")){
+                        if(listTransferStatus.getData().getStatus().equals("failed")){
                             PayStackTransfer payStackTransfer=payStackTransferRepository.findByReferenceCode(disbursementHistory.getReference());
                             payStackTransfer.setTransactionStatus("F");
                             disbursementHistory.setStatusDesc("Payment Failed And Disbursement Not Done");
@@ -172,7 +173,7 @@ public class TransferServiceImpl implements TransferService {
     public void disburseFailNotification(DisbursementHistory disbursementHistory){
         ObjectNode notificationData = new ObjectNode(JsonNodeFactory.instance);
         notificationData.put("toAddress",financeEmail );
-        notificationData.put("loanAmount", disbursementHistory.getPayments().get(0).getAmount());
+        notificationData.put("loanAmount", disbursementHistory.getAmount());
         notificationData.put("loanId", disbursementHistory.getAccountId());
         notificationData.put("clientId", disbursementHistory.getClientId());
         try {
