@@ -89,7 +89,6 @@ public class TransferServiceImpl implements TransferService {
             for(DisbursementHistory disbursementHistory:disbursementHistories){
                 if(disbursementHistory.getReference()!=null){
                     if(!(disbursementHistory.getReference().isEmpty())){
-                        log.info("getting the reference {}",disbursementHistory.getReference());
                         ListTransferStatus listTransferStatus=ListenTransferStatus(disbursementHistory.getReference());
                         if(listTransferStatus.getData().getStatus().equals("success")){
                             RequestDisburseDto requestDisburseDto=new RequestDisburseDto();
