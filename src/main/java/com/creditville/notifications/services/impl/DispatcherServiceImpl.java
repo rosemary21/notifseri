@@ -4,17 +4,12 @@ import com.creditville.notifications.exceptions.CustomCheckedException;
 import com.creditville.notifications.models.*;
 import com.creditville.notifications.models.response.*;
 import com.creditville.notifications.services.*;
-import com.creditville.notifications.sms.dto.RequestDTO;
-import com.creditville.notifications.sms.dto.ResponseDTO;
-import com.creditville.notifications.sms.dto.SMSDTO;
-import com.creditville.notifications.sms.services.SmsService;
 import com.creditville.notifications.utils.CurrencyUtil;
 import com.creditville.notifications.utils.DateUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -36,6 +31,8 @@ public class DispatcherServiceImpl implements DispatcherService {
 
     @Autowired
     private NotificationService notificationService;
+    @Autowired
+    private FinanceManagerService financeManagerService;
 
     @Autowired
     private DateUtil dateUtil;
@@ -96,31 +93,6 @@ public class DispatcherServiceImpl implements DispatcherService {
 
     @Value("${app.remitta.modeOfRepaymentKey}")
     private String remitaModeOfRepaymentKey;
-    @Value("${sms.src}")
-    private String src;
-
-//    @Value("${perform.DueRental.Operation}")
-//    private String performDueRental;
-
-//    @Value("${perform.DueRental.TwoOperation}")
-//    private String performDueRentalTwoOperation;
-//    @Value("${perform.DueRental.ThreeOperation}")
-//    private String performDueRentalThreeOperation;
-
-    @Value("${perform.Arrears.Operation}")
-    private String performArrearsOperation;
-
-    @Value("${perform.PostMaturity.Operation}")
-    private String performPostMaturityOperation;
-
-    @Value("${perform.ChequeLodgement.Operation}")
-    private String performChequeLodgementOperation;
-
-    @Value("${perform.Recurring.Charges.Operation}")
-    private String performRecurringChargesOperation;
-
-    @Value("${send.Out.EidNotification}")
-    private String sendOutEidNotification;
 
     @Autowired
     private CardDetailsService cardDetailsService;
@@ -145,13 +117,14 @@ public class DispatcherServiceImpl implements DispatcherService {
 
     @Autowired
     private NotificationConfigService notificationConfigService;
+    @Autowired
+    private ObjectMapper om;
+
+
+
 
     @Autowired
     private RemitaService remitaService;
-    @Autowired
-    SmsService smsService;
-    @Autowired
-    MessageSource messageSource;
 
     @Override
     public void performDueRentalOperation() {
@@ -159,18 +132,11 @@ public class DispatcherServiceImpl implements DispatcherService {
             Long totalSuccessfulCounter = 0L;
             Long failedCounter = 0L;
             String lastExternalId = "";
-
-//            System.out.println("getting the message "+messageSource.getMessage("perform.DueRental.Operation", null, LocaleContextHolder.getLocale()));
             while (lastExternalId != null) {
                 List<Client> clients = clientService.fetchClients(lastExternalId);
                 if(!clients.isEmpty()) {
                     for(Client client : clients) {
                         try {
-
-                          //  messageSource.getMessage(performDueRental);
-//                            System.out.println("getting thr due rental "+performDueRental);
-                             //System.out.println("getting the message "+messageSource.getMessage("perform.DueRental.Operation", null, LocaleContextHolder.getLocale()));
-
                             CollectionOfficer collectionOfficer = collectionOfficerService.getCollectionOfficer(client.getBranchName());
                             Branch branch = branchService.getBranch(client.getBranchName());
                             if(!branch.getIsEnabled()) {
@@ -184,6 +150,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                                     throw new CustomCheckedException("Customer branch is disabled. Notification would not be sent out");
                                 }
                             }
+                            System.out.println("getting the branch <><><><> "+client.getBranchName());
                             BranchManager branchManager = branchManagerService.getBranchManager(client.getBranchName());
                             LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());
                             List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
@@ -216,6 +183,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                                         if (thisMonthInstalment != null) {
                                             Client customer = lookUpClient.getClient();
                                             LocalDate obligatoryPaymentDate = dateUtil.convertDateToLocalDate(thisMonthInstalment.getObligatoryPaymentDate());
+                                            String valueDate=dateUtil.convertDateToYear(obligatoryPaymentDate);
                                             String toAddress = useDefaultMailInfo ? defaultToAddress : customer.getEmail();
                                             if (!emailService.alreadySentOutEmailToday(
                                                     toAddress,
@@ -244,6 +212,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                     hasBranchManager = false;
                                                 } else {
                                                     brmN = branchManager.getOfficerName();
+                                                    System.out.println("getting the branch manager"+brmN);
                                                     brmE = branchManager.getOfficerEmail();
                                                     brmPh = branchManager.getOfficerPhoneNo();
                                                 }
@@ -255,7 +224,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                     notificationData.put("toAddress", toAddress);
                                                     notificationData.put("customerName", customer.getName());
                                                     notificationData.put("paymentMonth", dateUtil.getMonthByDate(thisMonthInstalment.getObligatoryPaymentDate()));
-                                                    notificationData.put("paymentDate", obligatoryPaymentDate.toString());
+                                                    notificationData.put("paymentDate", valueDate);
                                                     notificationData.put("paymentYear", Integer.toString(dateUtil.getYearByDate(thisMonthInstalment.getObligatoryPaymentDate())));
 //                                                notificationData.put("rentalAmount", thisMonthInstalment.getCurrentState().getPrincipalDueAmount().toString());
                                                     notificationData.put("rentalAmount", currencyUtil.getFormattedCurrency(rentalAmount));
@@ -281,50 +250,6 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                             failedCounter++;
                                                         }
                                                         log.info("Failed to send out mail to: " + customer.getName() + ". See reason: " + cce.getMessage());
-                                                    }
-
-                                                    try
-                                                    {
-                                                        SMSDTO requestDTO=new SMSDTO();
-                                                        ResponseDTO responseDTO=null;
-                                                        RequestDTO request=new RequestDTO();
-                                                        if(customer.getMobile()==null){
-                                                            System.out.println("SMS Cannot Be Sent to The Customer The Mobile is Null for This Customer"+customer);
-                                                        }
-                                                        if(customer.getMobile()!=null){
-                                                            System.out.println("getting the mobile"+customer.getMobile());
-                                                            System.out.println("getting the phone Number "+customer.getMobile().getNumber());
-                                                            System.out.println("getting the sms "+requestDTO.getSms());
-                                                            request.setDest("+2348169696443");
-                                                            request.setSrc(src);
-                                                            request.setText(messageSource.getMessage("perform.DueRental.Operation", null, LocaleContextHolder.getLocale()));
-                                                            requestDTO.setSms(request);
-                                                        }
-                                                        if(customer.getMobile()!=null){
-                                                            log.info("Getting the SMS Single Service Push");
-                                                             responseDTO= smsService.sendSingleSms(requestDTO);
-
-                                                        }
-                                                        System.out.println("getting the response dto"+responseDTO);
-                                                        if(responseDTO==null){
-                                                            log.info("SMS Cannot Be Sent To The Customer As a Result of No Mobile");
-                                                        }
-                                                        else{
-                                                            if(!(responseDTO.getErrorCode().equalsIgnoreCase("0"))){
-                                                                log.info("Sms did not send reason"+ responseDTO.getErrorMessage()+"The ticket id"+responseDTO.getTicketId() +"For customer"+customer.getName()+"Date Transaction was sent "+new Date());
-                                                            }
-                                                            if(responseDTO.getErrorCode().equalsIgnoreCase("0")){
-                                                                log.info("Sms sent the reason"+ responseDTO.getErrorMessage()+"Response status"+ responseDTO.getStatus()+"Response TicketId"+responseDTO.getTicketId() +"For customer"+" "+customer.getName() +"Date of transaction"+new Date());
-                                                            }
-                                                            log.info("sms sent to the customer "+responseDTO.getStatus());
-                                                        }
-                                                    } catch (Exception cce) {
-                                                        cce.printStackTrace();
-//                                                    failedCounter++;
-                                                        if (!emailService.emailAlreadyFailed(obligatoryPaymentDate, toAddress, doRentalSubject)) {
-                                                            failedCounter++;
-                                                        }
-                                                        log.info("Failed to send out sms to: " + customer.getName() + ". See reason: " + cce.getMessage());
                                                     }
                                                 }
                                             }
@@ -377,7 +302,6 @@ public class DispatcherServiceImpl implements DispatcherService {
                             }
                             BranchManager branchManager = branchManagerService.getBranchManager(client.getBranchName());
                             LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());
-                            Client customer = lookUpClient.getClient();
                             List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
                                     .stream()
 //                                .filter(cl -> !cl.getStatus().equalsIgnoreCase("CLOSED"))
@@ -406,7 +330,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                                         LookUpLoanInstalment fortyEightHoursInstalment = !lookUpLoanInstalments.isEmpty() ? lookUpLoanInstalments.get(0) : null;
                                         if (fortyEightHoursInstalment != null) {
 //                                            System.out.println("Forty Eight: " + fortyEightHoursInstalment.getObligatoryPaymentDate());
-
+                                            Client customer = lookUpClient.getClient();
                                             LocalDate obligatoryPaymentDate = dateUtil.convertDateToLocalDate(fortyEightHoursInstalment.getObligatoryPaymentDate());
                                             String toAddress = useDefaultMailInfo ? defaultToAddress : customer.getEmail();
                                             if (!emailService.alreadySentOutEmailToday(
@@ -482,23 +406,10 @@ public class DispatcherServiceImpl implements DispatcherService {
                                 }
 //                            }
                             }
-                            SMSDTO requestDTO=new SMSDTO();
-                            requestDTO.getSms().setDest(customer.getMobile().getNumber());
-                            requestDTO.getSms().setText(messageSource.getMessage("perform.DueRental.TwoOperation=perform Due Rental Two Operation", null, LocaleContextHolder.getLocale()));
-                            ResponseDTO responseDTO= smsService.sendSingleSms(requestDTO);
-                            if(!(responseDTO.getErrorCode().equalsIgnoreCase("0"))){
-                                log.info("Sms did not send reason"+ responseDTO.getErrorMessage()+"The ticket id"+responseDTO.getTicketId() +"For customer"+customer.getName());
-                            }
-                            if(responseDTO.getErrorCode().equalsIgnoreCase("0")){
-                                log.info("Sms sent the reason"+ responseDTO.getErrorMessage()+"Response status"+ responseDTO.getStatus()+"Response TicketId"+responseDTO.getTicketId() +"For customer"+" "+customer.getName() +"Date of transaction"+new Date());
-                            }
-                            log.info("sms sent to the customer "+responseDTO.getStatus());
-                        }
-                        catch (Exception ex) {
+                        }catch (Exception ex) {
                             ex.printStackTrace();
 //                            failedCounter++;
                         }
-
                     }
                     Client lastClient = clients.get((clients.size() - 1));
                     lastExternalId = lastClient.getExternalID();
@@ -539,7 +450,6 @@ public class DispatcherServiceImpl implements DispatcherService {
                             }
                             BranchManager branchManager = branchManagerService.getBranchManager(client.getBranchName());
                             LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());
-                            Client customer = lookUpClient.getClient();
                             List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
                                     .stream()
 //                                .filter(cl -> !cl.getStatus().equalsIgnoreCase("CLOSED"))
@@ -568,7 +478,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                                         LookUpLoanInstalment todayInstalment = !lookUpLoanInstalments.isEmpty() ? lookUpLoanInstalments.get(0) : null;
                                         if (todayInstalment != null) {
 //                                            System.out.println("Forty Eight: " + todayInstalment.getObligatoryPaymentDate());
-
+                                            Client customer = lookUpClient.getClient();
                                             LocalDate obligatoryPaymentDate = dateUtil.convertDateToLocalDate(todayInstalment.getObligatoryPaymentDate());
                                             String toAddress = useDefaultMailInfo ? defaultToAddress : customer.getEmail();
                                             if (!emailService.alreadySentOutEmailToday(
@@ -644,20 +554,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                                 }
 //                            }
                             }
-                            SMSDTO requestDTO=new SMSDTO();
-                            requestDTO.getSms().setDest(customer.getMobile().getNumber());
-                            requestDTO.getSms().setText(messageSource.getMessage("perform.DueRental.ThreeOperation", null, LocaleContextHolder.getLocale()));
-                            ResponseDTO responseDTO= smsService.sendSingleSms(requestDTO);
-                            if(!(responseDTO.getErrorCode().equalsIgnoreCase("0"))){
-                                log.info("Sms did not send reason"+ responseDTO.getErrorMessage()+"The ticket id"+responseDTO.getTicketId() +"For customer"+customer.getName());
-                            }
-                            if(responseDTO.getErrorCode().equalsIgnoreCase("0")){
-                                log.info("Sms sent the reason"+ responseDTO.getErrorMessage()+"Response status"+ responseDTO.getStatus()+"Response TicketId"+responseDTO.getTicketId() +"For customer"+" "+customer.getName() +"Date of transaction"+new Date());
-                            }
-                            log.info("sms sent to the customer "+responseDTO.getStatus());
-                        }
-
-                        catch (Exception ex) {
+                        }catch (Exception ex) {
                             ex.printStackTrace();
 //                            failedCounter++;
                         }
@@ -688,9 +585,9 @@ public class DispatcherServiceImpl implements DispatcherService {
                         try {
 //                            CollectionOfficer collectionOfficer = collectionOfficerService.getCollectionOfficer(client.getBranchName());
                             RecoveryOfficer recoveryOfficer = recoveryOfficerService.getRecoveryOfficer(client.getBranchName());
-                            log.info("getting the client");
+                            System.out.println("getting the branch name "+client.getBranchName());
+                            FinanceManager financeManager=financeManagerService.getBraManager(client.getBranchName());
                             Branch branch = branchService.getBranch(client.getBranchName());
-                            log.info("getting the branch{}",branch.getIsEnabled());
                             if(!branch.getIsEnabled()) {
                                 log.info("Branch {} is disabled from receiving notifications. Hence, notification would not be sent out for client with ID {}", client.getBranchName(), client.getExternalID());
                                 throw new CustomCheckedException("Customer branch is disabled. Notification would not be sent out");
@@ -702,9 +599,9 @@ public class DispatcherServiceImpl implements DispatcherService {
                                     throw new CustomCheckedException("Customer branch is disabled. Notification would not be sent out");
                                 }
                             }
+                            System.out.println("getting the client value"+client.getBranchName());
                             BranchManager branchManager = branchManagerService.getBranchManager(client.getBranchName());
                             LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());
-                            Client customer = lookUpClient.getClient();
                             List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
                                     .stream()
 //                                .filter(cl -> !cl.getStatus().equalsIgnoreCase("CLOSED"))
@@ -741,6 +638,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                 noOfArrears++;
                                             }
 
+                                            Client customer = lookUpClient.getClient();
                                             String toAddress = useDefaultMailInfo ? defaultToAddress : customer.getEmail();
                                             if (!emailService.alreadySentOutEmailToday(
                                                     toAddress,
@@ -773,6 +671,9 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                 String brmN = "";
                                                 String brmE = "";
                                                 String brmPh = "";
+                                                String finEm="";
+                                                String finNam="";
+                                                String finPh="";
                                                 Boolean hasBranchManager = true;
                                                 if (branchManager == null) {
                                                     hasBranchManager = false;
@@ -781,27 +682,39 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                     brmE = branchManager.getOfficerEmail();
                                                     brmPh = branchManager.getOfficerPhoneNo();
                                                 }
+                                                finEm=financeManager.getOfficerEmail();
+                                                finNam=financeManager.getOfficerName();
+                                                finPh=financeManager.getOfficerPhoneNo();
                                                 if(valueOfArrears.compareTo(BigDecimal.ZERO) > 0) {
-
                                                     notificationData.put("toName", useDefaultMailInfo ? defaultToName : customer.getName());
-                                                    notificationData.put("toAddress", "chioma.chukelu@creditville.ng");
+                                                    notificationData.put("toAddress", toAddress);
                                                     notificationData.put("customerName", customer.getName());
                                                     notificationData.put("noOfArrears", String.valueOf(noOfArrears));
 //                                                  notificationData.put("valueOfArrears", valueOfArrears.toString());
                                                     notificationData.put("valueOfArrears", currencyUtil.getFormattedCurrency(valueOfArrears));
                                                     notificationData.put("collectionOfficer", coN);
                                                     notificationData.put("collectionPhoneNumber", coP);
-                                                    notificationData.put("collectionEmail", "chioma.chukelu@creditville.ng");
+                                                    notificationData.put("collectionEmail", coE);
                                                     notificationData.put("hasBranchManager", hasBranchManager.toString());
                                                     notificationData.put("branchManagerName", brmN);
                                                     notificationData.put("branchManagerPhoneNumber", brmPh);
-                                                    notificationData.put("branchManagerEmail", "chioma.chukelu@creditville.ng");
+                                                    notificationData.put("branchManagerEmail", brmE);
                                                     notificationData.put("companyName", companyName);
                                                     notificationData.put("loanId", clientLoan.getId());
-                                                    notificationData.put("RecoveryOfficer",coN);
                                                     notificationData.put("accountName", accountName);
                                                     notificationData.put("accountNumber", accountNumber);
                                                     notificationData.put("bankName", bankName);
+                                                    notificationData.put("recoveryOfficer", coN);
+                                                    notificationData.put("PhoneNo", coP);
+                                                    notificationData.put("recoveryEmail", coE);
+                                                    notificationData.put("branchManager", brmN);
+                                                    notificationData.put("bMPhoneNo", brmPh);
+                                                    notificationData.put("bMEmail", brmE);
+                                                    notificationData.put("financeEmail",finEm);
+                                                    notificationData.put("financeName",finNam);
+                                                    notificationData.put("financePhoneNo",finPh);
+
+
                                                     totalSuccessfulCounter++;
                                                     try {
                                                         notificationService.sendEmailNotification(arrearsSubject, notificationData, "email/arrears");
@@ -820,18 +733,6 @@ public class DispatcherServiceImpl implements DispatcherService {
                                     }
                                 }
                             }
-                            SMSDTO requestDTO=new SMSDTO();
-                            requestDTO.getSms().setDest(customer.getMobile().getNumber());
-
-                            requestDTO.getSms().setText(messageSource.getMessage("perform.Arrears.Operation", null, LocaleContextHolder.getLocale()));
-                            ResponseDTO responseDTO= smsService.sendSingleSms(requestDTO);
-                            if(!(responseDTO.getErrorCode().equalsIgnoreCase("0"))){
-                                log.info("Sms did not send reason"+ responseDTO.getErrorMessage()+"The ticket id"+responseDTO.getTicketId() +"For customer"+customer.getName());
-                            }
-                            if(responseDTO.getErrorCode().equalsIgnoreCase("0")){
-                                log.info("Sms sent the reason"+ responseDTO.getErrorMessage()+"Response status"+ responseDTO.getStatus()+"Response TicketId"+responseDTO.getTicketId() +"For customer"+" "+customer.getName() +"Date of transaction"+new Date());
-                            }
-                            log.info("sms sent to the customer "+responseDTO.getStatus());
                         }catch (Exception ex) {
                             ex.printStackTrace();
 //                            failedCounter++;
@@ -862,6 +763,11 @@ public class DispatcherServiceImpl implements DispatcherService {
                     for (Client client : clients) {
                         try {
                             CollectionOfficer collectionOfficer = collectionOfficerService.getCollectionOfficer(client.getBranchName());
+                            System.out.println("getting the branch name "+client.getBranchName());
+                            RecoveryOfficer recoveryOfficer=recoveryOfficerService.getRecoveryOfficer(client.getBranchName());
+                            BranchManager branchManager=branchManagerService.getBranchManager(client.getBranchName());
+                            FinanceManager financeManager=financeManagerService.getBraManager(client.getBranchName());
+                            log.info("getting the branch name {}",client.getBranchName());
                             Branch branch = branchService.getBranch(client.getBranchName());
                             if(!branch.getIsEnabled()) {
                                 log.info("Branch {} is disabled from receiving notifications. Hence, notification would not be sent out for client with ID {}", client.getBranchName(), client.getExternalID());
@@ -875,7 +781,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                                 }
                             }
                             LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());
-                            Client customer = lookUpClient.getClient();
+//                            LookUpClient lookUpClient = clientService.lookupClient("0000001006");
                             List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
                                     .stream()
 //                                .filter(cl -> !cl.getStatus().equalsIgnoreCase("CLOSED"))
@@ -886,7 +792,10 @@ public class DispatcherServiceImpl implements DispatcherService {
                                 LookUpClientLoan clientLoan = openClientLoanList.get(0);
 //                            System.out.println("Open client loan is: " + clientLoan.getId() + ". Status: " + clientLoan.getStatus());
                                 LookUpLoanAccount lookUpLoanAccount = clientService.lookupLoanAccount(clientLoan.getId());
+//                                LookUpLoanAccount lookUpLoanAccount = clientService.lookupLoanAccount("1000001006");
+                                System.out.println("lookUpLoanAccount init: "+om.writerWithDefaultPrettyPrinter().writeValueAsString(lookUpLoanAccount));
                                 List<LookUpLoanInstalment> loanInstalments = lookUpLoanAccount.getLoanAccount().getInstalments();
+                                System.out.println("loanInstalments is: "+om.writerWithDefaultPrettyPrinter().writeValueAsString(loanInstalments));
                                 if (!loanInstalments.isEmpty()) {
                                     List<LookUpLoanInstalment> loanInstalmentsGtToday = loanInstalments
                                             .stream()
@@ -897,11 +806,13 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                 .stream()
                                                 .filter(lookUpLoanInstalment -> dateUtil.isPaymentDateLtOrEqToday(lookUpLoanInstalment.getObligatoryPaymentDate()))
                                                 .collect(Collectors.toList());
+                                        System.out.println("loanInstalmentsLtOrEqToday is: "+om.writerWithDefaultPrettyPrinter().writeValueAsString(loanInstalmentsLtOrEqToday));
                                         if (!loanInstalmentsLtOrEqToday.isEmpty()) {
                                             LookUpLoanInstalment latestInstalment = loanInstalmentsLtOrEqToday.get((loanInstalmentsLtOrEqToday.size() - 1));
+                                            System.out.println("latestInstalment is.: "+om.writerWithDefaultPrettyPrinter().writeValueAsString(latestInstalment));
                                             if (latestInstalment.getCurrentState().getPrincipalDueAmount().compareTo(BigDecimal.ZERO) > 0) {
 //                                    Customer is owing but maturity date exceeded...
-
+                                                Client customer = lookUpClient.getClient();
                                                 LocalDate obligatoryPaymentDate = dateUtil.convertDateToLocalDate(latestInstalment.getObligatoryPaymentDate());
                                                 String toAddress = useDefaultMailInfo ? defaultToAddress : customer.getEmail();
                                                 if (!emailService.alreadySentOutEmailToday(
@@ -914,6 +825,15 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                     String coN;
                                                     String coE;
                                                     String coP;
+                                                    String roN="";
+                                                    String roE="";
+                                                    String roP="";
+                                                    String boN="";
+                                                    String boE="";
+                                                    String boP="";
+                                                    String FiN="";
+                                                    String FiE="";
+                                                    String FiP="";
                                                     if (collectionOfficer == null) {
                                                         coN = defaultCollectionOfficer;
                                                         coE = collectionEmail;
@@ -923,6 +843,25 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                         coE = collectionOfficer.getOfficerEmail();
                                                         coP = collectionOfficer.getOfficerPhoneNo();
                                                     }
+                                                    System.out.println("Getting the recovery officer "+recoveryOfficer);
+                                                    System.out.println("Getting the branch manager "+branchManager);
+                                                    if(recoveryOfficer!=null){
+                                                        roN=recoveryOfficer.getOfficerName();
+                                                        roE=recoveryOfficer.getOfficerEmail();
+                                                        roP=recoveryOfficer.getOfficerPhoneNo();
+
+                                                    }
+                                                    if(branchManager!=null){
+                                                        boN=branchManager.getOfficerName();
+                                                        boE=branchManager.getOfficerEmail();
+                                                        boP=branchManager.getOfficerPhoneNo();
+                                                    }
+                                                    if(financeManager!=null){
+                                                        FiN=financeManager.getOfficerName();
+                                                        FiE=financeManager.getOfficerEmail();
+                                                        FiP=financeManager.getOfficerPhoneNo();
+                                                    }
+
                                                     BigDecimal outstandingBalance = latestInstalment.getCurrentState().getPrincipalDueAmount().add(latestInstalment.getCurrentState().getInterestDueAmount());
                                                     if(latestInstalment.getCurrentState().getFeeDueAmount() != null)
                                                         outstandingBalance = outstandingBalance.add(latestInstalment.getCurrentState().getFeeDueAmount());
@@ -930,12 +869,24 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                         notificationData.put("toName", useDefaultMailInfo ? defaultToName : customer.getName());
                                                         notificationData.put("toAddress", toAddress);
                                                         notificationData.put("customerName", customer.getName());
-                                                        notificationData.put("maturityDate", dateUtil.convertDateToLocalDate(latestInstalment.getObligatoryPaymentDate()).toString());
+                                                        notificationData.put("maturityDate", dateUtil.convertLocalDateToString(latestInstalment.getObligatoryPaymentDate()));
 //                                                notificationData.put("outstandingBalance", latestInstalment.getCurrentState().getPrincipalDueAmount().toString());
-                                                        notificationData.put("outstandingBalance", currencyUtil.getFormattedCurrency(outstandingBalance));
+                                                        System.out.println("Getting the outstanding balance {}"+outstandingBalance);
+//                                                        notificationData.put("outstandingBalance", currencyUtil.getFormattedCurrency(outstandingBalance));
+                                                        notificationData.put("outstandingBalance",currencyUtil.getFormattedCurrency(new BigDecimal(lookUpLoanAccount.getLoanAccount().getMaximumRepayableAsOfToday())));
                                                         notificationData.put("collectionOfficer", coN);
                                                         notificationData.put("collectionPhoneNumber", coP);
                                                         notificationData.put("collectionEmail", coE);
+                                                        notificationData.put("branchEmail", boE);
+                                                        notificationData.put("branchPhoneNumber", boP);
+                                                        notificationData.put("branchManager", boN);
+                                                        notificationData.put("financeName",FiN);
+                                                        notificationData.put("financePhoneNo", FiP);
+                                                        notificationData.put("financeEmail", FiE);
+                                                        notificationData.put("recoveryEmail", roE);
+                                                        notificationData.put("recoveryPhoneNumber", roP);
+                                                        notificationData.put("recoveryOfficer", roN);
+                                                        notificationData.put("branchEmail", coE);
                                                         notificationData.put("companyName", companyName);
                                                         notificationData.put("loanId", clientLoan.getId());
                                                         notificationData.put("accountName", accountName);
@@ -960,18 +911,6 @@ public class DispatcherServiceImpl implements DispatcherService {
                                     }
                                 }
                             }
-                            SMSDTO requestDTO=new SMSDTO();
-                            requestDTO.getSms().setDest(customer.getMobile().getNumber());
-                            requestDTO.getSms().setText(messageSource.getMessage("perform.PostMaturity.Operation", null, LocaleContextHolder.getLocale()));
-
-                            ResponseDTO responseDTO= smsService.sendSingleSms(requestDTO);
-                            if(!(responseDTO.getErrorCode().equalsIgnoreCase("0"))){
-                                log.info("Sms did not send reason"+ responseDTO.getErrorMessage()+"The ticket id"+responseDTO.getTicketId() +"For customer"+customer.getName());
-                            }
-                            if(responseDTO.getErrorCode().equalsIgnoreCase("0")){
-                                log.info("Sms sent the reason"+ responseDTO.getErrorMessage()+"Response status"+ responseDTO.getStatus()+"Response TicketId"+responseDTO.getTicketId() +"For customer"+" "+customer.getName() +"Date of transaction"+new Date());
-                            }
-                            log.info("sms sent to the customer "+responseDTO.getStatus());
                         }catch (Exception ex) {
                             ex.printStackTrace();
 //                            failedCounter++;
@@ -1015,7 +954,6 @@ public class DispatcherServiceImpl implements DispatcherService {
                                 }
                             }
                             LookUpClient lookUpClient = clientService.lookupClient(client.getExternalID());
-                            Client customer = lookUpClient.getClient();
                             List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
                                     .stream()
 //                                .filter(cl -> !cl.getStatus().equalsIgnoreCase("CLOSED"))
@@ -1043,6 +981,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                     .collect(Collectors.toList());
                                             LookUpLoanInstalment thisMonthInstalment = !lookUpLoanInstalments.isEmpty() ? lookUpLoanInstalments.get(0) : null;
                                             if (thisMonthInstalment != null) {
+                                                Client customer = lookUpClient.getClient();
                                                 LocalDate obligatoryPaymentDate = dateUtil.convertDateToLocalDate(thisMonthInstalment.getObligatoryPaymentDate());
                                                 String toAddress = useDefaultMailInfo ? defaultToAddress : customer.getEmail();
                                                 if (!emailService.alreadySentOutEmailToday(
@@ -1101,17 +1040,6 @@ public class DispatcherServiceImpl implements DispatcherService {
                                     }
                                 }
                             }
-                            SMSDTO requestDTO=new SMSDTO();
-                            requestDTO.getSms().setDest(customer.getMobile().getNumber());
-                            requestDTO.getSms().setText(messageSource.getMessage("perform.ChequeLodgement.Operation", null, LocaleContextHolder.getLocale()));
-                            ResponseDTO responseDTO= smsService.sendSingleSms(requestDTO);
-                            if(!(responseDTO.getErrorCode().equalsIgnoreCase("0"))){
-                                log.info("Sms did not send reason"+ responseDTO.getErrorMessage()+"The ticket id"+responseDTO.getTicketId() +"For customer"+customer.getName());
-                            }
-                            if(responseDTO.getErrorCode().equalsIgnoreCase("0")){
-                                log.info("Sms sent the reason"+ responseDTO.getErrorMessage()+"Response status"+ responseDTO.getStatus()+"Response TicketId"+responseDTO.getTicketId() +"For customer"+" "+customer.getName() +"Date of transaction"+new Date());
-                            }
-                            log.info("sms sent to the customer "+responseDTO.getStatus());
                         }catch (Exception ex) {
                             ex.printStackTrace();
                             failedCounter++;
@@ -1198,7 +1126,6 @@ public class DispatcherServiceImpl implements DispatcherService {
                     for (CardDetails cardDetails : tokenizedCardDetails) {
                         try {
                             LookUpClient lookUpClient = clientService.lookupClient(cardDetails.getClientId());
-                            Client customer = lookUpClient.getClient();
                             String clientStatus = lookUpClient.getClient().getClientStatus();
                             if (clientStatus.equals("ACTIVE") || clientStatus.contains("ARREARS")) {
                                 List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
@@ -1223,7 +1150,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                     .collect(Collectors.toList());
                                             if (!loanInstalmentsLtOrEqToday.isEmpty()) {
                                                 for (LookUpLoanInstalment dueDateInstalment : loanInstalmentsLtOrEqToday) {
-
+                                                    Client customer = lookUpClient.getClient();
                                                     LocalDate obligatoryPaymentDate = dateUtil.convertDateToLocalDate(dueDateInstalment.getObligatoryPaymentDate());
                                                     String toAddress = customer.getEmail();
                                                     var principalDueAmount = dueDateInstalment.getCurrentState().getPrincipalDueAmount();
@@ -1261,7 +1188,6 @@ public class DispatcherServiceImpl implements DispatcherService {
                                     } else log.info("Mode of repayment is not known..." + modeOfRepayment);
                                 }
                             }
-
                         }catch (Exception ex) {
                             ex.printStackTrace();
                             log.info("An error occurred for client with id: ".toUpperCase() + cardDetails.getClientId());
@@ -1281,18 +1207,20 @@ public class DispatcherServiceImpl implements DispatcherService {
     public void performRecurringMandateDebitInstruction() {
         try {
             Integer pageNumber = 0;
-
+            log.info("GETTING THE PAGE NUMBER OF ZERO");
             while (pageNumber != null) {
+                log.info("GETTING THE PAGE NUMBER {}",pageNumber);
                 List<Mandates> mandates = remitaService.getAllActiveMandates(pageNumber, 100);
+                log.info("GETTING THE MANDATE FOR REMITTA SERVICE {}",mandates);
                 if (!mandates.isEmpty()) {
                     for (Mandates m : mandates) {
                         try {
                             LookUpClient lookUpClient = clientService.lookupClient(m.getClientId());
                             String clientStatus = lookUpClient.getClient().getClientStatus();
-                            if (clientStatus.equals("ACTIVE") || clientStatus.contains("ARREARS")) {
+                            if (clientStatus.equals("ACTIVE") || clientStatus.contains("IN_ARREARS")) {
                                 List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
                                         .stream()
-                                        .filter(cl -> cl.getStatus().equalsIgnoreCase("ACTIVE") || cl.getStatus().contains("ARREARS"))
+                                        .filter(cl -> cl.getStatus().equalsIgnoreCase("ACTIVE") || cl.getStatus().contains("IN_ARREARS"))
                                         .collect(Collectors.toList());
 //                Since there can be only one open client loan at a time, check if the list is empty, if not, get the first element...
                                 if (!openClientLoanList.isEmpty()) {
@@ -1303,11 +1231,13 @@ public class DispatcherServiceImpl implements DispatcherService {
                                             lookUpLoanAccount.getLoanAccount().getOptionalFields().getModeOfRepayment();
                                     if (modeOfRepayment.equalsIgnoreCase(remitaModeOfRepaymentKey)) {
                                         List<LookUpLoanInstalment> loanInstalments = lookUpLoanAccount.getLoanAccount().getInstalments();
+                                        log.info("GETTING THE LOAN INSTALLMENT {}",loanInstalments);
                                         if (!loanInstalments.isEmpty()) {
                                             List<LookUpLoanInstalment> loanInstalmentsLtOrEqToday = loanInstalments
                                                     .stream()
                                                     .filter(lookUpLoanInstalment -> dateUtil.isPaymentDateLtOrEqToday(lookUpLoanInstalment.getObligatoryPaymentDate()))
                                                     .collect(Collectors.toList());
+                                            log.info("GETTING  LOAN INSTALLMENT LATE TO TODAY {}",loanInstalmentsLtOrEqToday);
                                             if (!loanInstalmentsLtOrEqToday.isEmpty()) {
                                                 for (LookUpLoanInstalment dueDateInstalment : loanInstalmentsLtOrEqToday) {
                                                     Client customer = lookUpClient.getClient();
@@ -1450,7 +1380,6 @@ public class DispatcherServiceImpl implements DispatcherService {
                 notificationData.put("totalFailedCount", String.valueOf(monitoredEvent.getFailedCount()));
                 notificationData.put("operationName", monitoredEvent.getOperationName());
                 notificationService.sendEmailNotification(dispatchedMailsSubject, notificationData, "email/dispatched_mails");
-
             }
         }
     }
@@ -1491,17 +1420,6 @@ public class DispatcherServiceImpl implements DispatcherService {
                                 totalSuccessfulCounter++;
                                 try {
                                     notificationService.sendEmailNotification("Out of Office Notification", notificationData, "email/eid_holiday");
-                                    SMSDTO requestDTO=new SMSDTO();
-                                    requestDTO.getSms().setDest(customer.getMobile().getNumber());
-                                    requestDTO.getSms().setText(messageSource.getMessage("send.Out.EidNotification", null, LocaleContextHolder.getLocale()));
-                                    ResponseDTO responseDTO= smsService.sendSingleSms(requestDTO);
-                                    if(!(responseDTO.getErrorCode().equalsIgnoreCase("0"))){
-                                        log.info("Sms did not send reason"+ responseDTO.getErrorMessage()+"The ticket id"+responseDTO.getTicketId() +"For customer"+customer.getName());
-                                    }
-                                    if(responseDTO.getErrorCode().equalsIgnoreCase("0")){
-                                        log.info("Sms sent the reason"+ responseDTO.getErrorMessage()+"Response status"+ responseDTO.getStatus()+"Response TicketId"+responseDTO.getTicketId() +"For customer"+" "+customer.getName() +"Date of transaction"+new Date());
-                                    }
-                                    log.info("sms sent to the customer "+responseDTO.getStatus());
                                 } catch (CustomCheckedException cce) {
                                     cce.printStackTrace();
                                     if(!emailService.emailAlreadyFailed(LocalDate.now(), toAddress, "Out of Office Notification")) {

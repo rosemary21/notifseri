@@ -22,9 +22,13 @@ public class EmailController {
 
     @PostMapping("/send")
     public ResponseEntity<?> sendOutEmail(@Valid @RequestBody SendEmailRequest sendEmailRequest) throws CustomCheckedException {
+        System.out.println("Äbout sending email address");
         notificationService.sendEmailNotification(sendEmailRequest);
         return new ResponseEntity<>(new SuccessResponse("Mail dispatched successfully"), HttpStatus.OK);
     }
+
+
+
 
     @PostMapping("/send-broadcast-message")
     public ResponseEntity<?> sendOutBroadcastEmail(@Valid @RequestBody SendEmailRequest sendEmailRequest) throws CustomCheckedException {

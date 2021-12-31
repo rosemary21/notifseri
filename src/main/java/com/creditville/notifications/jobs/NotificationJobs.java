@@ -6,10 +6,10 @@ import com.creditville.notifications.models.NotificationType;
 import com.creditville.notifications.services.DispatcherService;
 import com.creditville.notifications.services.NotificationConfigService;
 import com.creditville.notifications.services.PartialDebitService;
+import com.creditville.notifications.services.TransferService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -19,9 +19,10 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class NotificationJobs {
+
     @Autowired
     private DispatcherService dispatcherService;
-    
+
     @Value("${app.schedule.recurringCharges.enabled}")
     private Boolean recurringChargesEnabled;
 
@@ -37,9 +38,12 @@ public class NotificationJobs {
     @Autowired
     private NotificationConfigService notificationConfigService;
 
-////    @Async("schedulePool1")
+    @Autowired
+    TransferService transferService;
+
+      //  @Async("schedulePool1")
 //    @Scheduled(cron = "${app.schedule.dueRentalOne}")
-////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
+//   // @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
 //    public void dueRentalNotification() {
 //        try {
 //            NotificationGeneralConfig dueRentalOneConfig = notificationConfigService.getNotificationGeneralConfig(NotificationType.DUE_RENTAL_ONE.name());
@@ -53,7 +57,7 @@ public class NotificationJobs {
 //        }
 //    }
 //
-//    @Async("schedulePool2")
+//      //  @Async("schedulePool2")
 //    @Scheduled(cron = "${app.schedule.dueRentalTwo}")
 ////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
 //    public void dueRentalNotification2() {
@@ -69,7 +73,7 @@ public class NotificationJobs {
 //        }
 //    }
 //
-////    @Async("schedulePool3")
+//       // @Async("schedulePool3")
 //    @Scheduled(cron = "${app.schedule.dueRentalThree}")
 ////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
 //    public void dueRentalNotification3() {
@@ -84,24 +88,35 @@ public class NotificationJobs {
 //            log.info(cce.getMessage());
 //        }
 //    }
+//
 
-//    @Async("schedulePool4")
-    @Scheduled(cron = "${app.schedule.arrears}")
 //    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
-    public void arrearsNotification() {
-        try {
-            NotificationGeneralConfig arrearsConfig = notificationConfigService.getNotificationGeneralConfig(NotificationType.ARREARS.name());
-            if(arrearsConfig.getIsEnabled())
-                dispatcherService.performArrearsOperation();
-            else
-                log.info("Schedule for arrears has reached it's schedule time but notification is disabled from configuration".toUpperCase());
-        }catch (CustomCheckedException cce) {
-            cce.printStackTrace();
-            log.info(cce.getMessage());
-        }
-    }
+//    public void disburselaon() {
+//        try {
+//            transferService.disburseLoan();
+//        }catch (Exception cce) {
+//            cce.printStackTrace();
+//            log.info(cce.getMessage());
+//        }
+//    }
 
-//    @Async("schedulePool5")
+//       // @Async("schedulePool4")
+//    @Scheduled(cron = "${app.schedule.arrears}")
+////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
+//    public void arrearsNotification() {
+//        try {
+//            NotificationGeneralConfig arrearsConfig = notificationConfigService.getNotificationGeneralConfig(NotificationType.ARREARS.name());
+//            if(arrearsConfig.getIsEnabled())
+//                dispatcherService.performArrearsOperation();
+//            else
+//                log.info("Schedule for arrears has reached it's schedule time but notification is disabled from configuration".toUpperCase());
+//        }catch (CustomCheckedException cce) {
+//            cce.printStackTrace();
+//            log.info(cce.getMessage());
+//        }
+//    }
+//
+//       // @Async("schedulePool5")
 //    @Scheduled(cron = "${app.schedule.postMaturity}")
 ////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
 //    public void postMaturityNotification() {
@@ -117,7 +132,7 @@ public class NotificationJobs {
 //        }
 //    }
 
-////    @Async("schedulePool6")
+//    //    @Async("schedulePool6")
 //    @Scheduled(cron = "${app.schedule.chequeLodgement}")
 ////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
 //    public void chequeLodgementNotification() {
@@ -133,30 +148,30 @@ public class NotificationJobs {
 //        }
 //    }
 //
+    @Scheduled(cron = "${app.schedule.recurringCharges}")
+//    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
+    public void recurringChargesNotification() {
+        if(recurringChargesEnabled)
+            dispatcherService.performRecurringChargesOperation();
+        else log.info("Schedule for recurring charges has reached it's schedule time but notification is disabled from configuration".toUpperCase());
+    }
+
+    @Scheduled(cron = "${app.schedule.partialDebit}")
+//    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
+    public void partialDebitOperation() {
+        if(partialDebitEnabled)
+            partialDebitService.performPartialDebitOp();
+        else log.info("Schedule for partial debit operation has reached it's schedule time but is operation is disabled from configuration".toUpperCase());
+    }
+
 //    @Scheduled(cron = "${app.schedule.recurringCharges}")
-////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
-//    public void recurringChargesNotification() {
-//        if(recurringChargesEnabled)
-//            dispatcherService.performRecurringChargesOperation();
-//        else log.info("Schedule for recurring charges has reached it's schedule time but notification is disabled from configuration".toUpperCase());
-//    }
-//
-//    @Scheduled(cron = "${app.schedule.partialDebit}")
-////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
-//    public void partialDebitOperation() {
-//        if(partialDebitEnabled)
-//            partialDebitService.performPartialDebitOp();
-//        else log.info("Schedule for partial debit operation has reached it's schedule time but is operation is disabled from configuration".toUpperCase());
-//    }
-//
-//    @Scheduled(cron = "${app.schedule.recurringCharges}")
-////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
-//    public void mandateDebitInstruction() {
-//        if(mandateDebitInstructionEnabled)
-//            dispatcherService.performRecurringMandateDebitInstruction();
-//        else log.info("Schedule for recurring mandate charge (remita) has reached it's schedule time but notification is disabled from configuration".toUpperCase());
-//    }
-//
+    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
+    public void mandateDebitInstruction() {
+        if(mandateDebitInstructionEnabled)
+            dispatcherService.performRecurringMandateDebitInstruction();
+        else log.info("Schedule for recurring mandate charge (remita) has reached it's schedule time but notification is disabled from configuration".toUpperCase());
+    }
+
 //    @Scheduled(cron = "${app.schedule.notifyTeam}")
 ////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
 //    public void notifyTeamOperation() {
@@ -165,5 +180,5 @@ public class NotificationJobs {
 //        }catch (CustomCheckedException cce) {
 //            log.info("An error occurred while trying to notify team of operation");
 //        }
-   // }
+//    }
 }

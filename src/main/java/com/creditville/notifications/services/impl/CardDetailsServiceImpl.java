@@ -271,7 +271,6 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                             var authObj = (JSONObject) dataObj.get("authorization");
 
                             BigDecimal chargedAmount = new BigDecimal(dataObj.get("amount").toString());
-//                            BigDecimal newChargedAmount = chargedAmount.divide(new BigDecimal(100), RoundingMode.DOWN);
                             BigDecimal newChargedAmount = chargedAmount.divide(new BigDecimal(100)).setScale(2, RoundingMode.CEILING);
 
 //                            ctDTO.setAmount(new BigDecimal(dataObj.get("amount").toString()));
@@ -396,6 +395,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
             if (existingTransaction == null) {
                 log.info("There is no such existing transaction. Creating one now...");
                 if(amount.compareTo(BigDecimal.ZERO) > 0) {
+                    log.info("Getting the amount greater than zero");
                     DebitInstructionDTO debitInstructionDTO = new DebitInstructionDTO();
                     debitInstructionDTO.setTotalAmount(mandate.getAmount().toString());
                     debitInstructionDTO.setFundingAccount(mandate.getAccount());
