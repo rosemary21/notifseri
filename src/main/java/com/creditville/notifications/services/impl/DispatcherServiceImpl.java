@@ -1215,23 +1215,29 @@ public class DispatcherServiceImpl implements DispatcherService {
                 if (!mandates.isEmpty()) {
                     for (Mandates m : mandates) {
                         try {
+                            log.info("STARTING THE MANDATE FOR REMITTA SERVICE PROCESSING {}",m.getClientId());
+                            log.info("ENTRY -> STARTING THE MANDATE FOR REMITTA SERVICE PROCESSING {}",mandates);
                             LookUpClient lookUpClient = clientService.lookupClient(m.getClientId());
+                            log.info("STARTING THE LOOK UP CLIENT {}",mandates);
                             String clientStatus = lookUpClient.getClient().getClientStatus();
                             if (clientStatus.equals("ACTIVE") || clientStatus.contains("IN_ARREARS")) {
+                                log.info("GEETING THE CLIENT STATUS AS ACTIVE");
                                 List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
                                         .stream()
                                         .filter(cl -> cl.getStatus().equalsIgnoreCase("ACTIVE") || cl.getStatus().contains("IN_ARREARS"))
                                         .collect(Collectors.toList());
 //                Since there can be only one open client loan at a time, check if the list is empty, if not, get the first element...
+                                log.info("GETTING THE OPEN CLIENT LOAN LIST {}",openClientLoanList);
                                 if (!openClientLoanList.isEmpty()) {
+                                    log.info("GETTING THE CLINET LOAN LIST IS NOT EMPTY");
                                     LookUpClientLoan clientLoan = openClientLoanList.get(0);
                                     LookUpLoanAccount lookUpLoanAccount = clientService.lookupLoanAccount(clientLoan.getId());
                                     String modeOfRepayment = lookUpLoanAccount.getLoanAccount().getOptionalFields().getModeOfRepayment() == null ?
                                             "" :
                                             lookUpLoanAccount.getLoanAccount().getOptionalFields().getModeOfRepayment();
                                     if (modeOfRepayment.equalsIgnoreCase(remitaModeOfRepaymentKey)) {
+                                        log.info("GETTING THE LOAN INSTALLMENT {}");
                                         List<LookUpLoanInstalment> loanInstalments = lookUpLoanAccount.getLoanAccount().getInstalments();
-                                        log.info("GETTING THE LOAN INSTALLMENT {}",loanInstalments);
                                         if (!loanInstalments.isEmpty()) {
                                             List<LookUpLoanInstalment> loanInstalmentsLtOrEqToday = loanInstalments
                                                     .stream()

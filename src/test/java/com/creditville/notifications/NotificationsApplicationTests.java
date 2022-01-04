@@ -3,9 +3,13 @@ package com.creditville.notifications;
 import com.creditville.notifications.exceptions.CustomCheckedException;
 import com.creditville.notifications.services.NotificationService;
 import com.creditville.notifications.services.PartialDebitService;
+import com.creditville.notifications.services.RemitaService;
 import com.creditville.notifications.utils.DateUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.checkerframework.checker.units.qual.A;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,6 +32,11 @@ class NotificationsApplicationTests {
 
     @Autowired
     private NotificationService notificationService;
+
+    @Autowired
+    private RemitaService remitaService;
+    @Autowired
+    private ObjectMapper om;
 
     @Test
     void contextLoads() {
@@ -67,6 +76,12 @@ class NotificationsApplicationTests {
 //        }catch (CustomCheckedException cce) {
 //            cce.printStackTrace();
 //        }
+    }
+
+    @Test
+    void getAllActiveMandate() throws JsonProcessingException {
+        var resp = remitaService.getAllActiveMandates(0,100);
+        System.out.println("resp: "+om.writerWithDefaultPrettyPrinter().writeValueAsString(resp));
     }
 
 }
