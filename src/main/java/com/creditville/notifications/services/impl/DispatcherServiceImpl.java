@@ -1211,7 +1211,7 @@ public class DispatcherServiceImpl implements DispatcherService {
             while (pageNumber != null) {
                 log.info("GETTING THE PAGE NUMBER {}",pageNumber);
                 List<Mandates> mandates = remitaService.getAllActiveMandates(pageNumber, 100);
-                log.info("GETTING THE MANDATE FOR REMITTA SERVICE {}",mandates);
+                log.info("ENTRY---> THE MANDATE FOR REMITA SERVICE {}",mandates);
                 if (!mandates.isEmpty()) {
                     for (Mandates m : mandates) {
                         try {
