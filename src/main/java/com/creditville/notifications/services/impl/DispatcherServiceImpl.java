@@ -55,6 +55,13 @@ public class DispatcherServiceImpl implements DispatcherService {
     @Value("${mail.arrearsSubject}")
     private String arrearsSubject;
 
+    @Value("${instafin.status.arrears}")
+    private String arrearStatus;
+
+    @Value("${instafin.status.active}")
+    private String activeStatus;
+
+
     @Value("${mail.postMaturitySubject}")
     private String postMaturitySubject;
 
@@ -156,7 +163,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                             List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
                                     .stream()
 //                                .filter(cl -> !cl.getStatus().equalsIgnoreCase("CLOSED"))
-                                    .filter(cl -> cl.getStatus().equalsIgnoreCase("ACTIVE") || cl.getStatus().contains("ARREARS"))
+                                    .filter(cl -> cl.getStatus().equalsIgnoreCase(activeStatus) || cl.getStatus().contains(arrearStatus))
                                     .collect(Collectors.toList());
 //                Since there can be only one open client loan at a time, check if the list is empty, if not, get the first element...
                             if (!openClientLoanList.isEmpty()) {
@@ -305,7 +312,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                             List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
                                     .stream()
 //                                .filter(cl -> !cl.getStatus().equalsIgnoreCase("CLOSED"))
-                                    .filter(cl -> cl.getStatus().equalsIgnoreCase("ACTIVE") || cl.getStatus().contains("ARREARS"))
+                                    .filter(cl -> cl.getStatus().equalsIgnoreCase(activeStatus) || cl.getStatus().contains(arrearStatus))
                                     .collect(Collectors.toList());
 //                Since there can be only one open client loan at a time, check if the list is empty, if not, get the first element...
                             if (!openClientLoanList.isEmpty()) {
@@ -453,7 +460,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                             List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
                                     .stream()
 //                                .filter(cl -> !cl.getStatus().equalsIgnoreCase("CLOSED"))
-                                    .filter(cl -> cl.getStatus().equalsIgnoreCase("ACTIVE") || cl.getStatus().contains("ARREARS"))
+                                    .filter(cl -> cl.getStatus().equalsIgnoreCase(activeStatus) || cl.getStatus().contains(arrearStatus))
                                     .collect(Collectors.toList());
 //                Since there can be only one open client loan at a time, check if the list is empty, if not, get the first element...
                             if (!openClientLoanList.isEmpty()) {
@@ -605,7 +612,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                             List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
                                     .stream()
 //                                .filter(cl -> !cl.getStatus().equalsIgnoreCase("CLOSED"))
-                                    .filter(cl -> cl.getStatus().equalsIgnoreCase("ACTIVE") || cl.getStatus().contains("ARREARS"))
+                                    .filter(cl -> cl.getStatus().equalsIgnoreCase(activeStatus) || cl.getStatus().contains(arrearStatus))
                                     .collect(Collectors.toList());
 //                Since there can be only one open client loan at a time, check if the list is empty, if not, get the first element...
                             if (!openClientLoanList.isEmpty()) {
@@ -1216,15 +1223,13 @@ public class DispatcherServiceImpl implements DispatcherService {
                     for (Mandates m : mandates) {
                         try {
                             log.info("STARTING THE MANDATE FOR REMITTA SERVICE PROCESSING {}",m.getClientId());
-                            log.info("ENTRY -> STARTING THE MANDATE FOR REMITTA SERVICE PROCESSING {}",mandates);
                             LookUpClient lookUpClient = clientService.lookupClient(m.getClientId());
-                            log.info("STARTING THE LOOK UP CLIENT {}",mandates);
                             String clientStatus = lookUpClient.getClient().getClientStatus();
-                            if (clientStatus.equals("ACTIVE") || clientStatus.contains("IN_ARREARS")) {
-                                log.info("GEETING THE CLIENT STATUS AS ACTIVE");
+                            if (clientStatus.equals("ACTIVE") || clientStatus.contains("ARREARS")) {
+                                log.info("GETING THE CLIENT STATUS AS ACTIVE");
                                 List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
                                         .stream()
-                                        .filter(cl -> cl.getStatus().equalsIgnoreCase("ACTIVE") || cl.getStatus().contains("IN_ARREARS"))
+                                        .filter(cl -> cl.getStatus().equalsIgnoreCase("ACTIVE") || cl.getStatus().contains("ARREARS"))
                                         .collect(Collectors.toList());
 //                Since there can be only one open client loan at a time, check if the list is empty, if not, get the first element...
                                 log.info("GETTING THE OPEN CLIENT LOAN LIST {}",openClientLoanList);

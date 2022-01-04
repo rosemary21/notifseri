@@ -7,6 +7,7 @@ import com.creditville.notifications.instafin.req.RepayLoanReq;
 import com.creditville.notifications.instafin.service.LoanRepaymentService;
 import com.creditville.notifications.models.*;
 import com.creditville.notifications.models.DTOs.*;
+import com.creditville.notifications.models.response.LookUpLoanAccount;
 import com.creditville.notifications.models.response.MandateResp;
 import com.creditville.notifications.repositories.CardDetailsRepository;
 import com.creditville.notifications.repositories.CardTransactionRepository;
@@ -43,6 +44,8 @@ public class CardDetailsServiceImpl implements CardDetailsService {
     private CardTransactionsService ctService;
     @Autowired
     private LoanRepaymentService loanRepaymentService;
+    @Autowired
+    private ClientService clientService;
 
     @Value("${paystack.base.url}")
     private String psBaseUrl;
@@ -391,13 +394,13 @@ public class CardDetailsServiceImpl implements CardDetailsService {
         if(null == mandate){
             log.info("Mandate record does not exist...".toUpperCase());
         }else {
-            CardTransactions existingTransaction = cardTransactionRepository.findByRemitaRequestIdAndMandateIdAndStatusInAndLastUpdate(mandate.getRequestId(), mandate.getMandateId(), Arrays.asList("success", "pending"), currentDate);
+            CardTransactions existingTransaction = cardTransactionRepository.findByRemitaRequestIdAndMandateIdAndStatusInAndTransactionDate(mandate.getRequestId(), mandate.getMandateId(), Arrays.asList("success", "pending"), currentDate);
             if (existingTransaction == null) {
                 log.info("There is no such existing transaction. Creating one now...");
                 if(amount.compareTo(BigDecimal.ZERO) > 0) {
                     log.info("Getting the amount greater than zero");
                     DebitInstructionDTO debitInstructionDTO = new DebitInstructionDTO();
-                    debitInstructionDTO.setTotalAmount(mandate.getAmount().toString());
+                    debitInstructionDTO.setTotalAmount(String.valueOf(amount));
                     debitInstructionDTO.setFundingAccount(mandate.getAccount());
                     debitInstructionDTO.setFundingBankCode(mandate.getBankCode());
                     debitInstructionDTO.setClientId(mandate.getClientId());
