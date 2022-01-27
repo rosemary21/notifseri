@@ -394,7 +394,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
         if(null == mandate){
             log.info("Mandate record does not exist...".toUpperCase());
         }else {
-            CardTransactions existingTransaction = cardTransactionRepository.findByRemitaRequestIdAndMandateIdAndStatusInAndTransactionDate(mandate.getRequestId(), mandate.getMandateId(), Arrays.asList("success", "pending"), currentDate);
+            CardTransactions existingTransaction = cardTransactionRepository.findByRemitaRequestIdAndMandateIdAndStatusInAndTransactionDate(mandate.getRequestId(), mandate.getMandateId(), Arrays.asList("success", "pending"), currentDate.toString());
             if (existingTransaction == null) {
                 log.info("There is no such existing transaction. Creating one now...");
                 if(amount.compareTo(BigDecimal.ZERO) > 0) {
@@ -421,6 +421,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                     ctDTO.setStatus("pending");
                     ctDTO.setReference(debitInstructionResp.getTransactionRef());
                     ctDTO.setMandateId(mandate.getMandateId());
+                    ctDTO.setRemitaRequestId(mandate.getRequestId());
                     ctService.saveCardTransaction(ctDTO);
                 }else {
 //                        Customer is no longer owing...

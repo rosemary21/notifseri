@@ -1,6 +1,7 @@
 package com.creditville.notifications;
 
 import com.creditville.notifications.exceptions.CustomCheckedException;
+import com.creditville.notifications.repositories.CardTransactionRepository;
 import com.creditville.notifications.services.NotificationService;
 import com.creditville.notifications.services.PartialDebitService;
 import com.creditville.notifications.services.RemitaService;
@@ -18,9 +19,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.NumberFormat;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 @SpringBootTest
 class NotificationsApplicationTests {
@@ -29,6 +28,9 @@ class NotificationsApplicationTests {
 
     @Autowired
     private PartialDebitService partialDebitService;
+
+    @Autowired
+    private CardTransactionRepository cardTransactionRepository;
 
     @Autowired
     private NotificationService notificationService;
@@ -81,6 +83,14 @@ class NotificationsApplicationTests {
     @Test
     void getAllActiveMandate() throws JsonProcessingException {
         var resp = remitaService.getAllActiveMandates(0,100);
+        System.out.println("resp: "+om.writerWithDefaultPrettyPrinter().writeValueAsString(resp));
+    }
+
+    @Test
+    void getMandate() throws JsonProcessingException {
+        List result=new ArrayList();
+        result.add("pending");
+        var resp = cardTransactionRepository.findByRemitaRequestIdAndMandateIdAndStatusInAndTransactionDate(" ","260606348065",result,"2022-01-26");
         System.out.println("resp: "+om.writerWithDefaultPrettyPrinter().writeValueAsString(resp));
     }
 
