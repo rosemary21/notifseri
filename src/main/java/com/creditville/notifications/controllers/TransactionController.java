@@ -41,6 +41,16 @@ public class TransactionController {
     @PostMapping("/remitta/receive-debit-hook-events")
     public ResponseEntity<?> receiveRemittaDebitHookEvents(@RequestBody RemitaHookEvent hookEvent, HttpServletRequest httpServletRequest) throws CustomCheckedException {
         transactionService.handleRemitaDebitEvent(hookEvent);
-        return new ResponseEntity<>(new SuccessResponse("Event received successfully", null), HttpStatus.OK);
+        return new ResponseEntity<>(new SuccessResponse("Remita event received successfully", null), HttpStatus.OK);
+    }
+
+    @PostMapping("/remitta/activation-debit-hook-events")
+    public ResponseEntity<?> receiveRemitaActivationAndDebitHookEvents(@RequestBody RemitaHookEvent hookEvent, HttpServletRequest httpServletRequest) throws CustomCheckedException {
+        if(hookEvent.getNotificationType().equalsIgnoreCase("DEBIT")){
+            transactionService.handleRemitaDebitEvent(hookEvent);
+        }else {
+            transactionService.handleRemitaActivationEvent(hookEvent);
+        }
+        return new ResponseEntity<>(new SuccessResponse("Remita event received successfully", null), HttpStatus.OK);
     }
 }
