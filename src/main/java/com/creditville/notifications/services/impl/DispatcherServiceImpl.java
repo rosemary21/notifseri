@@ -1259,7 +1259,6 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                                 .add(dueDateInstalment.getCurrentState().getInterestDueAmount());
                                                         if(dueDateInstalment.getCurrentState().getFeeDueAmount() != null)
                                                             totalDue = totalDue.add(dueDateInstalment.getCurrentState().getFeeDueAmount());
-                                                       // BigDecimal newTotalDue = totalDue.multiply(new BigDecimal(100));
                                                         cardDetailsService.initiateRemitaRecurringCharges(totalDue, clientLoan.getId(), obligatoryPaymentDate, customer.getExternalID());
                                                     }
                                                 }

@@ -164,13 +164,13 @@ public class NotificationJobs {
         else log.info("Schedule for partial debit operation has reached it's schedule time but is operation is disabled from configuration".toUpperCase());
     }
 
-//    @Scheduled(cron = "${app.schedule.recurringCharges}")
-//    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
-//    public void mandateDebitInstruction() {
-//        if(mandateDebitInstructionEnabled)
-//            dispatcherService.performRecurringMandateDebitInstruction();
-//        else log.info("Schedule for recurring mandate charge (remita) has reached it's schedule time but notification is disabled from configuration".toUpperCase());
-//    }
+  //  @Scheduled(cron = "${app.schedule.recurringCharges}")
+    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
+    public void mandateDebitInstruction() {
+        if(mandateDebitInstructionEnabled)
+            dispatcherService.performRecurringMandateDebitInstruction();
+        else log.info("Schedule for recurring mandate charge (remita) has reached it's schedule time but notification is disabled from configuration".toUpperCase());
+    }
 
     @Scheduled(cron = "${app.schedule.notifyTeam}")
 //    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
