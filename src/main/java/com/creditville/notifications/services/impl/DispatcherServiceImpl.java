@@ -1211,7 +1211,7 @@ public class DispatcherServiceImpl implements DispatcherService {
     }
 
     @Override
-    public void performRecurringMandateDebitInstruction() {
+        public void performRecurringMandateDebitInstruction() {
         try {
             Integer pageNumber = 0;
             log.info("GETTING THE PAGE NUMBER OF ZERO");
