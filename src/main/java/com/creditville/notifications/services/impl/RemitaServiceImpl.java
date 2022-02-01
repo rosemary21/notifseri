@@ -204,7 +204,11 @@ public class RemitaServiceImpl implements RemitaService {
 
     @Override
     public List<Mandates> getAllActiveMandates(Integer pageNumber, Integer pageSize) {
+        log.info("ENTRY-->GETTING THE REMITA ACTIVE MANDATE STATUS CODE {}",remitaActiveMandatesStatusCode);
+        log.info("ENTRY-->GETTING THE PAGE NUMBER {}",pageNumber);
+        log.info("ENTRY-->GETTING THE PAGE SIZE {}",pageSize);
         Page<Mandates> mandates = mandateRepo.findAllByStatusCode(remitaActiveMandatesStatusCode, PageRequest.of(pageNumber, pageSize));
+        log.info("ENTRY-> GETTING THE SIZE OF MANDATES {}",mandates);
         if(mandates.getTotalElements() == 0) return new ArrayList<>();
         else return mandates.getContent();
     }

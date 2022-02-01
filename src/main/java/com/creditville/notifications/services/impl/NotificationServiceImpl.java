@@ -355,6 +355,10 @@ public class NotificationServiceImpl implements NotificationService {
             case "disbursefailed":
                 return "email/disbursefailed";
 
+            case "mandateActivated":
+                return "email/mandateActivated";
+
+
             default:
                 throw new CustomCheckedException("Invalid template name provided");
         }

@@ -20,6 +20,7 @@ import java.util.Date;
 public class MonitoredScheduleAspect {
     @Before("execution(* com.creditville.notifications.jobs.NotificationJobs.*(..))")
     public void beforeScheduleBegins(JoinPoint joinPoint) {
+        System.out.print("before schedule begins <><><>");
         MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
         Method method = methodSignature.getMethod();
         log.info(String.format("%sjob has started. Start time: %tc", this.getFormattedMethodName(method.getName()), new Date()).toUpperCase());

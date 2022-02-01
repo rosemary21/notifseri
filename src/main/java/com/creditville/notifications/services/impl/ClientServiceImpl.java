@@ -14,6 +14,7 @@ import com.creditville.notifications.models.response.LookUpClient;
 import com.creditville.notifications.models.response.LookUpClientLoan;
 import com.creditville.notifications.models.response.LookUpLoanAccount;
 import com.creditville.notifications.services.ClientService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ import java.util.List;
  * Created by Chuks on 02/07/2021.
  */
 @Service
+@Slf4j
 public class ClientServiceImpl implements ClientService {
     @Autowired
     private ObjectMapper objectMapper;
@@ -87,10 +89,13 @@ public class ClientServiceImpl implements ClientService {
     public LookUpClient lookupClient(String clientId) throws CustomCheckedException {
         LookupClient lookupClient = new LookupClient(clientId);
         try {
+            log.info("GETTING THE LOOK UP CLIENT");
             String payload = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(lookupClient);
 //            System.out.println("Payload: "+ payload);
             String lookUpClientResp = httpCallService.doBasicPost((baseUrl + lookupClientUrl), payload);
-//            System.out.println("Lookup client response : "+ lookUpClientResp);
+            log.info("GETTING THE LOOK UP CLIENT RESPONSE"+lookUpClientResp);
+            //System.out.println("Lookup client response : "+ lookUpClientResp);
+
             return objectMapper.readValue(lookUpClientResp, LookUpClient.class);
         } catch (JsonProcessingException e) {
             e.printStackTrace();

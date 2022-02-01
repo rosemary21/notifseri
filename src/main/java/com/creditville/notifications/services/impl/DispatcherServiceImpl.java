@@ -55,6 +55,13 @@ public class DispatcherServiceImpl implements DispatcherService {
     @Value("${mail.arrearsSubject}")
     private String arrearsSubject;
 
+    @Value("${instafin.status.arrears}")
+    private String arrearStatus;
+
+    @Value("${instafin.status.active}")
+    private String activeStatus;
+
+
     @Value("${mail.postMaturitySubject}")
     private String postMaturitySubject;
 
@@ -156,7 +163,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                             List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
                                     .stream()
 //                                .filter(cl -> !cl.getStatus().equalsIgnoreCase("CLOSED"))
-                                    .filter(cl -> cl.getStatus().equalsIgnoreCase("ACTIVE") || cl.getStatus().contains("ARREARS"))
+                                    .filter(cl -> cl.getStatus().equalsIgnoreCase(activeStatus) || cl.getStatus().contains(arrearStatus))
                                     .collect(Collectors.toList());
 //                Since there can be only one open client loan at a time, check if the list is empty, if not, get the first element...
                             if (!openClientLoanList.isEmpty()) {
@@ -305,7 +312,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                             List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
                                     .stream()
 //                                .filter(cl -> !cl.getStatus().equalsIgnoreCase("CLOSED"))
-                                    .filter(cl -> cl.getStatus().equalsIgnoreCase("ACTIVE") || cl.getStatus().contains("ARREARS"))
+                                    .filter(cl -> cl.getStatus().equalsIgnoreCase(activeStatus) || cl.getStatus().contains(arrearStatus))
                                     .collect(Collectors.toList());
 //                Since there can be only one open client loan at a time, check if the list is empty, if not, get the first element...
                             if (!openClientLoanList.isEmpty()) {
@@ -453,7 +460,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                             List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
                                     .stream()
 //                                .filter(cl -> !cl.getStatus().equalsIgnoreCase("CLOSED"))
-                                    .filter(cl -> cl.getStatus().equalsIgnoreCase("ACTIVE") || cl.getStatus().contains("ARREARS"))
+                                    .filter(cl -> cl.getStatus().equalsIgnoreCase(activeStatus) || cl.getStatus().contains(arrearStatus))
                                     .collect(Collectors.toList());
 //                Since there can be only one open client loan at a time, check if the list is empty, if not, get the first element...
                             if (!openClientLoanList.isEmpty()) {
@@ -605,7 +612,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                             List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
                                     .stream()
 //                                .filter(cl -> !cl.getStatus().equalsIgnoreCase("CLOSED"))
-                                    .filter(cl -> cl.getStatus().equalsIgnoreCase("ACTIVE") || cl.getStatus().contains("ARREARS"))
+                                    .filter(cl -> cl.getStatus().equalsIgnoreCase(activeStatus) || cl.getStatus().contains(arrearStatus))
                                     .collect(Collectors.toList());
 //                Since there can be only one open client loan at a time, check if the list is empty, if not, get the first element...
                             if (!openClientLoanList.isEmpty()) {
@@ -1204,34 +1211,38 @@ public class DispatcherServiceImpl implements DispatcherService {
     }
 
     @Override
-    public void performRecurringMandateDebitInstruction() {
+        public void performRecurringMandateDebitInstruction() {
         try {
             Integer pageNumber = 0;
             log.info("GETTING THE PAGE NUMBER OF ZERO");
             while (pageNumber != null) {
                 log.info("GETTING THE PAGE NUMBER {}",pageNumber);
                 List<Mandates> mandates = remitaService.getAllActiveMandates(pageNumber, 100);
-                log.info("GETTING THE MANDATE FOR REMITTA SERVICE {}",mandates);
+                log.info("ENTRY---> THE MANDATE FOR REMITA SERVICE {}",mandates);
                 if (!mandates.isEmpty()) {
                     for (Mandates m : mandates) {
                         try {
+                            log.info("STARTING THE MANDATE FOR REMITTA SERVICE PROCESSING {}",m.getClientId());
                             LookUpClient lookUpClient = clientService.lookupClient(m.getClientId());
                             String clientStatus = lookUpClient.getClient().getClientStatus();
-                            if (clientStatus.equals("ACTIVE") || clientStatus.contains("IN_ARREARS")) {
+                            if (clientStatus.equals("ACTIVE") || clientStatus.contains("ARREARS")) {
+                                log.info("GETING THE CLIENT STATUS AS ACTIVE");
                                 List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
                                         .stream()
-                                        .filter(cl -> cl.getStatus().equalsIgnoreCase("ACTIVE") || cl.getStatus().contains("IN_ARREARS"))
+                                        .filter(cl -> cl.getStatus().equalsIgnoreCase("ACTIVE") || cl.getStatus().contains("ARREARS"))
                                         .collect(Collectors.toList());
 //                Since there can be only one open client loan at a time, check if the list is empty, if not, get the first element...
+                                log.info("GETTING THE OPEN CLIENT LOAN LIST {}",openClientLoanList);
                                 if (!openClientLoanList.isEmpty()) {
+                                    log.info("GETTING THE CLINET LOAN LIST IS NOT EMPTY");
                                     LookUpClientLoan clientLoan = openClientLoanList.get(0);
                                     LookUpLoanAccount lookUpLoanAccount = clientService.lookupLoanAccount(clientLoan.getId());
                                     String modeOfRepayment = lookUpLoanAccount.getLoanAccount().getOptionalFields().getModeOfRepayment() == null ?
                                             "" :
                                             lookUpLoanAccount.getLoanAccount().getOptionalFields().getModeOfRepayment();
                                     if (modeOfRepayment.equalsIgnoreCase(remitaModeOfRepaymentKey)) {
+                                        log.info("GETTING THE LOAN INSTALLMENT {}");
                                         List<LookUpLoanInstalment> loanInstalments = lookUpLoanAccount.getLoanAccount().getInstalments();
-                                        log.info("GETTING THE LOAN INSTALLMENT {}",loanInstalments);
                                         if (!loanInstalments.isEmpty()) {
                                             List<LookUpLoanInstalment> loanInstalmentsLtOrEqToday = loanInstalments
                                                     .stream()
@@ -1248,8 +1259,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                                 .add(dueDateInstalment.getCurrentState().getInterestDueAmount());
                                                         if(dueDateInstalment.getCurrentState().getFeeDueAmount() != null)
                                                             totalDue = totalDue.add(dueDateInstalment.getCurrentState().getFeeDueAmount());
-                                                        BigDecimal newTotalDue = totalDue.multiply(new BigDecimal(100));
-                                                        cardDetailsService.initiateRemitaRecurringCharges(newTotalDue, clientLoan.getId(), obligatoryPaymentDate, customer.getExternalID());
+                                                        cardDetailsService.initiateRemitaRecurringCharges(totalDue, clientLoan.getId(), obligatoryPaymentDate, customer.getExternalID());
                                                     }
                                                 }
                                             } else

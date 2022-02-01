@@ -22,5 +22,7 @@ public interface CardTransactionRepository extends JpaRepository<CardTransaction
 
     CardTransactions findByRemitaRequestIdAndMandateIdAndStatusInAndLastUpdate(String requestId, String mandateId, List<String> status, LocalDate LastUpdateDate);
 
+    CardTransactions findByRemitaRequestIdAndMandateIdAndStatusInAndTransactionDate(String requestId, String mandateId, List<String> status, String LastUpdateDate);
+
     CardTransactions findFirstByRemitaRequestIdAndMandateIdAndStatusInOrderByLastUpdateDesc(String requestId, String mandateId, List<String> status);
 }
