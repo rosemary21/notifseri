@@ -3,6 +3,7 @@ package com.creditville.notifications.services.impl;
 import com.creditville.notifications.exceptions.CustomCheckedException;
 import com.creditville.notifications.models.ExcludedEmail;
 import com.creditville.notifications.models.requests.SendEmailRequest;
+import com.creditville.notifications.redwood.model.EmailRequest;
 import com.creditville.notifications.repositories.EmailAuditRepository;
 import com.creditville.notifications.repositories.ExcludedEmailRepository;
 import com.creditville.notifications.repositories.FailedEmailRepository;
@@ -125,6 +126,7 @@ public class NotificationServiceImpl implements NotificationService {
         Iterator<Map.Entry<String, JsonNode>> jsonNodeIterator = mailData.fields();
         while(jsonNodeIterator.hasNext()) {
             Map.Entry<String, JsonNode> jsonNode = jsonNodeIterator.next();
+            log.info("getting the key node {}",jsonNode.getKey());
             context.setVariable(jsonNode.getKey(), jsonNode.getValue().textValue());
         }
         String mailTemplate = sendEmailRequest.getMailTemplate();
@@ -149,6 +151,7 @@ public class NotificationServiceImpl implements NotificationService {
 
         JsonNode ccAddress = mailData.get("ccAddress");
         String ccAddresses = ccAddress != null ? ccAddress.textValue() : null;
+        System.out.println("getting the ccAddress"+ccAddresses);
         List<String> ccAddressList = new ArrayList<>();
         if(ccAddress != null) {
             if (ccAddresses.contains(",")) {
@@ -168,6 +171,8 @@ public class NotificationServiceImpl implements NotificationService {
         }
 
         System.out.println("getting the toAddressList {}"+toAddressList);
+        System.out.println("getting the ccAddressList"+ccAddressList);
+
         EmailPopulatingBuilder emailPopulatingBuilder = EmailBuilder.startingBlank()
                 .from(senderName, senderEmail)
                 .to(null, toAddressList)
@@ -181,6 +186,7 @@ public class NotificationServiceImpl implements NotificationService {
                         .buildEmail() :
                 emailPopulatingBuilder
                         .buildEmail();
+
         if(notificationsEnabled) {
             try {
                 if(!emailService.isEmailExcluded(mailData.get("toAddress").textValue())) {
@@ -195,6 +201,45 @@ public class NotificationServiceImpl implements NotificationService {
             }
         }
         else throw new CustomCheckedException("Oops! Unable to dispatch notifications at the moment as it is disabled from config");
+    }
+
+
+    @Override
+    public void sendEmailNotification(EmailRequest sendEmailRequest) throws CustomCheckedException {
+        Context context = new Context();
+        context.setVariable("mailSubject", "Contact Redwood");
+        context.setVariable("customMessage", sendEmailRequest.getMessage());
+        context.setVariable("customerEmail",sendEmailRequest.getEmail());
+        context.setVariable("customerAddress",sendEmailRequest.getAddress());
+        context.setVariable("customerName",sendEmailRequest.getName());
+        String toAddresses ="chioma.chukelu@creditville.ng";
+        List<String> toAddressList = new ArrayList<>();
+        if(toAddresses.contains(",")) {
+            String[] parts = toAddresses.split(",");
+            toAddressList = Arrays.stream(parts).collect(Collectors.toList());
+        }else toAddressList.add(toAddresses);
+        for(String customer :  toAddressList) {
+            String templateLocation = this.getTemplateLocation("redwood");
+            String content = templateEngine.process(templateLocation, context);
+            Email email = EmailBuilder.startingBlank()
+                    .from(senderName, senderEmail)
+                    .to(null, toAddressList)
+                    .withSubject("Contact RedWood")
+                    .withHTMLText(content).buildEmail();
+            if(notificationsEnabled) {
+                try {
+                    if(!emailService.isEmailExcluded(sendEmailRequest.getAddress())) {
+                        mailer.sendMail(email, async);
+                      //  emailService.auditSuccessfulEmail(mailData, sendEmailRequest.getMailSubject());
+                    }
+                }catch (Exception ex) {
+                  //  emailService.saveFailedEmail(mailData, sendEmailRequest.getMailSubject(), email.getHTMLText(), ex.getMessage());
+                    log.info("Email sending failed: "+ ex.getMessage());
+                    throw new CustomCheckedException("Email sending failed");
+                }
+            }
+            else throw new CustomCheckedException("Oops! Unable to dispatch notifications at the moment as it is disabled from config");
+        }
     }
 
     @Override
@@ -298,6 +343,18 @@ public class NotificationServiceImpl implements NotificationService {
                 return "email/send-form";
             case "disburseemail":
                 return "email/disburse";
+            case "terminateMandate":
+                return "email/terminateMandate";
+            case "redwood":
+                return "email/redwood";
+            case "failedtranfer":
+                return "email/failedtransfer";
+            case "reversetranfer":
+                return "email/reversetranfer";
+
+            case "disbursefailed":
+                return "email/disbursefailed";
+
             default:
                 throw new CustomCheckedException("Invalid template name provided");
         }

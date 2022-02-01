@@ -395,6 +395,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
             if (existingTransaction == null) {
                 log.info("There is no such existing transaction. Creating one now...");
                 if(amount.compareTo(BigDecimal.ZERO) > 0) {
+                    log.info("Getting the amount greater than zero");
                     DebitInstructionDTO debitInstructionDTO = new DebitInstructionDTO();
                     debitInstructionDTO.setTotalAmount(mandate.getAmount().toString());
                     debitInstructionDTO.setFundingAccount(mandate.getAccount());

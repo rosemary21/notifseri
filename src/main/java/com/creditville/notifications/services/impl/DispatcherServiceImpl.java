@@ -1207,9 +1207,11 @@ public class DispatcherServiceImpl implements DispatcherService {
     public void performRecurringMandateDebitInstruction() {
         try {
             Integer pageNumber = 0;
-
+            log.info("GETTING THE PAGE NUMBER OF ZERO");
             while (pageNumber != null) {
+                log.info("GETTING THE PAGE NUMBER {}",pageNumber);
                 List<Mandates> mandates = remitaService.getAllActiveMandates(pageNumber, 100);
+                log.info("GETTING THE MANDATE FOR REMITTA SERVICE {}",mandates);
                 if (!mandates.isEmpty()) {
                     for (Mandates m : mandates) {
                         try {
@@ -1229,11 +1231,13 @@ public class DispatcherServiceImpl implements DispatcherService {
                                             lookUpLoanAccount.getLoanAccount().getOptionalFields().getModeOfRepayment();
                                     if (modeOfRepayment.equalsIgnoreCase(remitaModeOfRepaymentKey)) {
                                         List<LookUpLoanInstalment> loanInstalments = lookUpLoanAccount.getLoanAccount().getInstalments();
+                                        log.info("GETTING THE LOAN INSTALLMENT {}",loanInstalments);
                                         if (!loanInstalments.isEmpty()) {
                                             List<LookUpLoanInstalment> loanInstalmentsLtOrEqToday = loanInstalments
                                                     .stream()
                                                     .filter(lookUpLoanInstalment -> dateUtil.isPaymentDateLtOrEqToday(lookUpLoanInstalment.getObligatoryPaymentDate()))
                                                     .collect(Collectors.toList());
+                                            log.info("GETTING  LOAN INSTALLMENT LATE TO TODAY {}",loanInstalmentsLtOrEqToday);
                                             if (!loanInstalmentsLtOrEqToday.isEmpty()) {
                                                 for (LookUpLoanInstalment dueDateInstalment : loanInstalmentsLtOrEqToday) {
                                                     Client customer = lookUpClient.getClient();

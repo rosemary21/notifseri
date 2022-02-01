@@ -304,4 +304,11 @@ public class DateUtil {
         }
         return ds2;
     }
+
+    public static  String currentDate(){
+        LocalDate localDate = LocalDate.now();//For reference
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        return localDate.format(formatter);
+    }
+
 }
