@@ -48,14 +48,16 @@ public class RemitaServiceImpl implements RemitaService {
     @Value("${remita.api.key}")
     private String apiKey;
 
-    @Value(("${remita.api.token}"))
+    @Value("${remita.api.token}")
     private String apiToken;
 
     @Value("${remita.base.url}")
     private String baseUrl;
 
-    @Value(("${remita.debit.url}"))
+    @Value("${remita.debit.url}")
     private String debitUrl;
+    @Value("${remita.debit.status.url}")
+    private String debitStatusUrl;
 
     @Autowired
     private ObjectMapper om;
@@ -211,5 +213,26 @@ public class RemitaServiceImpl implements RemitaService {
         log.info("ENTRY-> GETTING THE SIZE OF MANDATES {}",mandates);
         if(mandates.getTotalElements() == 0) return new ArrayList<>();
         else return mandates.getContent();
+    }
+
+    @Override
+    public MandateResp checkDebitStatusAndRepayLoan(RemitaDebitStatus rds) throws CustomCheckedException {
+
+        try {
+            var payload = om.writerWithDefaultPrettyPrinter().writeValueAsString(rds);
+            log.info("ENTRY checkDebitStatus: -> payload {} ", payload);
+            var debitStatusResp = httpCallService.remitaHttpUrlCall(baseUrl+debitStatusUrl,payload,null);
+            log.info("ENTRY checkDebitStatus: -> debitStatusResp {} ",debitStatusResp);
+            var dsRespObj = cardUtil.getJsonObjResponse(debitStatusResp);
+
+            if(dsRespObj.get("statuscode").toString().equalsIgnoreCase("072") && !dsRespObj.get("status").toString().equalsIgnoreCase("Pending Credit")){
+
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new CustomCheckedException("Unable to verify remita debit transaction, error reads: "+ e.getMessage());
+        }
+        return null;
     }
 }
