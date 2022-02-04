@@ -296,7 +296,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                                 repayLoanReq.setPaymentMethodName(AppConstants.InstafinPaymentMethod.PAYSTACK_PAYMENT_METHOD);
                                 repayLoanReq.setTransactionBranchID(AppConstants.InstafinBranch.TRANSACTION_BRANCH_ID);
                                 repayLoanReq.setRepaymentDate(currentDate.toString());
-                                repayLoanReq.setNotes("Card loan repayment");
+                                repayLoanReq.setNotes("Card loan repayment"+" Loan ID : "+loanId+" Reference Id : "+ctDTO.getReference());
                                 var repaymentResp = loanRepaymentService.makeLoanRepayment(repayLoanReq);
                                 if(repaymentResp != null) {
                                     JSONObject repaymentResponseObject;
@@ -486,7 +486,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                             repayLoanReq.setPaymentMethodName(AppConstants.InstafinPaymentMethod.PAYSTACK_PAYMENT_METHOD);
                             repayLoanReq.setTransactionBranchID(AppConstants.InstafinBranch.TRANSACTION_BRANCH_ID);
                             repayLoanReq.setRepaymentDate(currentDate.toString());
-                            repayLoanReq.setNotes("Paystack Card loan repayment");
+                            repayLoanReq.setNotes("Paystack Card loan repayment "+" Loan Id: "+loanId+" Reference Id: "+ctDTO.getReference());
                             var repaymentResp = loanRepaymentService.makeLoanRepayment(repayLoanReq);
                             if(repaymentResp != null) {
                                 JSONObject repaymentResponseObject;
