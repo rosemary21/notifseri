@@ -261,9 +261,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                         chargeDto.setAmount(amount);
                         chargeDto.setAuthorization_code(cardDetails.getAuthorizationCode());
                         chargeDto.setEmail(email);
-
                         var chargeResp = chargeCard(chargeDto);
-
                         ctDTO.setPaystackResponse(chargeResp);
 
                         var chargeRespObj = cardUtil.getJsonObjResponse(chargeResp);

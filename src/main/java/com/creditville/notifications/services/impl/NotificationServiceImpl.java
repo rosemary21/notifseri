@@ -357,6 +357,8 @@ public class NotificationServiceImpl implements NotificationService {
 
             case "mandateActivated":
                 return "email/mandateActivated";
+            case "broadcastredwood":
+                return "email/redwoodbroadcast";
 
 
             default:

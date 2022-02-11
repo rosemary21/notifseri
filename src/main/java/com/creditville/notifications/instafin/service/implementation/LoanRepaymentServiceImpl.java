@@ -32,7 +32,7 @@ public class LoanRepaymentServiceImpl implements LoanRepaymentService {
 //            System.out.println("repayLoanResp: "+repayLoanResp);
             return repayLoanResp;
 
-        } catch (JsonProcessingException | CustomCheckedException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
