@@ -45,6 +45,8 @@ public class CardDetailsServiceImpl implements CardDetailsService {
     @Autowired
     private LoanRepaymentService loanRepaymentService;
     @Autowired
+    RetryLoanRepaymentService retryLoanRepaymentService;
+    @Autowired
     private ClientService clientService;
 
     @Value("${paystack.base.url}")
@@ -240,7 +242,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
 //    }
 
     @Override
-    public void cardRecurringCharges(String email, BigDecimal amount, String loanId, LocalDate currentDate, String clientID) {
+    public void cardRecurringCharges(String email, BigDecimal amount, String loanId, LocalDate currentDate, String clientID,String instafinObliDate) {
         log.info("Email {}, Amount {}, Loan ID {}, Local Date {}, ClientID: {}", email, amount.toString(), loanId, currentDate.toString(), clientID);
         ChargeDto chargeDto = new ChargeDto();
         CardTransactionsDto ctDTO = new CardTransactionsDto();
@@ -261,9 +263,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                         chargeDto.setAmount(amount);
                         chargeDto.setAuthorization_code(cardDetails.getAuthorizationCode());
                         chargeDto.setEmail(email);
-
                         var chargeResp = chargeCard(chargeDto);
-
                         ctDTO.setPaystackResponse(chargeResp);
 
                         var chargeRespObj = cardUtil.getJsonObjResponse(chargeResp);
@@ -282,7 +282,6 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                             ctDTO.setTransactionDate(dataObj.get("transaction_date").toString());
                             ctDTO.setStatus(dataObj.get("status").toString());
                             ctDTO.setReference(dataObj.get("reference").toString());
-
                             ctDTO.setCardType(authObj.get("card_type").toString());
 
                             ctDTO.setCardDetails(cardDetails);
@@ -322,12 +321,14 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                                     repaymentStatus = false;
                                 }
                                 if(!repaymentStatus) {
-//                                    ctDTO.setStatus("repayment_failure");
-//                                    ctDTO.setInstafinResponse(errorMessage);
-//                                    ctService.saveCardTransaction(ctDTO);
+//                                  ctDTO.setStatus("repayment_failure");
+//                                  ctDTO.setInstafinResponse(errorMessage);
+//                                  ctService.saveCardTransaction(ctDTO);
                                     savedCardTransaction.setStatus("repayment_failure");
                                     savedCardTransaction.setInstafinResponse(errorMessage);
                                     ctService.addCardTransaction(savedCardTransaction);
+                                    RetryLoanRepaymentDTO retryLoanRepaymentDTO=retryLoanRepaymentService.getLoanRepayment(savedCardTransaction,loanId,email,instafinObliDate);
+                                    retryLoanRepaymentService.saveRetryLoan(savedCardTransaction,retryLoanRepaymentDTO,loanId);
 
                                 }else {
 //                                    ctDTO.setInstafinResponse("REPAYMENT SUCCESSFUL");

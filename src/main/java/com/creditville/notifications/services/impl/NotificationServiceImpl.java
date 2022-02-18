@@ -212,7 +212,7 @@ public class NotificationServiceImpl implements NotificationService {
         context.setVariable("customerEmail",sendEmailRequest.getEmail());
         context.setVariable("customerAddress",sendEmailRequest.getAddress());
         context.setVariable("customerName",sendEmailRequest.getName());
-        String toAddresses ="chioma.chukelu@creditville.ng";
+        String toAddresses ="info@redwoodaml.com";
         List<String> toAddressList = new ArrayList<>();
         if(toAddresses.contains(",")) {
             String[] parts = toAddresses.split(",");
@@ -357,6 +357,8 @@ public class NotificationServiceImpl implements NotificationService {
 
             case "mandateActivated":
                 return "email/mandateActivated";
+            case "broadcastredwood":
+                return "email/redwoodbroadcast";
 
 
             default:

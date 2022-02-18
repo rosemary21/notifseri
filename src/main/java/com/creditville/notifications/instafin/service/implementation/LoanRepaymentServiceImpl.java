@@ -34,7 +34,7 @@ public class LoanRepaymentServiceImpl implements LoanRepaymentService {
             log.info("ENTRY makeLoanRepayment -> Resp: {} ",repayLoanResp);
             return repayLoanResp;
 
-        } catch (JsonProcessingException | CustomCheckedException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
