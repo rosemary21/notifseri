@@ -94,4 +94,9 @@ class NotificationsApplicationTests {
         System.out.println("resp: "+om.writerWithDefaultPrettyPrinter().writeValueAsString(resp));
     }
 
+    @Test
+    void instalment(){
+        var resp = remitaService.isLoanRePaid("01500099113");
+    }
+
 }

@@ -22,19 +22,15 @@ public class CardUtil {
         JSONObject respObj = null;
         if(null != strResp && !StringUtils.isEmpty(strResp)){
             if(strResp.charAt(0) == '['){
-//                System.out.println("response  is an array");
                 JSONArray loanRespArr = (JSONArray) new JSONParser().parse(strResp);
                 for(int i=0; i < loanRespArr.size(); i++){
 
                     respObj = (JSONObject) loanRespArr.get(i);
-//                    System.out.println("respObj is: "+respObj);
                 }
             }else if(strResp.charAt(0) == '{'){
                 respObj = (JSONObject) new JSONParser().parse(strResp);
-//                System.out.println("final respObj: "+respObj);
             }
         }
-//        System.out.println("respObj: "+respObj);
         return respObj;
     }
 

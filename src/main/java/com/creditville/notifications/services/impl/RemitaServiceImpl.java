@@ -2,17 +2,25 @@ package com.creditville.notifications.services.impl;
 
 import com.creditville.notifications.exceptions.CustomCheckedException;
 import com.creditville.notifications.executor.HttpCallService;
+import com.creditville.notifications.instafin.common.AppConstants;
+import com.creditville.notifications.instafin.req.RepayLoanReq;
+import com.creditville.notifications.instafin.service.LoanRepaymentService;
+import com.creditville.notifications.models.CardTransactions;
 import com.creditville.notifications.models.DTOs.CardTransactionsDto;
 import com.creditville.notifications.models.DTOs.DebitInstructionDTO;
 import com.creditville.notifications.models.Mandates;
+import com.creditville.notifications.models.RetryLoanRepayment;
 import com.creditville.notifications.models.requests.*;
 import com.creditville.notifications.models.response.*;
+import com.creditville.notifications.repositories.CardTransactionRepository;
 import com.creditville.notifications.repositories.MandateRepository;
+import com.creditville.notifications.repositories.RetryLoanRepaymentRepository;
 import com.creditville.notifications.services.CardTransactionsService;
 import com.creditville.notifications.services.RemitaService;
 import com.creditville.notifications.utils.CardUtil;
-import com.creditville.notifications.utils.DateUtil;
+//import com.creditville.notifications.utils.DateUtil;
 import com.creditville.notifications.utils.GeneralUtil;
+import com.creditville.notifications.utils.ValidationUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -39,17 +47,17 @@ public class RemitaServiceImpl implements RemitaService {
     @Value("${remita.service.type.id}")
     private String serviceTypeId;
 
-    @Value("${remita.mandate.type}")
-    private String mandateType;
-
-    @Value("${remita.frequency}")
-    private String frequency;
+//    @Value("${remita.mandate.type}")
+//    private String mandateType;
+//
+//    @Value("${remita.frequency}")
+//    private String frequency;
 
     @Value("${remita.api.key}")
     private String apiKey;
 
-    @Value("${remita.api.token}")
-    private String apiToken;
+//    @Value("${remita.api.token}")
+//    private String apiToken;
 
     @Value("${remita.base.url}")
     private String baseUrl;
@@ -74,13 +82,24 @@ public class RemitaServiceImpl implements RemitaService {
     @Autowired
     private CardUtil cardUtil;
 
-    @Autowired
-    private DateUtil dateUtil;
+//    @Autowired
+//    private DateUtil dateUtil;
 
     @Autowired
     private CardTransactionsService cardTransactionsService;
+    @Autowired
+    private CardTransactionRepository ctRepo;
 
-    private String remitaActiveMandatesStatusCode = "00";
+    @Autowired
+    private LoanRepaymentService lrs;
+    @Autowired
+    private ValidationUtil vu;
+    @Autowired
+    private CardTransactionsService ctService;
+    @Autowired
+    private RetryLoanRepaymentRepository rlrRepo;
+
+    private final String remitaActiveMandatesStatusCode = "00";
 
     @Override
     public MandateResp sendDebitInstruction(DebitInstructionDTO debitDto) throws CustomCheckedException {
@@ -105,8 +124,6 @@ public class RemitaServiceImpl implements RemitaService {
             var debitRespObj = cardUtil.getJsonObjResponse(cardUtil.getObjectString(debitResp));
 
             if(debitRespObj.get("statuscode").toString().equalsIgnoreCase("069")){
-                //repay Loan
-//                var loanRepaymentResp = repayLoan(debitDto);
 
                 cardTransactionsService.saveCardTransaction(convertDebitObjectToCardTransactionDto(debitRespObj,debitDto));
             }
@@ -157,34 +174,34 @@ public class RemitaServiceImpl implements RemitaService {
         return String.valueOf(d.getTime());
     }
 
-    private void saveMandate(Mandates mandates){
-        mandateRepo.save(mandates);
-    }
+//    private void saveMandate(Mandates mandates){
+//        mandateRepo.save(mandates);
+//    }
 
-    private void updateMandate(Mandates mandates){
-        var mandate = mandateRepo.findByMandateId(mandates.getMandateId());
-        if(mandates.getRemitaTransRef() != null) {
-            mandate.setRemitaTransRef(mandates.getRemitaTransRef());
-        }
-        if(null != mandates.getActivationStatus()){
-            mandate.setActivationStatus(mandates.getActivationStatus());
-            if(null != mandates.getRequestId()){
-                mandate.setRequestId(mandates.getRequestId());
-            }
-        }
-        saveMandate(mandate);
-    }
+//    private void updateMandate(Mandates mandates){
+//        var mandate = mandateRepo.findByMandateId(mandates.getMandateId());
+//        if(mandates.getRemitaTransRef() != null) {
+//            mandate.setRemitaTransRef(mandates.getRemitaTransRef());
+//        }
+//        if(null != mandates.getActivationStatus()){
+//            mandate.setActivationStatus(mandates.getActivationStatus());
+//            if(null != mandates.getRequestId()){
+//                mandate.setRequestId(mandates.getRequestId());
+//            }
+//        }
+//        saveMandate(mandate);
+//    }
 
-    private HeaderParam getHeadersParam(String requestId, String hashParam){
-        HeaderParam hp = new HeaderParam();
-        hp.setMerchantId(marchantId);
-        hp.setApiKey(apiKey);
-        hp.setRequestId(requestId);
-        hp.setRequest_ts(dateUtil.getTimeStamp());
-
-        hp.setApiDetailsHash(hashParam);
-        return hp;
-    }
+//    private HeaderParam getHeadersParam(String requestId, String hashParam){
+//        HeaderParam hp = new HeaderParam();
+//        hp.setMerchantId(marchantId);
+//        hp.setApiKey(apiKey);
+//        hp.setRequestId(requestId);
+//        hp.setRequest_ts(dateUtil.getTimeStamp());
+//
+//        hp.setApiDetailsHash(hashParam);
+//        return hp;
+//    }
 
     private DebitInstructionReq convertDebitInstructionDtoToReq(DebitInstructionDTO debitInstructionDTO){
         return generalUtil.modelMapper().map(debitInstructionDTO,DebitInstructionReq.class);
@@ -216,22 +233,92 @@ public class RemitaServiceImpl implements RemitaService {
     }
 
     @Override
-    public MandateResp checkDebitStatusAndRepayLoan(RemitaDebitStatus rds) throws CustomCheckedException {
+    public void checkDebitStatusAndRepayLoan() throws CustomCheckedException {
 
+        Collection<CardTransactions> ctList =  ctRepo.findAllByStatusAndMandateIdIsNull("pending");
+
+        if(null != ctList){
+            ctList.forEach(ct -> {
+                RemitaDebitStatus rds = new RemitaDebitStatus();
+
+                rds.setRequestId(ct.getRemitaRequestId());
+                rds.setMandateId(ct.getMandateId());
+                var hash = generateRemitaHMAC512Hash(ct.getMandateId(),marchantId,ct.getRemitaRequestId(), apiKey);
+                rds.setHash(hash);
+                rds.setMerchantId(marchantId);
+
+                var statusResp = checkRemitaTransactionStatus(rds);
+                if(null != statusResp){
+                    Mandates mandate = mandateRepo.findByMandateId(ct.getMandateId());
+                    RepayLoanReq rlr = new RepayLoanReq();
+                    rlr.setAccountID(mandate.getLoanId());
+                    rlr.setAmount(statusResp.getAmount());
+                    rlr.setPaymentMethodName(AppConstants.InstafinPaymentMethod.REMITA_PAYMENT_METHOD);
+                    rlr.setTransactionBranchID(AppConstants.InstafinBranch.TRANSACTION_BRANCH_ID);
+                    rlr.setRepaymentDate(ct.getLastUpdate().toString());
+                    rlr.setNotes("Remita loan repayment - loan ID: - "+mandate.getLoanId() +
+                            " mandate ID: - "+mandate.getMandateId() + "transactionRef: - " +statusResp.getTransactionRef());
+                    var repaymentResp = lrs.makeLoanRepayment(rlr);
+                    String errorMgs = null;
+                    boolean repaymentStatus = true;
+                    if(null != repaymentResp){
+                        JSONObject repaymentRespObj;
+                        try {
+                            repaymentRespObj = cardUtil.getJsonObjResponse(repaymentResp);
+                            if(repaymentRespObj == null){
+                                errorMgs = repaymentResp;
+                                repaymentStatus = false;
+
+                            } else if(vu.responseContainsValidationError(repaymentRespObj)){
+                                errorMgs = repaymentRespObj.get("message").toString();
+                                repaymentStatus = false;
+                            }
+
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                            repaymentStatus = false;
+                        }
+                    }else {
+                        errorMgs = "No response gotten from Instafin";
+                        repaymentStatus = false;
+                    }
+
+//                    var ctDetails = ctRepo.findByRemitaRequestIdAndMandateId(ct.getRemitaRequestId(),ct.getMandateId());
+                    if(!repaymentStatus){
+                        ct.setStatus("repayment_failure");
+                        ct.setInstafinResponse(errorMgs);
+
+                        RetryLoanRepayment lr = new RetryLoanRepayment();
+                        lr.setLoanId(mandate.getLoanId());
+                        lr.setNoOfRetry(0);
+                        lr.setStatus("repayment_failure");
+                        lr.setClientId(mandate.getClientId());
+                        lr.setProcessFlag("N");
+                        lr.setStatus("Pending");
+
+                        rlrRepo.save(lr);
+
+                    }else {
+                        ct.setStatus("REPAYMENT SUCCESSFUL");
+                    }
+                    ctService.addCardTransaction(ct);
+                }
+            });
+        }
+    }
+
+    private RemitaDebitStatusResp checkRemitaTransactionStatus(RemitaDebitStatus rds){
         try {
             var payload = om.writerWithDefaultPrettyPrinter().writeValueAsString(rds);
-            log.info("ENTRY checkDebitStatus: -> payload {} ", payload);
-            var debitStatusResp = httpCallService.remitaHttpUrlCall(baseUrl+debitStatusUrl,payload,null);
-            log.info("ENTRY checkDebitStatus: -> debitStatusResp {} ",debitStatusResp);
-            var dsRespObj = cardUtil.getJsonObjResponse(debitStatusResp);
-
-            if(dsRespObj.get("statuscode").toString().equalsIgnoreCase("072") && !dsRespObj.get("status").toString().equalsIgnoreCase("Pending Credit")){
-
+            log.info("ENTRY checkRemitaTransactionStatus -> payload: {} ",payload);
+            var statusResp = httpCallService.remitaHttpUrlCall(baseUrl + debitStatusUrl,payload,null);
+            log.info("ENTRY checkRemitaTransactionStatus -> statusResp: {} ",statusResp);
+            var statusRespObj = cardUtil.getJsonObjResponse(cardUtil.getObjectString(statusResp));
+            if(statusRespObj.get("statuscode").toString().equalsIgnoreCase("072") && statusRespObj.get("status").toString().equalsIgnoreCase("Pending Credit")){
+                return om.readValue(cardUtil.getObjectString(statusResp), RemitaDebitStatusResp.class);
             }
-
         } catch (Exception e) {
             e.printStackTrace();
-            throw new CustomCheckedException("Unable to verify remita debit transaction, error reads: "+ e.getMessage());
         }
         return null;
     }

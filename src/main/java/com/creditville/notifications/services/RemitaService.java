@@ -13,7 +13,6 @@ public interface RemitaService {
 
     List<Mandates> getAllActiveMandates(Integer pageNumber, Integer pageSize);
 
-    MandateResp checkDebitStatusAndRepayLoan(RemitaDebitStatus rds) throws CustomCheckedException;
-
+    void checkDebitStatusAndRepayLoan() throws CustomCheckedException;
 
 }
