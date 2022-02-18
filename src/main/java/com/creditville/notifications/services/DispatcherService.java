@@ -22,6 +22,8 @@ public interface DispatcherService {
 
     void performRecurringChargesOperation();
 
+    void performRetryInstafinPayment();
+
     void performRecurringMandateDebitInstruction();
 
     void performMiscOperation(LocalDate startDate, LocalDate endDate);

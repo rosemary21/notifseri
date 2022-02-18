@@ -1,13 +1,20 @@
 package com.creditville.notifications.services.impl;
 
 import com.creditville.notifications.exceptions.CustomCheckedException;
+import com.creditville.notifications.instafin.common.AppConstants;
+import com.creditville.notifications.instafin.req.RepayLoanReq;
+import com.creditville.notifications.instafin.service.LoanRepaymentService;
 import com.creditville.notifications.models.*;
 import com.creditville.notifications.models.response.*;
+import com.creditville.notifications.repositories.CardTransactionRepository;
+import com.creditville.notifications.repositories.RetryLoanRepaymentRepository;
 import com.creditville.notifications.services.*;
+import com.creditville.notifications.utils.CardUtil;
 import com.creditville.notifications.utils.CurrencyUtil;
 import com.creditville.notifications.utils.DateUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -61,6 +68,12 @@ public class DispatcherServiceImpl implements DispatcherService {
     @Value("${instafin.status.active}")
     private String activeStatus;
 
+    @Autowired
+    private CardTransactionsService ctService;
+
+    @Autowired
+    LoanRepaymentService loanRepaymentService;
+
 
     @Value("${mail.postMaturitySubject}")
     private String postMaturitySubject;
@@ -91,6 +104,9 @@ public class DispatcherServiceImpl implements DispatcherService {
 
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private CardUtil cardUtil;
     
     @Value("${app.cheque.modeOfRepaymentKey}")
     private String chequeModeOfRepaymentKey;
@@ -120,6 +136,9 @@ public class DispatcherServiceImpl implements DispatcherService {
     private MailMonitorService mailMonitorService;
 
     @Autowired
+    CardTransactionRepository cardTransactionRepository;
+
+    @Autowired
     private BranchService branchService;
 
     @Autowired
@@ -127,11 +146,14 @@ public class DispatcherServiceImpl implements DispatcherService {
     @Autowired
     private ObjectMapper om;
 
-
-
-
     @Autowired
     private RemitaService remitaService;
+
+    @Autowired
+    private RetryLoanRepaymentService retryLoanRepaymentService;
+
+    @Autowired
+    RetryLoanRepaymentRepository loanRepaymentRepository;
 
     @Override
     public void performDueRentalOperation() {
@@ -430,6 +452,9 @@ public class DispatcherServiceImpl implements DispatcherService {
             cce.printStackTrace();
         }
     }
+
+
+
 
     @Override
     public void performDueRentalThreeOperation() {
@@ -1151,11 +1176,14 @@ public class DispatcherServiceImpl implements DispatcherService {
                                     if (modeOfRepayment.equalsIgnoreCase(cardModeOfRepaymentKey)) {
                                         List<LookUpLoanInstalment> loanInstalments = lookUpLoanAccount.getLoanAccount().getInstalments();
                                         if (!loanInstalments.isEmpty()) {
+
                                             List<LookUpLoanInstalment> loanInstalmentsLtOrEqToday = loanInstalments
                                                     .stream()
                                                     .filter(lookUpLoanInstalment -> dateUtil.isPaymentDateLtOrEqToday(lookUpLoanInstalment.getObligatoryPaymentDate()))
                                                     .collect(Collectors.toList());
+
                                             if (!loanInstalmentsLtOrEqToday.isEmpty()) {
+
                                                 for (LookUpLoanInstalment dueDateInstalment : loanInstalmentsLtOrEqToday) {
                                                     Client customer = lookUpClient.getClient();
                                                     LocalDate obligatoryPaymentDate = dateUtil.convertDateToLocalDate(dueDateInstalment.getObligatoryPaymentDate());
@@ -1167,7 +1195,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                         if(dueDateInstalment.getCurrentState().getFeeDueAmount() != null)
                                                             totalDue = totalDue.add(dueDateInstalment.getCurrentState().getFeeDueAmount());
                                                         BigDecimal newTotalDue = totalDue.multiply(new BigDecimal(100));
-                                                        cardDetailsService.cardRecurringCharges(toAddress, newTotalDue, clientLoan.getId(), obligatoryPaymentDate, customer.getExternalID());
+                                                        cardDetailsService.cardRecurringCharges(toAddress, newTotalDue, clientLoan.getId(), obligatoryPaymentDate, customer.getExternalID(),dueDateInstalment.getObligatoryPaymentDate());
                                                     }
                                                 }
 //                                                List<LookUpLoanInstalment> lookUpLoanInstalments = loanInstalmentsLtOrEqToday
@@ -1208,6 +1236,79 @@ public class DispatcherServiceImpl implements DispatcherService {
         }catch (Exception cce) {
             cce.printStackTrace();
         }
+    }
+
+
+
+
+    @Override
+    public void performRetryInstafinPayment() {
+        String errorMessage="";
+        boolean repaymentStatus = true;
+        List<RetryLoanRepayment>  retryLoanRepayments=loanRepaymentRepository.findByProcessFlagAndManualStatus("N","N");
+
+        for(RetryLoanRepayment loanRepayment: retryLoanRepayments){
+            CardTransactions savedCardTransaction=cardTransactionRepository.findByReference(loanRepayment.getReference());
+            RepayLoanReq repayLoanReq = new RepayLoanReq();
+            repayLoanReq.setAccountID(loanRepayment.getLoanId());
+            repayLoanReq.setAmount(loanRepayment.getAmount());
+            repayLoanReq.setPaymentMethodName(AppConstants.InstafinPaymentMethod.PAYSTACK_PAYMENT_METHOD);
+            repayLoanReq.setTransactionBranchID(AppConstants.InstafinBranch.TRANSACTION_BRANCH_ID);
+            repayLoanReq.setRepaymentDate(loanRepayment.getInstafinObliDate());
+            repayLoanReq.setNotes("Card loan repayment"+" Loan ID : "+loanRepayment.getLoanId()+" Reference Id : "+loanRepayment.getReference());
+            var repaymentResp = loanRepaymentService.makeLoanRepayment(repayLoanReq);
+            if(repaymentResp != null) {
+                JSONObject repaymentResponseObject;
+                try{
+                    repaymentResponseObject = cardUtil.getJsonObjResponse(repaymentResp);
+                    if(responseContainsValidationError(repaymentResponseObject)) {
+                        errorMessage = repaymentResponseObject.get("message").toString();
+                        repaymentStatus=false;
+                    }
+                }catch (Exception ex) {
+                    ex.printStackTrace();
+                    repaymentResponseObject = null;
+                }
+                if(repaymentResponseObject == null) {
+//                    boolean isEmpty = repaymentResp.trim().equals("");
+                    errorMessage = "Retry Charge successful but loan repayment failed. Reason: No response gotten from Instafin";
+
+                    repaymentStatus=false;
+                }
+            }else {
+                errorMessage = "Retry Charge successful but loan repayment failed. Reason: No response gotten from Instafin";
+
+                repaymentStatus=false;
+            }
+            if(!repaymentStatus){
+                savedCardTransaction.setStatus("retry_repayment_failure");
+                savedCardTransaction.setInstafinResponse(errorMessage);
+                ctService.addCardTransaction(savedCardTransaction);
+                retryLoanRepaymentService.updateRetryLoan(loanRepayment);
+            }else{
+                savedCardTransaction.setStatus("RETRY_REPAYMENT SUCCESSFUL");
+                ctService.addCardTransaction(savedCardTransaction);
+                retryLoanRepaymentService.repaymentOfLoan(loanRepayment);
+
+            }
+        }
+
+    }
+
+    private boolean responseContainsValidationError(JSONObject jsonObject){
+        String[] validationErrors = new String[] {"LEGACY_VALIDATION_ERROR", "VALIDATION",
+                "NON_EXISTING_ACCOUNT", "INVALID_STATUS_CHANGE",
+                "ACCOUNT_ALREADY_DISBURSED", "NON_EXISTING_ACCOUNT_STATUS", "VALUE_BEFORE_APPROVAL_DATE",
+                "CLIENTS_NOT_FOUND", "PAYMENT_METHOD_UNAVAILABLE", "NON_EXISTING_BRANCH", "STATUS_CHANGE_DATE_INVALID",
+                "DISBURSEMENT_NOT_ALLOWED", "GENERIC_VALIDATION_ERROR"};
+        boolean contains = false;
+        for(String error : validationErrors) {
+            if(jsonObject.containsValue(error)) {
+                contains = true;
+                break;
+            }
+        }
+        return contains;
     }
 
     @Override
@@ -1339,7 +1440,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                         if(dueDateInstalment.getCurrentState().getFeeDueAmount() != null)
                                                             totalDue = totalDue.add(dueDateInstalment.getCurrentState().getFeeDueAmount());
                                                         BigDecimal newTotalDue = totalDue.multiply(new BigDecimal(100));
-                                                        cardDetailsService.cardRecurringCharges(toAddress, newTotalDue, clientLoan.getId(), obligatoryPaymentDate, customer.getExternalID());
+                                                        cardDetailsService.cardRecurringCharges(toAddress, newTotalDue, clientLoan.getId(), obligatoryPaymentDate, customer.getExternalID(),dueDateInstalment.getObligatoryPaymentDate());
                                                     }
                                                 }
                                                 log.info("Done with OP...." + cardDetails.getClientId());

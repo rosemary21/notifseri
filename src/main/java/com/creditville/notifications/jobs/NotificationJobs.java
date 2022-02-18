@@ -147,15 +147,23 @@ public class NotificationJobs {
 //            log.info(cce.getMessage());
 //        }
 //    }
-////
-//    @Scheduled(cron = "${app.schedule.recurringCharges}")
-////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
-//    public void recurringChargesNotification() {
-//        if(recurringChargesEnabled)
-//            dispatcherService.performRecurringChargesOperation();
-//        else log.info("Schedule for recurring charges has reached it's schedule time but notification is disabled from configuration".toUpperCase());
-//    }
 //
+    @Scheduled(cron = "${app.schedule.recurringCharges}")
+//    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
+    public void recurringChargesNotification() {
+        if(recurringChargesEnabled)
+            dispatcherService.performRecurringChargesOperation();
+        else log.info("Schedule for recurring charges has reached it's schedule time but notification is disabled from configuration".toUpperCase());
+    }
+
+    @Scheduled(cron = "${app.schedule.repayinstafin.recurringCharges}")
+//    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
+    public void retryInstafinPaymentOperation() {
+        if(recurringChargesEnabled)
+            dispatcherService.performRetryInstafinPayment();
+        else log.info("Schedule for repayment on instafin is disabled".toUpperCase());
+    }
+
 //    @Scheduled(cron = "${app.schedule.partialDebit}")
 ////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
 //    public void partialDebitOperation() {
