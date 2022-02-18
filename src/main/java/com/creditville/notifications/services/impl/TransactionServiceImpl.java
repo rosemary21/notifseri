@@ -243,7 +243,6 @@ public class TransactionServiceImpl implements TransactionService {
                             repayLoanReq.setPaymentMethodName(AppConstants.InstafinPaymentMethod.REMITA_PAYMENT_METHOD);
                             repayLoanReq.setTransactionBranchID(AppConstants.InstafinBranch.TRANSACTION_BRANCH_ID);
                             repayLoanReq.setRepaymentDate(existingTransaction.getLastUpdate().toString());
-//                            repayLoanReq.setNotes("Card loan repayment");
                             repayLoanReq.setNotes("Remita loan repayment");
                             var repaymentResp = loanRepaymentService.makeLoanRepayment(repayLoanReq);
                             if (repaymentResp != null) {

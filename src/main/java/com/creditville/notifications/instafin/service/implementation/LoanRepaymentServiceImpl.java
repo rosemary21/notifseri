@@ -6,10 +6,12 @@ import com.creditville.notifications.instafin.req.RepayLoanReq;
 import com.creditville.notifications.instafin.service.LoanRepaymentService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 public class LoanRepaymentServiceImpl implements LoanRepaymentService {
 
@@ -27,9 +29,9 @@ public class LoanRepaymentServiceImpl implements LoanRepaymentService {
     public String makeLoanRepayment(RepayLoanReq repayLoanReq) {
         try {
             var payload = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(repayLoanReq);
-//            System.out.println("payload: "+payload);
+            log.info("ENTRY makeLoanRepayment -> payload: {} ",objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(payload));
             var repayLoanResp = httpCallService.doBasicPost(baseUrl+loanRepayUrl,payload);
-//            System.out.println("repayLoanResp: "+repayLoanResp);
+            log.info("ENTRY makeLoanRepayment -> Resp: {} ",repayLoanResp);
             return repayLoanResp;
 
         } catch (Exception e) {
