@@ -18,6 +18,7 @@ public class MandateResp {
     private String status;
     private String transactionRef;
     private String rrr;
+    private String requestId;
 
     private ValidationResp validation;
 }

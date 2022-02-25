@@ -172,7 +172,7 @@ public class NotificationJobs {
 //        else log.info("Schedule for partial debit operation has reached it's schedule time but is operation is disabled from configuration".toUpperCase());
 //    }
 //
-//  //  @Scheduled(cron = "${app.schedule.recurringCharges}")
+  //  @Scheduled(cron = "${app.schedule.recurringCharges}")
 //    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
 //    public void mandateDebitInstruction() {
 //        if(mandateDebitInstructionEnabled)

@@ -5,6 +5,7 @@ import com.creditville.notifications.models.DTOs.DebitInstructionDTO;
 import com.creditville.notifications.models.Mandates;
 import com.creditville.notifications.models.requests.RemitaDebitStatus;
 import com.creditville.notifications.models.response.MandateResp;
+import com.creditville.notifications.models.response.RemitaDebitStatusResp;
 
 import java.util.List;
 
@@ -15,4 +16,7 @@ public interface RemitaService {
 
     void checkDebitStatusAndRepayLoan() throws CustomCheckedException;
 
+     String generateRemitaHMAC512Hash(String... params);
+
+    RemitaDebitStatusResp checkRemitaTransactionStatus(RemitaDebitStatus rds);
 }

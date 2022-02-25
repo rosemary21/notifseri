@@ -422,7 +422,8 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                     ctDTO.setStatus("pending");
                     ctDTO.setReference(debitInstructionResp.getTransactionRef());
                     ctDTO.setMandateId(mandate.getMandateId());
-                    ctDTO.setRemitaRequestId(mandate.getRequestId());
+//                    ctDTO.setRemitaRequestId(mandate.getRequestId());
+                    ctDTO.setRemitaRequestId(debitInstructionResp.getRequestId());
                     ctService.saveCardTransaction(ctDTO);
                 }else {
 //                        Customer is no longer owing...

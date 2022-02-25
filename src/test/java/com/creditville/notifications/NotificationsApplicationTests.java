@@ -1,6 +1,7 @@
 package com.creditville.notifications;
 
 import com.creditville.notifications.exceptions.CustomCheckedException;
+import com.creditville.notifications.models.requests.RemitaDebitStatus;
 import com.creditville.notifications.repositories.CardTransactionRepository;
 import com.creditville.notifications.services.NotificationService;
 import com.creditville.notifications.services.PartialDebitService;
@@ -94,6 +95,23 @@ class NotificationsApplicationTests {
         System.out.println("resp: "+om.writerWithDefaultPrettyPrinter().writeValueAsString(resp));
     }
 
+    @Test
+    void testRemitaDebitStatus(){
+        RemitaDebitStatus rds = new RemitaDebitStatus();
+
+        rds.setRequestId("1645747203623");
+        rds.setMandateId("210622904601");
+        var hash = remitaService.generateRemitaHMAC512Hash("210622904601","4097158003","1645747203623","Q1JFRElUVklMTDEyMzR8Q1JFRElUVklMTA==");
+        rds.setHash("0"+hash);
+        rds.setMerchantId("4097158003");
+
+       var resp = remitaService.checkRemitaTransactionStatus(rds);
+        try {
+            System.out.println("resp: "+om.writerWithDefaultPrettyPrinter().writeValueAsString(resp));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+    }
 //    @Test
 //    void instalment(){
 //        var resp = remitaService.isLoanRePaid("01500099113");

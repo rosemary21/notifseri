@@ -134,6 +134,7 @@ public class RemitaServiceImpl implements RemitaService {
         }
     }
 
+    @Override
     public String generateRemitaHMAC512Hash(String... params) {
 
         StringBuilder sb = new StringBuilder();
@@ -158,7 +159,7 @@ public class RemitaServiceImpl implements RemitaService {
             while (hashtext.length() < 32) {
                 hashtext = "0" + hashtext;
             }
-
+            System.out.println("hashtext outside: "+hashtext);
             // return the HashText
             return hashtext;
         }
@@ -307,7 +308,8 @@ public class RemitaServiceImpl implements RemitaService {
         }
     }
 
-    private RemitaDebitStatusResp checkRemitaTransactionStatus(RemitaDebitStatus rds){
+    @Override
+    public RemitaDebitStatusResp checkRemitaTransactionStatus(RemitaDebitStatus rds){
         try {
             var payload = om.writerWithDefaultPrettyPrinter().writeValueAsString(rds);
             log.info("ENTRY checkRemitaTransactionStatus -> payload: {} ",payload);
