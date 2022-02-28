@@ -18,5 +18,7 @@ public interface RemitaService {
 
      String generateRemitaHMAC512Hash(String... params);
 
+    String generateRemitaDebitStatusHash(String... params);
+
     RemitaDebitStatusResp checkRemitaTransactionStatus(RemitaDebitStatus rds);
 }

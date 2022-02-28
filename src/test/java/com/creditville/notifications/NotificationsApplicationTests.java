@@ -7,6 +7,7 @@ import com.creditville.notifications.services.NotificationService;
 import com.creditville.notifications.services.PartialDebitService;
 import com.creditville.notifications.services.RemitaService;
 import com.creditville.notifications.utils.DateUtil;
+import com.creditville.notifications.utils.GeneralUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -40,6 +41,8 @@ class NotificationsApplicationTests {
     private RemitaService remitaService;
     @Autowired
     private ObjectMapper om;
+    @Autowired
+    private GeneralUtil gu;
 
     @Test
     void contextLoads() {
@@ -101,8 +104,9 @@ class NotificationsApplicationTests {
 
         rds.setRequestId("1645747203623");
         rds.setMandateId("210622904601");
-        var hash = remitaService.generateRemitaHMAC512Hash("210622904601","4097158003","1645747203623","Q1JFRElUVklMTDEyMzR8Q1JFRElUVklMTA==");
-        rds.setHash("0"+hash);
+//        var hash = remitaService.generateRemitaHMAC512Hash("210622904601","4097158003","1645747203623","Q1JFRElUVklMTDEyMzR8Q1JFRElUVklMTA==");
+        var has = remitaService.generateRemitaDebitStatusHash("210622904601","4097158003","1645747203623","Q1JFRElUVklMTDEyMzR8Q1JFRElUVklMTA==");
+        rds.setHash(has);
         rds.setMerchantId("4097158003");
 
        var resp = remitaService.checkRemitaTransactionStatus(rds);

@@ -421,7 +421,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                     ctDTO.setTransactionDate(currentDate.toString());
                     ctDTO.setStatus("pending");
                     ctDTO.setReference(debitInstructionResp.getTransactionRef());
-                    ctDTO.setMandateId(mandate.getMandateId());
+                    ctDTO.setMandateId(debitInstructionResp.getMandateId());
 //                    ctDTO.setRemitaRequestId(mandate.getRequestId());
                     ctDTO.setRemitaRequestId(debitInstructionResp.getRequestId());
                     ctService.saveCardTransaction(ctDTO);
