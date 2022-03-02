@@ -1246,7 +1246,7 @@ public class DispatcherServiceImpl implements DispatcherService {
         String errorMessage="";
         boolean repaymentStatus = true;
         List<RetryLoanRepayment>  retryLoanRepayments=loanRepaymentRepository.findByProcessFlagAndManualStatus("N","N");
-
+        log.info("getting the retry loan repayments {}",retryLoanRepayments);
         for(RetryLoanRepayment loanRepayment: retryLoanRepayments){
             CardTransactions savedCardTransaction=cardTransactionRepository.findByReference(loanRepayment.getReference());
             RepayLoanReq repayLoanReq = new RepayLoanReq();

@@ -8,6 +8,7 @@ import com.creditville.notifications.instafin.service.LoanRepaymentService;
 import com.creditville.notifications.models.CardTransactions;
 import com.creditville.notifications.models.DTOs.CardTransactionsDto;
 import com.creditville.notifications.models.DTOs.DebitInstructionDTO;
+import com.creditville.notifications.models.DTOs.RetryLoanRepaymentDTO;
 import com.creditville.notifications.models.Mandates;
 import com.creditville.notifications.models.RetryLoanRepayment;
 import com.creditville.notifications.models.requests.*;
@@ -17,6 +18,7 @@ import com.creditville.notifications.repositories.MandateRepository;
 import com.creditville.notifications.repositories.RetryLoanRepaymentRepository;
 import com.creditville.notifications.services.CardTransactionsService;
 import com.creditville.notifications.services.RemitaService;
+import com.creditville.notifications.services.RetryLoanRepaymentService;
 import com.creditville.notifications.utils.CardUtil;
 //import com.creditville.notifications.utils.DateUtil;
 import com.creditville.notifications.utils.GeneralUtil;
@@ -35,6 +37,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.*;
 
 
@@ -61,6 +64,9 @@ public class RemitaServiceImpl implements RemitaService {
 
     @Value("${remita.base.url}")
     private String baseUrl;
+
+    @Autowired
+    RetryLoanRepaymentService retryLoanRepaymentService;
 
     @Value("${remita.debit.url}")
     private String debitUrl;
@@ -124,7 +130,6 @@ public class RemitaServiceImpl implements RemitaService {
             var debitRespObj = cardUtil.getJsonObjResponse(cardUtil.getObjectString(debitResp));
 
             if(debitRespObj.get("statuscode").toString().equalsIgnoreCase("069")){
-
                 cardTransactionsService.saveCardTransaction(convertDebitObjectToCardTransactionDto(debitRespObj,debitDto));
             }
             return om.readValue(cardUtil.getObjectString(debitResp),MandateResp.class);
@@ -158,7 +163,6 @@ public class RemitaServiceImpl implements RemitaService {
             while (hashtext.length() < 32) {
                 hashtext = "0" + hashtext;
             }
-
             // return the HashText
             return hashtext;
         }
@@ -167,6 +171,37 @@ public class RemitaServiceImpl implements RemitaService {
         catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public String generateRemitaDebitStatusHash(String... params) {
+        String generatedPassword = null;
+//        String salt = getSalt();
+        StringBuilder sbs = new StringBuilder();
+        for(String param : params) sbs.append(param);
+
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-512");
+//            md.update(salt.getBytes());
+            byte[] bytes = md.digest(sbs.toString().getBytes());
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < bytes.length; i++) {
+                sb.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16)
+                        .substring(1));
+            }
+            generatedPassword = sb.toString();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return generatedPassword;
+    }
+
+    // Add salt
+    private static String getSalt() throws NoSuchAlgorithmException {
+        SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
+        byte[] salt = new byte[16];
+        sr.nextBytes(salt);
+        return salt.toString();
     }
 
     private String generateRequestID(){
@@ -233,23 +268,25 @@ public class RemitaServiceImpl implements RemitaService {
     }
 
     @Override
-    public void checkDebitStatusAndRepayLoan() throws CustomCheckedException {
+    public void checkDebitStatusAndRepayLoan()  {
 
-        Collection<CardTransactions> ctList =  ctRepo.findAllByStatusAndMandateIdIsNull("pending");
-
+        Collection<CardTransactions> ctList =  ctRepo.findAllByStatusAndMandateIdIsNotNullAndRemitaRequestIdIsNotNull("pending");
+        log.info("getting the c list {}",ctList.size());
         if(null != ctList){
             ctList.forEach(ct -> {
                 RemitaDebitStatus rds = new RemitaDebitStatus();
 
                 rds.setRequestId(ct.getRemitaRequestId());
                 rds.setMandateId(ct.getMandateId());
-                var hash = generateRemitaHMAC512Hash(ct.getMandateId(),marchantId,ct.getRemitaRequestId(), apiKey);
+//                var hash = generateRemitaHMAC512Hash(ct.getMandateId(),marchantId,ct.getRemitaRequestId(), apiKey);
+                var hash = generateRemitaDebitStatusHash(ct.getMandateId(),marchantId,ct.getRemitaRequestId(), apiKey);
                 rds.setHash(hash);
                 rds.setMerchantId(marchantId);
-
                 var statusResp = checkRemitaTransactionStatus(rds);
+                log.info("getting the status response {}",statusResp);
+
                 if(null != statusResp){
-                    Mandates mandate = mandateRepo.findByMandateId(ct.getMandateId());
+                    Mandates mandate = mandateRepo.findByMandateId(statusResp.getMandateId());
                     RepayLoanReq rlr = new RepayLoanReq();
                     rlr.setAccountID(mandate.getLoanId());
                     rlr.setAmount(statusResp.getAmount());
@@ -258,12 +295,15 @@ public class RemitaServiceImpl implements RemitaService {
                     rlr.setRepaymentDate(ct.getLastUpdate().toString());
                     rlr.setNotes("Remita loan repayment - loan ID: - "+mandate.getLoanId() +
                             " mandate ID: - "+mandate.getMandateId() + "transactionRef: - " +statusResp.getTransactionRef());
+//                                        rlr.setNotes("Remita loan repayment - loan ID: - "+mandate.getLoanId() +
+//                            " mandate ID: - "+mandate.getMandateId() );
                     var repaymentResp = lrs.makeLoanRepayment(rlr);
+                    log.info("getting the repayment response {}",repaymentResp);
                     String errorMgs = null;
                     boolean repaymentStatus = true;
                     if(null != repaymentResp){
                         JSONObject repaymentRespObj;
-                        try {
+                          try {
                             repaymentRespObj = cardUtil.getJsonObjResponse(repaymentResp);
                             if(repaymentRespObj == null){
                                 errorMgs = repaymentResp;
@@ -287,7 +327,6 @@ public class RemitaServiceImpl implements RemitaService {
                     if(!repaymentStatus){
                         ct.setStatus("repayment_failure");
                         ct.setInstafinResponse(errorMgs);
-
                         RetryLoanRepayment lr = new RetryLoanRepayment();
                         lr.setLoanId(mandate.getLoanId());
                         lr.setNoOfRetry(0);
@@ -295,13 +334,20 @@ public class RemitaServiceImpl implements RemitaService {
                         lr.setClientId(mandate.getClientId());
                         lr.setProcessFlag("N");
                         lr.setStatus("Pending");
-
-                        rlrRepo.save(lr);
-
+                        CardTransactions cardTransactions= ctService.addCardTransaction(ct);
+                        log.info("getting the card transaction {}",cardTransactions);
+                        log.info("getting the mandates {}",mandate);
+                        log.info("getting the TransactionDate {}",ct.getTransactionDate());
+                        if(cardTransactions.getCardDetails() == null){
+                            RetryLoanRepaymentDTO retryLoanRepaymentDTO=retryLoanRepaymentService.getLoanMandateRepayment(cardTransactions,mandate.getLoanId(),"260606348065",ct.getTransactionDate());
+                            retryLoanRepaymentDTO.setMethodOfRepayment("Remitta");
+                            retryLoanRepaymentService.saveRetryLoan(cardTransactions,retryLoanRepaymentDTO,mandate.getLoanId());
+                        }
                     }else {
                         ct.setStatus("REPAYMENT SUCCESSFUL");
+                        CardTransactions cardTransactions= ctService.addCardTransaction(ct);
+
                     }
-                    ctService.addCardTransaction(ct);
                 }
             });
         }
@@ -314,7 +360,7 @@ public class RemitaServiceImpl implements RemitaService {
             var statusResp = httpCallService.remitaHttpUrlCall(baseUrl + debitStatusUrl,payload,null);
             log.info("ENTRY checkRemitaTransactionStatus -> statusResp: {} ",statusResp);
             var statusRespObj = cardUtil.getJsonObjResponse(cardUtil.getObjectString(statusResp));
-            if(statusRespObj.get("statuscode").toString().equalsIgnoreCase("072") && statusRespObj.get("status").toString().equalsIgnoreCase("Pending Credit")){
+            if((statusRespObj.get("statuscode").toString().equalsIgnoreCase("072")) ||((statusRespObj.get("statuscode").toString().equalsIgnoreCase("071"))||((statusRespObj.get("statuscode").toString().equalsIgnoreCase("00"))) )){
                 return om.readValue(cardUtil.getObjectString(statusResp), RemitaDebitStatusResp.class);
             }
         } catch (Exception e) {

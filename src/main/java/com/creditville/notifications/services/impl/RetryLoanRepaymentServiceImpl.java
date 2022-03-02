@@ -2,7 +2,9 @@ package com.creditville.notifications.services.impl;
 
 import com.creditville.notifications.models.CardTransactions;
 import com.creditville.notifications.models.DTOs.RetryLoanRepaymentDTO;
+import com.creditville.notifications.models.Mandates;
 import com.creditville.notifications.models.RetryLoanRepayment;
+import com.creditville.notifications.repositories.MandateRepository;
 import com.creditville.notifications.repositories.RetryLoanRepaymentRepository;
 import com.creditville.notifications.services.RetryLoanRepaymentService;
 import org.modelmapper.ModelMapper;
@@ -20,17 +22,20 @@ public class RetryLoanRepaymentServiceImpl implements RetryLoanRepaymentService 
     @Autowired
     RetryLoanRepaymentRepository loanRepaymentRepository;
 
+    @Autowired
+    MandateRepository  mandateRepository;
+
     @Value("${app.no.retry}")
     private String noRetry;
 
     @Override
     public String saveRetryLoan(CardTransactions cardTransactions,RetryLoanRepaymentDTO retryLoanRepaymentDTO,String loanId) {
         RetryLoanRepayment loanRepayment= modelMapper.map(retryLoanRepaymentDTO,RetryLoanRepayment.class);
-        RetryLoanRepayment oldrepayment= loanRepaymentRepository.findByReferenceAndLoanIdAndClientId(cardTransactions.getReference(),loanId,cardTransactions.getCardDetails().getClientId());
-        if(oldrepayment==null){
-            loanRepaymentRepository.save(loanRepayment);
-            return "success";
-        }
+            RetryLoanRepayment oldrepayment= loanRepaymentRepository.findByReferenceAndLoanIdAndClientId(cardTransactions.getReference(),loanId,retryLoanRepaymentDTO.getClientId());
+            if(oldrepayment==null){
+                loanRepaymentRepository.save(loanRepayment);
+                return "success";
+            }
 
         return null;
     }
@@ -39,6 +44,7 @@ public class RetryLoanRepaymentServiceImpl implements RetryLoanRepaymentService 
     public RetryLoanRepaymentDTO getLoanRepayment(CardTransactions cardTransactions,String loanId,String email,String instafinOblDate) {
 
         RetryLoanRepaymentDTO retryLoanRepaymentDTO=new RetryLoanRepaymentDTO();
+        System.out.println("getting the reference and loan id {}{}{}"+cardTransactions.getReference() +" "+loanId+" "+cardTransactions.getCardDetails().getClientId());
         RetryLoanRepayment loanRepayment= loanRepaymentRepository.findByReferenceAndLoanIdAndClientId(cardTransactions.getReference(),loanId,cardTransactions.getCardDetails().getClientId());
         if(loanRepayment==null){
             retryLoanRepaymentDTO.setLoanId(loanId);
@@ -49,9 +55,36 @@ public class RetryLoanRepaymentServiceImpl implements RetryLoanRepaymentService 
             retryLoanRepaymentDTO.setAmount(cardTransactions.getAmount());
             retryLoanRepaymentDTO.setReference(cardTransactions.getReference());
             retryLoanRepaymentDTO.setEmail(email);
+            retryLoanRepaymentDTO.setProcessFlag("N");
             retryLoanRepaymentDTO.setInstafinObliDate(instafinOblDate);
 
+        }
+        return retryLoanRepaymentDTO;
+    }
 
+    @Override
+    public RetryLoanRepaymentDTO getLoanMandateRepayment(CardTransactions cardTransactions,String loanId,String mandateid,String instafinOblDate) {
+
+        RetryLoanRepaymentDTO retryLoanRepaymentDTO=new RetryLoanRepaymentDTO();
+        RetryLoanRepayment loanRepayment=loanRepaymentRepository.findByReferenceAndMandateId(cardTransactions.getReference(),mandateid);
+        if(mandateid!=null){
+          Mandates mandates= mandateRepository.findByMandateId(mandateid);
+            retryLoanRepaymentDTO.setClientId(mandates.getClientId());
+
+        }
+        if(cardTransactions.getCardDetails()!=null){
+            retryLoanRepaymentDTO.setClientId(cardTransactions.getCardDetails().getClientId());
+        }
+        if(loanRepayment==null){
+            retryLoanRepaymentDTO.setLoanId(loanId);
+            retryLoanRepaymentDTO.setNoOfRetry(0);
+            retryLoanRepaymentDTO.setStatus(cardTransactions.getStatus());
+            retryLoanRepaymentDTO.setTransactionDate(cardTransactions.getTransactionDate());
+            retryLoanRepaymentDTO.setAmount(cardTransactions.getAmount());
+            retryLoanRepaymentDTO.setReference(cardTransactions.getReference());
+            retryLoanRepaymentDTO.setMandateId(mandateid);
+            retryLoanRepaymentDTO.setProcessFlag("N");
+            retryLoanRepaymentDTO.setInstafinObliDate(instafinOblDate);
         }
         return retryLoanRepaymentDTO;
     }

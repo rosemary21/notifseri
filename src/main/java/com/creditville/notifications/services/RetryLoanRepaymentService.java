@@ -13,4 +13,6 @@ public interface RetryLoanRepaymentService {
     String updateRetryLoan(RetryLoanRepayment retryLoanRepayment);
 
     String repaymentOfLoan(RetryLoanRepayment retryLoanRepayment);
+
+    RetryLoanRepaymentDTO getLoanMandateRepayment(CardTransactions cardTransactions,String loanId,String mandateId,String instafinOblDate);
 }
