@@ -19,6 +19,7 @@ import com.creditville.notifications.services.CardTransactionsService;
 import com.creditville.notifications.services.RemitaService;
 import com.creditville.notifications.utils.CardUtil;
 //import com.creditville.notifications.utils.DateUtil;
+import com.creditville.notifications.utils.DateUtil;
 import com.creditville.notifications.utils.GeneralUtil;
 import com.creditville.notifications.utils.ValidationUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -68,6 +69,11 @@ public class RemitaServiceImpl implements RemitaService {
     @Value("${remita.debit.status.url}")
     private String debitStatusUrl;
 
+    @Value("remita.mandate.status")
+    private String mandateStatus;
+    @Value("remita.none.active.mandate.statuscode")
+    private String initiatedMandateStatuscode;
+
     @Autowired
     private ObjectMapper om;
 
@@ -83,8 +89,6 @@ public class RemitaServiceImpl implements RemitaService {
     @Autowired
     private CardUtil cardUtil;
 
-//    @Autowired
-//    private DateUtil dateUtil;
 
     @Autowired
     private CardTransactionsService cardTransactionsService;
@@ -99,6 +103,8 @@ public class RemitaServiceImpl implements RemitaService {
     private CardTransactionsService ctService;
     @Autowired
     private RetryLoanRepaymentRepository rlrRepo;
+    @Autowired
+    private DateUtil du;
 
     private final String remitaActiveMandatesStatusCode = "00";
 
@@ -256,9 +262,6 @@ public class RemitaServiceImpl implements RemitaService {
 
     @Override
     public List<Mandates> getAllActiveMandates(Integer pageNumber, Integer pageSize) {
-        log.info("ENTRY-->GETTING THE REMITA ACTIVE MANDATE STATUS CODE {}",remitaActiveMandatesStatusCode);
-        log.info("ENTRY-->GETTING THE PAGE NUMBER {}",pageNumber);
-        log.info("ENTRY-->GETTING THE PAGE SIZE {}",pageSize);
         Page<Mandates> mandates = mandateRepo.findAllByStatusCode(remitaActiveMandatesStatusCode, PageRequest.of(pageNumber, pageSize));
         log.info("ENTRY-> GETTING THE SIZE OF MANDATES {}",mandates);
         if(mandates.getTotalElements() == 0) return new ArrayList<>();
@@ -348,12 +351,54 @@ public class RemitaServiceImpl implements RemitaService {
             var statusResp = httpCallService.remitaHttpUrlCall(baseUrl + debitStatusUrl,payload,null);
             log.info("ENTRY checkRemitaTransactionStatus -> statusResp: {} ",statusResp);
             var statusRespObj = cardUtil.getJsonObjResponse(cardUtil.getObjectString(statusResp));
-            if(statusRespObj.get("statuscode").toString().equalsIgnoreCase("072") && statusRespObj.get("status").toString().equalsIgnoreCase("Pending Credit")){
+            if(((statusRespObj.get("statuscode").toString()).equalsIgnoreCase("00")) || ((statusRespObj.get("statuscode").toString()).equalsIgnoreCase("071")) ||
+                    ((statusRespObj.get("statuscode").toString()).equalsIgnoreCase("072"))){
                 return om.readValue(cardUtil.getObjectString(statusResp), RemitaDebitStatusResp.class);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    @Override
+    public void checkStatusAndUpdateMandate() {
+
+    }
+
+
+    private MandateResp getMandateActivationStatus(MandateReq mReq){
+        var header = getHeadersParam(mReq.getRequestId(),mReq.getHash());
+
+        try {
+            var payload = om.writerWithDefaultPrettyPrinter().writeValueAsString(mReq);
+            log.info("ENTRY checkMandateActivationStatus -> payload: {} ",payload);
+            var resp =  httpCallService.remitaHttpUrlCall(baseUrl + mandateStatus, payload, header);
+            log.info("ENTRY checkMandateActivationStatus -> resp: {} ",resp);
+            var respObj = cardUtil.getJsonObjResponse(cardUtil.getObjectString(resp));
+            System.out.println("ENTRY checkMandateStatus -> respObj: "+respObj);
+            if(null != respObj)return om.readValue(cardUtil.getObjectString(resp), MandateResp.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private HeaderParam getHeadersParam (String requestId, String hashParam){
+        HeaderParam hp = new HeaderParam();
+        hp.setMerchantId(marchantId);
+        hp.setApiKey(apiKey);
+        hp.setRequestId(requestId);
+        hp.setRequest_ts(du.getTimeStamp());
+
+        hp.setApiDetailsHash(hashParam);
+        return hp;
+    }
+
+    private List<Mandates> getAllNonActiveMandates(Integer pageNo, Integer pageSize){
+        Page<Mandates> mPage = mandateRepo.findAllByStatusCode(remitaActiveMandatesStatusCode, PageRequest.of(pageNo, pageSize));
+        log.info("ENTRY getAllNonActiveMandates -> mPage: {} ",mPage);
+        if(mPage.getTotalElements() == 0) return new ArrayList<>();
+        else return mPage.getContent();
     }
 }

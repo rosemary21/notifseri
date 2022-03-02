@@ -21,4 +21,6 @@ public interface RemitaService {
     String generateRemitaDebitStatusHash(String... params);
 
     RemitaDebitStatusResp checkRemitaTransactionStatus(RemitaDebitStatus rds);
+
+    void checkStatusAndUpdateMandate();
 }
