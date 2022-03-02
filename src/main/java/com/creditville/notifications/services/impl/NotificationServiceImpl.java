@@ -1,5 +1,6 @@
 package com.creditville.notifications.services.impl;
 
+//import com.creditville.notifications.configurations.MailConfiguration;
 import com.creditville.notifications.exceptions.CustomCheckedException;
 import com.creditville.notifications.models.ExcludedEmail;
 import com.creditville.notifications.models.requests.SendEmailRequest;
@@ -18,7 +19,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.simplejavamail.api.email.Email;
 import org.simplejavamail.api.email.EmailPopulatingBuilder;
 import org.simplejavamail.api.mailer.Mailer;
+import org.simplejavamail.api.mailer.config.TransportStrategy;
 import org.simplejavamail.email.EmailBuilder;
+import org.simplejavamail.mailer.MailerBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,23 +43,50 @@ public class NotificationServiceImpl implements NotificationService {
     @Autowired
     private TemplateEngine templateEngine;
 
-    @Autowired
-    private Mailer mailer;
+//    @Autowired
+//    private Mailer mailer;
 
     @Value("${mail.smt.sendAsync}")
     private Boolean async;
 
+//    @Autowired
+//    MailConfiguration mailConfiguration;
+
     @Value("${mail.smt.sender}")
     private String senderName;
 
+    @Value("${redwood.mail.smt.sender}")
+    private String redWoodSenderName;
+
     @Value("${mail.smt.senderEmail}")
     private String senderEmail;
+
+    @Value("${redwood.mail.smt.senderEmail}")
+    private String redWoodSenderEmail;
 
     @Value("${app.notificationsEnabled}")
     private Boolean notificationsEnabled;
 
     @Autowired
     private EmailService emailService;
+
+    @Value("${redwood.mail.smt.user}")
+    String redwoodmailUser;
+    @Value("${redwood.mail.smt.pass}")
+    String redwoodmailPass;
+    @Value("${redwood.mail.smt.url}")
+    String redwoodmailUrl;
+    @Value("${redwood.mail.smt.port}")
+    Integer redwoodmailPort;
+
+    @Value("${mail.smt.user}")
+    String mailUser;
+    @Value("${mail.smt.pass}")
+    String mailPass;
+    @Value("${mail.smt.url}")
+    String mailUrl;
+    @Value("${mail.smt.port}")
+    Integer mailPort;
 
     @Autowired
     private FailedEmailRepository failedEmailRepository;
@@ -67,17 +97,6 @@ public class NotificationServiceImpl implements NotificationService {
     @Autowired
     private ExcludedEmailRepository excludedEmailRepository;
 
-/**
- * @param subject is the mail subject and is a required parameter
- * @param templateLocation is the location of the HTML email template and is a required parameter
- * @param  notificationData must contain toName and toAddress as member data
- *
- * @throws CustomCheckedException when an error occurs
- *
- * @implNote if toAddress exists in excluded_email table, mail won't be sent out
- *
- * This method sends out notifications with the SMTP properties configured in the application.properties file
- * **/
     @Override
     public void sendEmailNotification(String subject, Map<String, String> notificationData, String templateLocation) throws CustomCheckedException {
         Context context = new Context();
@@ -100,7 +119,15 @@ public class NotificationServiceImpl implements NotificationService {
         if(notificationsEnabled) {
             try {
                 if(!emailService.isEmailExcluded(notificationData.get("toAddress"))) {
-                    mailer.sendMail(email, async);
+
+                    Mailer mailer = MailerBuilder.withSMTPServerHost(mailUrl)
+                            .withSMTPServerPort(mailPort)
+                            .withSMTPServerUsername(mailUser)
+                            .withSMTPServerPassword(mailPass)
+                            .withTransportStrategy(TransportStrategy.SMTP_TLS).buildMailer();
+                             mailer.sendMail(email, async);
+                    //mailer.sendMail(email, async);
+
                     emailService.auditSuccessfulEmail(notificationData, subject);
                 }
             }catch (Exception ex) {
@@ -169,12 +196,17 @@ public class NotificationServiceImpl implements NotificationService {
                 bccAddressList = Arrays.stream(parts).collect(Collectors.toList());
             } else bccAddressList.add(bccAddresses);
         }
-
-        System.out.println("getting the toAddressList {}"+toAddressList);
-        System.out.println("getting the ccAddressList"+ccAddressList);
-
+        String senderNameValue=senderName;
+        String SenderEmailValue=senderEmail;
+        if(sendEmailRequest.getMailData().get("RedWood")!=null){
+            if(!(sendEmailRequest.getMailData().get("RedWood").isEmpty())){
+                 log.info("getting the redwood value");
+                 senderNameValue=redWoodSenderName;
+                 SenderEmailValue=redWoodSenderEmail;
+            }
+        }
         EmailPopulatingBuilder emailPopulatingBuilder = EmailBuilder.startingBlank()
-                .from(senderName, senderEmail)
+                .from(senderNameValue, SenderEmailValue)
                 .to(null, toAddressList)
                 .cc(null, ccAddressList)
                 .bcc(null, bccAddressList)
@@ -189,8 +221,20 @@ public class NotificationServiceImpl implements NotificationService {
 
         if(notificationsEnabled) {
             try {
+                log.info("About sending information details");
                 if(!emailService.isEmailExcluded(mailData.get("toAddress").textValue())) {
-                    mailer.sendMail(email, async);
+                    Mailer mailer = MailerBuilder.withSMTPServerHost(redwoodmailUrl)
+                            .withSMTPServerPort(redwoodmailPort)
+                            .withSMTPServerUsername(redwoodmailUser)
+                            .withSMTPServerPassword(redwoodmailPass)
+                            .withTransportStrategy(TransportStrategy.SMTPS).buildMailer();
+                           mailer.sendMail(email, async);
+//                    Mailer mailer = MailerBuilder.withSMTPServerHost(mailUrl)
+//                            .withSMTPServerPort(mailPort)
+//                            .withSMTPServerUsername(mailUser)
+//                            .withSMTPServerPassword(mailPass)
+//                            .withTransportStrategy(TransportStrategy.SMTP_TLS).buildMailer();
+//                    mailer.sendMail(email, async);
                     emailService.auditSuccessfulEmail(mailData, sendEmailRequest.getMailSubject());
                 }
             }catch (Exception ex) {
@@ -222,14 +266,21 @@ public class NotificationServiceImpl implements NotificationService {
             String templateLocation = this.getTemplateLocation("redwood");
             String content = templateEngine.process(templateLocation, context);
             Email email = EmailBuilder.startingBlank()
-                    .from(senderName, senderEmail)
+                    .from(redWoodSenderName, redWoodSenderEmail)
                     .to(null, toAddressList)
                     .withSubject("Contact RedWood")
                     .withHTMLText(content).buildEmail();
             if(notificationsEnabled) {
                 try {
                     if(!emailService.isEmailExcluded(sendEmailRequest.getAddress())) {
-                        mailer.sendMail(email, async);
+
+                        Mailer mailer = MailerBuilder.withSMTPServerHost(mailUrl)
+                                .withSMTPServerPort(mailPort)
+                                .withSMTPServerUsername(mailUser)
+                                .withSMTPServerPassword(mailPass)
+                                .withTransportStrategy(TransportStrategy.SMTP_TLS).buildMailer();
+                                 mailer.sendMail(email, async);
+                               // mailer.sendMail(email, async);
                       //  emailService.auditSuccessfulEmail(mailData, sendEmailRequest.getMailSubject());
                     }
                 }catch (Exception ex) {
@@ -275,7 +326,13 @@ public class NotificationServiceImpl implements NotificationService {
             if(notificationsEnabled) {
                 try {
                     if(!emailService.isEmailExcluded(mailData.get("toAddress").textValue())) {
-                        mailer.sendMail(email, async);
+                        Mailer mailer = MailerBuilder.withSMTPServerHost(mailUrl)
+                                .withSMTPServerPort(mailPort)
+                                .withSMTPServerUsername(mailUser)
+                                .withSMTPServerPassword(mailPass)
+                                .withTransportStrategy(TransportStrategy.SMTP_TLS).buildMailer();
+                                mailer.sendMail(email, async);
+                      //  mailer.sendMail(email, async);
                         emailService.auditSuccessfulEmail(mailData, sendEmailRequest.getMailSubject());
                     }
                 }catch (Exception ex) {

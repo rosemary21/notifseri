@@ -3,10 +3,7 @@ package com.creditville.notifications.jobs;
 import com.creditville.notifications.exceptions.CustomCheckedException;
 import com.creditville.notifications.models.NotificationGeneralConfig;
 import com.creditville.notifications.models.NotificationType;
-import com.creditville.notifications.services.DispatcherService;
-import com.creditville.notifications.services.NotificationConfigService;
-import com.creditville.notifications.services.PartialDebitService;
-import com.creditville.notifications.services.TransferService;
+import com.creditville.notifications.services.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,9 +20,13 @@ public class NotificationJobs {
     @Autowired
     private DispatcherService dispatcherService;
 
+    @Autowired
+    private RemitaService remitaService;
     @Value("${app.schedule.recurringCharges.enabled}")
     private Boolean recurringChargesEnabled;
 
+    @Value("${app.schedule.instafinrepayment.enabled}")
+    private Boolean instafinrepaymentEnabled;
     @Value("${app.schedule.mandateDebitInstruction.enabled}")
     private Boolean mandateDebitInstructionEnabled;
 
@@ -41,7 +42,7 @@ public class NotificationJobs {
     @Autowired
     TransferService transferService;
 
-        //@Async("schedulePool1")
+       // @Async("schedulePool1")
 //    @Scheduled(cron = "${app.schedule.dueRentalOne}")
 //   // @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
 //    public void dueRentalNotification() {
@@ -57,7 +58,7 @@ public class NotificationJobs {
 //        }
 //    }
 //
-//      //  @Async("schedulePool2")
+////      //  @Async("schedulePool2")
 //    @Scheduled(cron = "${app.schedule.dueRentalTwo}")
 ////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
 //    public void dueRentalNotification2() {
@@ -100,7 +101,7 @@ public class NotificationJobs {
 //        }
 //    }
 //
-//       // @Async("schedulePool4")
+////       // @Async("schedulePool4")
 //    @Scheduled(cron = "${app.schedule.arrears}")
 ////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
 //    public void arrearsNotification() {
@@ -115,8 +116,8 @@ public class NotificationJobs {
 //            log.info(cce.getMessage());
 //        }
 //    }
-//
-//       // @Async("schedulePool5")
+////
+////       // @Async("schedulePool5")
 //    @Scheduled(cron = "${app.schedule.postMaturity}")
 ////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
 //    public void postMaturityNotification() {
@@ -132,7 +133,7 @@ public class NotificationJobs {
 //        }
 //    }
 //
-//       // @Async("schedulePool6")
+////       // @Async("schedulePool6")
 //    @Scheduled(cron = "${app.schedule.chequeLodgement}")
 ////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
 //    public void chequeLodgementNotification() {
@@ -147,23 +148,24 @@ public class NotificationJobs {
 //            log.info(cce.getMessage());
 //        }
 //    }
+////
+//    @Scheduled(cron = "${app.schedule.recurringCharges}")
+////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
+//    public void recurringChargesNotification() {
+//        if(recurringChargesEnabled)
+//            dispatcherService.performRecurringChargesOperation();
+//        else log.info("Schedule for recurring charges has reached it's schedule time but notification is disabled from configuration".toUpperCase());
+//    }
+////
+//    @Scheduled(cron = "${app.schedule.repayinstafin.recurringCharges}")
+////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
+//    public void retryInstafinPaymentOperation() {
+//        if(instafinrepaymentEnabled)
+//            dispatcherService.performRetryInstafinPayment();
+//        else log.info("Schedule for repayment on instafin is disabled".toUpperCase());
+//    }
 //
-    @Scheduled(cron = "${app.schedule.recurringCharges}")
-//    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
-    public void recurringChargesNotification() {
-        if(recurringChargesEnabled)
-            dispatcherService.performRecurringChargesOperation();
-        else log.info("Schedule for recurring charges has reached it's schedule time but notification is disabled from configuration".toUpperCase());
-    }
-
-    @Scheduled(cron = "${app.schedule.repayinstafin.recurringCharges}")
-//    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
-    public void retryInstafinPaymentOperation() {
-        if(recurringChargesEnabled)
-            dispatcherService.performRetryInstafinPayment();
-        else log.info("Schedule for repayment on instafin is disabled".toUpperCase());
-    }
-
+////
 //    @Scheduled(cron = "${app.schedule.partialDebit}")
 ////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
 //    public void partialDebitOperation() {
@@ -172,13 +174,26 @@ public class NotificationJobs {
 //        else log.info("Schedule for partial debit operation has reached it's schedule time but is operation is disabled from configuration".toUpperCase());
 //    }
 //
-  //  @Scheduled(cron = "${app.schedule.recurringCharges}")
-//    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
+//    @Scheduled(cron = "${app.schedule.recurringCharges}")
+////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
 //    public void mandateDebitInstruction() {
 //        if(mandateDebitInstructionEnabled)
 //            dispatcherService.performRecurringMandateDebitInstruction();
 //        else log.info("Schedule for recurring mandate charge (remita) has reached it's schedule time but notification is disabled from configuration".toUpperCase());
 //    }
+//
+////
+//    @Scheduled(cron = "${app.schedule.confirmRemitaAndRepayLoan}")
+////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
+//    public void confirmRemitaAndRepayLoanOperation() {
+//        if(mandateDebitInstructionEnabled)
+//            remitaService.checkDebitStatusAndRepayLoan();
+//        else log.info("Schedule for confirmation of remita and repayment of loan operation".toUpperCase());
+//    }
+//
+//
+//
+//
 //
 //    @Scheduled(cron = "${app.schedule.notifyTeam}")
 ////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")

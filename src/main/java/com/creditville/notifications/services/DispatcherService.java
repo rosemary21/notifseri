@@ -31,4 +31,6 @@ public interface DispatcherService {
     void notifyTeamOfOperation() throws CustomCheckedException;
 
     void sendOutEidNotification();
+
+    void checkStatusAndUpdateMandate();
 }

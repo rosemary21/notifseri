@@ -19,6 +19,8 @@ public class RetryLoanRepaymentDTO {
     private String reference;
     private String email;
     private String instafinObliDate;
+    private String methodOfRepayment;
+    private String mandateId;
 
 
 }

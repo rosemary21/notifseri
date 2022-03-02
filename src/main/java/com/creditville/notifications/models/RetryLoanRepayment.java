@@ -27,5 +27,7 @@ public class RetryLoanRepayment {
     private String manualStatus="N";
     private String email;
     private String instafinObliDate;
+    private String methodOfRepayment;
+    private String mandateId;
 
 }

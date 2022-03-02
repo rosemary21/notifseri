@@ -5,8 +5,10 @@ import com.creditville.notifications.instafin.common.AppConstants;
 import com.creditville.notifications.instafin.req.RepayLoanReq;
 import com.creditville.notifications.instafin.service.LoanRepaymentService;
 import com.creditville.notifications.models.*;
+import com.creditville.notifications.models.requests.MandateReq;
 import com.creditville.notifications.models.response.*;
 import com.creditville.notifications.repositories.CardTransactionRepository;
+import com.creditville.notifications.repositories.MandateRepository;
 import com.creditville.notifications.repositories.RetryLoanRepaymentRepository;
 import com.creditville.notifications.services.*;
 import com.creditville.notifications.utils.CardUtil;
@@ -67,6 +69,11 @@ public class DispatcherServiceImpl implements DispatcherService {
 
     @Value("${instafin.status.active}")
     private String activeStatus;
+
+    @Value("${remita.marchant.id}")
+    private String merchantId;
+    @Value("${remita.api.key}")
+    private String remitaApiKey;
 
     @Autowired
     private CardTransactionsService ctService;
@@ -153,7 +160,9 @@ public class DispatcherServiceImpl implements DispatcherService {
     private RetryLoanRepaymentService retryLoanRepaymentService;
 
     @Autowired
-    RetryLoanRepaymentRepository loanRepaymentRepository;
+    private RetryLoanRepaymentRepository loanRepaymentRepository;
+    @Autowired
+    private MandateRepository mandateRepo;
 
     @Override
     public void performDueRentalOperation() {
@@ -1246,7 +1255,7 @@ public class DispatcherServiceImpl implements DispatcherService {
         String errorMessage="";
         boolean repaymentStatus = true;
         List<RetryLoanRepayment>  retryLoanRepayments=loanRepaymentRepository.findByProcessFlagAndManualStatus("N","N");
-
+        log.info("getting the retry loan repayments {}",retryLoanRepayments);
         for(RetryLoanRepayment loanRepayment: retryLoanRepayments){
             CardTransactions savedCardTransaction=cardTransactionRepository.findByReference(loanRepayment.getReference());
             RepayLoanReq repayLoanReq = new RepayLoanReq();
@@ -1553,5 +1562,42 @@ public class DispatcherServiceImpl implements DispatcherService {
         }catch (CustomCheckedException cce) {
             cce.printStackTrace();
         }
+    }
+
+    @Override
+    public void checkStatusAndUpdateMandate() {
+
+        try {
+
+            Integer pageNumber = 0;
+            log.info("ENTRY checkStatusAndUpdateMandate -> GETTING THE PAGE NUMBER OF ZERO");
+            while (pageNumber != null){
+                List<Mandates> mandatesList = remitaService.getAllNoneActiveMandates(pageNumber,100);
+                if(!mandatesList.isEmpty()){
+                    for(Mandates m : mandatesList){
+                        log.info("STARTING MANDATE ACTIVATION CHECKING PROCESSING");
+                        MandateReq mReq = new MandateReq();
+                        mReq.setMandateId(m.getMandateId());
+                        mReq.setRequestId(m.getRequestId());
+                        var hash = remitaService.generateRemitaHMAC512Hash(m.getMandateId(),merchantId,m.getRequestId(),remitaApiKey);
+                        mReq.setHash(hash);
+                        mReq.setMerchantId(merchantId);
+
+                        var statusResp = remitaService.getMandateActivationStatus(mReq);
+                        if(null != statusResp && statusResp.isActive()){
+                            m.setStatusCode("00");
+                            mandateRepo.save(m);
+                        }
+                    }
+                    pageNumber++;
+                }else {
+                    pageNumber = null;
+                }
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 }
