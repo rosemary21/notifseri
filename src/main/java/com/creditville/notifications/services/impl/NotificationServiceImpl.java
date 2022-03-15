@@ -198,13 +198,13 @@ public class NotificationServiceImpl implements NotificationService {
         }
         String senderNameValue=senderName;
         String SenderEmailValue=senderEmail;
-        if(sendEmailRequest.getMailData().get("RedWood")!=null){
-            if(!(sendEmailRequest.getMailData().get("RedWood").isEmpty())){
-                 log.info("getting the redwood value");
-                 senderNameValue=redWoodSenderName;
-                 SenderEmailValue=redWoodSenderEmail;
-            }
-        }
+//        if(sendEmailRequest.getMailData().get("RedWood")!=null){
+//            if(!(sendEmailRequest.getMailData().get("RedWood").isEmpty())){
+//                 log.info("getting the redwood value");
+//                 senderNameValue=redWoodSenderName;
+//                 SenderEmailValue=redWoodSenderEmail;
+//            }
+//        }
         EmailPopulatingBuilder emailPopulatingBuilder = EmailBuilder.startingBlank()
                 .from(senderNameValue, SenderEmailValue)
                 .to(null, toAddressList)
@@ -223,18 +223,18 @@ public class NotificationServiceImpl implements NotificationService {
             try {
                 log.info("About sending information details");
                 if(!emailService.isEmailExcluded(mailData.get("toAddress").textValue())) {
-                    Mailer mailer = MailerBuilder.withSMTPServerHost(redwoodmailUrl)
-                            .withSMTPServerPort(redwoodmailPort)
-                            .withSMTPServerUsername(redwoodmailUser)
-                            .withSMTPServerPassword(redwoodmailPass)
-                            .withTransportStrategy(TransportStrategy.SMTPS).buildMailer();
-                           mailer.sendMail(email, async);
-//                    Mailer mailer = MailerBuilder.withSMTPServerHost(mailUrl)
-//                            .withSMTPServerPort(mailPort)
-//                            .withSMTPServerUsername(mailUser)
-//                            .withSMTPServerPassword(mailPass)
-//                            .withTransportStrategy(TransportStrategy.SMTP_TLS).buildMailer();
-//                    mailer.sendMail(email, async);
+//                    Mailer mailer = MailerBuilder.withSMTPServerHost(redwoodmailUrl)
+//                            .withSMTPServerPort(redwoodmailPort)
+//                            .withSMTPServerUsername(redwoodmailUser)
+//                            .withSMTPServerPassword(redwoodmailPass)
+//                            .withTransportStrategy(TransportStrategy.SMTPS).buildMailer();
+//                           mailer.sendMail(email, async);
+                    Mailer mailer = MailerBuilder.withSMTPServerHost(mailUrl)
+                            .withSMTPServerPort(mailPort)
+                            .withSMTPServerUsername(mailUser)
+                            .withSMTPServerPassword(mailPass)
+                            .withTransportStrategy(TransportStrategy.SMTP_TLS).buildMailer();
+                    mailer.sendMail(email, async);
                     emailService.auditSuccessfulEmail(mailData, sendEmailRequest.getMailSubject());
                 }
             }catch (Exception ex) {
