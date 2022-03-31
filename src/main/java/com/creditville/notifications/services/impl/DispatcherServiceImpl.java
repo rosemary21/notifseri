@@ -1184,6 +1184,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                                             lookUpLoanAccount.getLoanAccount().getOptionalFields().getModeOfRepayment();
                                     if (modeOfRepayment.equalsIgnoreCase(cardModeOfRepaymentKey)) {
                                         List<LookUpLoanInstalment> loanInstalments = lookUpLoanAccount.getLoanAccount().getInstalments();
+                                        System.out.println("loanInstalments: "+om.writerWithDefaultPrettyPrinter().writeValueAsString(loanInstalments));
                                         if (!loanInstalments.isEmpty()) {
 
                                             List<LookUpLoanInstalment> loanInstalmentsLtOrEqToday = loanInstalments
@@ -1191,11 +1192,13 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                     .filter(lookUpLoanInstalment -> dateUtil.isPaymentDateLtOrEqToday(lookUpLoanInstalment.getObligatoryPaymentDate()))
                                                     .collect(Collectors.toList());
 
+
                                             if (!loanInstalmentsLtOrEqToday.isEmpty()) {
 
                                                 for (LookUpLoanInstalment dueDateInstalment : loanInstalmentsLtOrEqToday) {
                                                     Client customer = lookUpClient.getClient();
                                                     LocalDate obligatoryPaymentDate = dateUtil.convertDateToLocalDate(dueDateInstalment.getObligatoryPaymentDate());
+                                                    System.out.println("obligatoryPaymentDate: "+obligatoryPaymentDate);
                                                     String toAddress = customer.getEmail();
                                                     var principalDueAmount = dueDateInstalment.getCurrentState().getPrincipalDueAmount();
                                                     if (principalDueAmount.compareTo(BigDecimal.ZERO) > 0) {

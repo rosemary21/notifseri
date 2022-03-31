@@ -1,13 +1,12 @@
 package com.creditville.notifications;
 
-import com.creditville.notifications.exceptions.CustomCheckedException;
 import com.creditville.notifications.models.requests.RemitaDebitStatus;
 import com.creditville.notifications.repositories.CardTransactionRepository;
-import com.creditville.notifications.services.NotificationService;
+import com.creditville.notifications.services.DispatcherService;
 import com.creditville.notifications.services.PartialDebitService;
 import com.creditville.notifications.services.RemitaService;
 import com.creditville.notifications.utils.DateUtil;
-import com.creditville.notifications.utils.GeneralUtil;
+import com.creditville.notifications.utils.FeeUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -30,19 +29,17 @@ class NotificationsApplicationTests {
 
     @Autowired
     private PartialDebitService partialDebitService;
-
     @Autowired
     private CardTransactionRepository cardTransactionRepository;
-
-    @Autowired
-    private NotificationService notificationService;
-
     @Autowired
     private RemitaService remitaService;
     @Autowired
     private ObjectMapper om;
     @Autowired
-    private GeneralUtil gu;
+    private FeeUtil feeUtil;
+    @Autowired
+    private DispatcherService dispatcherService;
+
 
     @Test
     void contextLoads() {
@@ -120,5 +117,28 @@ class NotificationsApplicationTests {
 //    void instalment(){
 //        var resp = remitaService.isLoanRePaid("01500099113");
 //    }
+
+    @Test
+    void paystackCalFeeTest(){
+//        BigDecimal defualtAmt = new BigDecimal("2500");
+//        BigDecimal amount = new BigDecimal("2500.01");
+//
+//        System.out.println("compare " + amount.compareTo(defualtAmt));
+//
+//        if(amount.compareTo(defualtAmt)  <= 0){
+//            System.out.println("amount is less  than or equal default amount");
+//        }else {
+//            System.out.println("amount is greater than default");
+//        }
+        var amount = new BigDecimal("2000000");
+
+        var feeAmt = feeUtil.calculatePaystackFee(amount);
+        System.out.println("final fee: "+feeAmt);
+    }
+
+    @Test
+    void testRecurringCharges(){
+        dispatcherService.performRecurringChargesOperation();
+    }
 
 }
