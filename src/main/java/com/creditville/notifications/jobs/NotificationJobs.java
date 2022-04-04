@@ -57,7 +57,7 @@ public class NotificationJobs {
 //            log.info(cce.getMessage());
 //        }
 //    }
-
+//
 ////    @Scheduled(cron = "${app.schedule.dueRentalOne}")
 //     @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
 //    public void sendAllNotification() {
