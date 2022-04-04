@@ -13,7 +13,7 @@ public interface CardDetailsService {
 
     public void cardAuthorization(String response, String clientId);
 
-    void cardRecurringCharges(String email, BigDecimal amount, String loanId, LocalDate currentDate, String clientID,String instafinDate);
+    void cardRecurringCharges(String email, BigDecimal amount, String loanId, LocalDate currentDate, String clientID,String instafinDate, BigDecimal charge);
 
     void initiateRemitaRecurringCharges(BigDecimal amount, String loanId, LocalDate currentDate, String clientID);
 

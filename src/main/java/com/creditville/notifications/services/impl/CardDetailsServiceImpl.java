@@ -242,7 +242,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
 //    }
 
     @Override
-    public void cardRecurringCharges(String email, BigDecimal amount, String loanId, LocalDate currentDate, String clientID,String obligDate) {
+    public void cardRecurringCharges(String email, BigDecimal amount, String loanId, LocalDate currentDate, String clientID,String obligDate, BigDecimal transactionFee) {
         log.info("Email {}, Amount {}, Loan ID {}, Local Date {}, ClientID: {}", email, amount.toString(), loanId, currentDate.toString(), clientID);
         ChargeDto chargeDto = new ChargeDto();
         CardTransactionsDto ctDTO = new CardTransactionsDto();
@@ -284,6 +284,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                             ctDTO.setReference(dataObj.get("reference").toString());
 
                             ctDTO.setCardType(authObj.get("card_type").toString());
+                            ctDTO.setPaystackFee(transactionFee);
 
                             ctDTO.setCardDetails(cardDetails);
 
@@ -292,7 +293,9 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                                 //repay Loan
                                 repayLoanReq.setAccountID(loanId);
 //                                repayLoanReq.setAmount(new BigDecimal(dataObj.get("amount").toString()));
-                                repayLoanReq.setAmount(newChargedAmount);
+                                var loanAmount = newChargedAmount.subtract(transactionFee);
+//                                repayLoanReq.setAmount(newChargedAmount);
+                                repayLoanReq.setAmount(loanAmount);
                                 repayLoanReq.setPaymentMethodName(AppConstants.InstafinPaymentMethod.PAYSTACK_PAYMENT_METHOD);
                                 repayLoanReq.setTransactionBranchID(AppConstants.InstafinBranch.TRANSACTION_BRANCH_ID);
                                 repayLoanReq.setRepaymentDate(currentDate.toString());

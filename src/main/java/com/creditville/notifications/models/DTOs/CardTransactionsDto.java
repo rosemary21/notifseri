@@ -24,6 +24,7 @@ public class CardTransactionsDto {
     private String rrr;
     private String remitaRequestId;
     private String instafinResponse;
+    private BigDecimal paystackFee;
 
 //    @ManyToOne
     private CardDetails cardDetails;
