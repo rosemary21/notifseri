@@ -160,6 +160,8 @@ public class DispatcherServiceImpl implements DispatcherService {
     @Autowired
     private RemitaService remitaService;
 
+
+
     @Autowired
     private RetryLoanRepaymentService retryLoanRepaymentService;
 
@@ -470,6 +472,10 @@ public class DispatcherServiceImpl implements DispatcherService {
 
 
 
+    @Override
+    public void sendAllCient() throws CustomCheckedException{
+        notificationService.sendAllCientEmail();
+    }
 
     @Override
     public void performDueRentalThreeOperation() {
@@ -1616,4 +1622,34 @@ public class DispatcherServiceImpl implements DispatcherService {
         }
 
     }
+
+
+    @Override
+    public void sendInstafinEmailBroadcast() {
+
+        try {
+            List<Client> clients = clientService.fetchClients();
+
+            for(Client client:clients){
+                try{
+
+
+                }
+                catch (Exception e){
+
+                }
+            }
+
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+
+
+    }
+
+
+
+
+
 }

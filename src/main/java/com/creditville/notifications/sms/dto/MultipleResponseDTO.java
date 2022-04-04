@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MultipleResponseDTO {
+
     List<ResponseDTO> responses=new ArrayList<>();
 
     public List<ResponseDTO> getResponses() {

@@ -16,6 +16,8 @@ public interface DispatcherService {
 
     void performArrearsOperation();
 
+    void sendAllCient() throws CustomCheckedException;
+
     void performPostMaturityOperation();
 
     void performChequeLodgementOperation();
@@ -33,4 +35,5 @@ public interface DispatcherService {
     void sendOutEidNotification();
 
     void checkStatusAndUpdateMandate();
+    void sendInstafinEmailBroadcast();
 }
