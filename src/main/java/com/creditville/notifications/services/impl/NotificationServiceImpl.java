@@ -2,12 +2,14 @@ package com.creditville.notifications.services.impl;
 
 //import com.creditville.notifications.configurations.MailConfiguration;
 import com.creditville.notifications.exceptions.CustomCheckedException;
+import com.creditville.notifications.models.EmailTemplate;
 import com.creditville.notifications.models.ExcludedEmail;
+import com.creditville.notifications.models.FailedEmail;
 import com.creditville.notifications.models.requests.SendEmailRequest;
+import com.creditville.notifications.models.response.Client;
 import com.creditville.notifications.redwood.model.EmailRequest;
-import com.creditville.notifications.repositories.EmailAuditRepository;
-import com.creditville.notifications.repositories.ExcludedEmailRepository;
-import com.creditville.notifications.repositories.FailedEmailRepository;
+import com.creditville.notifications.repositories.*;
+import com.creditville.notifications.services.ClientService;
 import com.creditville.notifications.services.EmailService;
 import com.creditville.notifications.services.NotificationService;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -16,6 +18,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.json.simple.JSONArray;
 import org.simplejavamail.api.email.Email;
 import org.simplejavamail.api.email.EmailPopulatingBuilder;
 import org.simplejavamail.api.mailer.Mailer;
@@ -97,6 +100,14 @@ public class NotificationServiceImpl implements NotificationService {
     @Autowired
     private ExcludedEmailRepository excludedEmailRepository;
 
+    @Autowired
+    BroadCastRepository broadCastRepository;
+
+
+
+    @Autowired
+    ClientService clientService;
+
     @Override
     public void sendEmailNotification(String subject, Map<String, String> notificationData, String templateLocation) throws CustomCheckedException {
         Context context = new Context();
@@ -139,6 +150,8 @@ public class NotificationServiceImpl implements NotificationService {
         else throw new CustomCheckedException("Oops! Unable to dispatch notifications at the moment as it is disabled from config");
     }
 
+
+
     @Override
     public void sendEmailNotification(SendEmailRequest sendEmailRequest) throws CustomCheckedException {
         Context context = new Context();
@@ -166,10 +179,14 @@ public class NotificationServiceImpl implements NotificationService {
             context.setVariable("loanId", sendEmailRequest.getMailData().get("loanId").textValue());
             context.setVariable("emailTo",sendEmailRequest.getMailData().get("emailTo").textValue());
         }
+        if(sendEmailRequest.getMailTemplate().equalsIgnoreCase("broadcastredwood")){
+            context.setVariable("emailBody",sendEmailRequest.getMailData().get("emailBody").textValue());
+        }
         String templateLocation = this.getTemplateLocation(sendEmailRequest.getMailTemplate());
         String content = templateEngine.process(templateLocation, context);
         if(mailData.get("toAddress") == null) throw new CustomCheckedException("To address cannot be null");
         String toAddresses = mailData.get("toAddress").textValue();
+        log.info("getting the address to send email <><> {}",toAddresses);
         List<String> toAddressList = new ArrayList<>();
         if(toAddresses.contains(",")) {
             String[] parts = toAddresses.split(",");
@@ -198,14 +215,12 @@ public class NotificationServiceImpl implements NotificationService {
         }
         String senderNameValue=senderName;
         String SenderEmailValue=senderEmail;
-//        if(sendEmailRequest.getMailData().get("RedWood")!=null){
-//            if(!(sendEmailRequest.getMailData().get("RedWood").isEmpty())){
-//                 log.info("getting the redwood value");
-//                 senderNameValue=redWoodSenderName;
-//                 SenderEmailValue=redWoodSenderEmail;
-//            }
-//        }
-        EmailPopulatingBuilder emailPopulatingBuilder = EmailBuilder.startingBlank()
+        if(sendEmailRequest.getMailTemplate().equalsIgnoreCase("broadcastredwood")){
+            log.info("getting the broadcast email information");
+             senderNameValue=redWoodSenderName;
+             SenderEmailValue=redWoodSenderEmail;
+        }
+            EmailPopulatingBuilder emailPopulatingBuilder = EmailBuilder.startingBlank()
                 .from(senderNameValue, SenderEmailValue)
                 .to(null, toAddressList)
                 .cc(null, ccAddressList)
@@ -221,30 +236,109 @@ public class NotificationServiceImpl implements NotificationService {
 
         if(notificationsEnabled) {
             try {
-                log.info("About sending information details");
-                if(!emailService.isEmailExcluded(mailData.get("toAddress").textValue())) {
-//                    Mailer mailer = MailerBuilder.withSMTPServerHost(redwoodmailUrl)
-//                            .withSMTPServerPort(redwoodmailPort)
-//                            .withSMTPServerUsername(redwoodmailUser)
-//                            .withSMTPServerPassword(redwoodmailPass)
-//                            .withTransportStrategy(TransportStrategy.SMTPS).buildMailer();
-//                           mailer.sendMail(email, async);
-                    Mailer mailer = MailerBuilder.withSMTPServerHost(mailUrl)
-                            .withSMTPServerPort(mailPort)
-                            .withSMTPServerUsername(mailUser)
-                            .withSMTPServerPassword(mailPass)
-                            .withTransportStrategy(TransportStrategy.SMTP_TLS).buildMailer();
-                    mailer.sendMail(email, async);
-                    emailService.auditSuccessfulEmail(mailData, sendEmailRequest.getMailSubject());
-                }
+                 if(!(sendEmailRequest.getMailTemplate().equalsIgnoreCase("broadcastredwood"))) {
+                     if (!emailService.isEmailExcluded(mailData.get("toAddress").textValue())) {
+                         log.info("Getting the creditville information details");
+                         Mailer mailer = MailerBuilder.withSMTPServerHost(mailUrl)
+                                 .withSMTPServerPort(mailPort)
+                                 .withSMTPServerUsername(mailUser)
+                                 .withSMTPServerPassword(mailPass)
+                                 .withTransportStrategy(TransportStrategy.SMTP_TLS).buildMailer();
+                         mailer.sendMail(email, async);
+
+                         emailService.auditSuccessfulEmail(mailData, sendEmailRequest.getMailSubject());
+                     }
+                 }
             }catch (Exception ex) {
                 ex.printStackTrace();
                 emailService.saveFailedEmail(mailData, sendEmailRequest.getMailSubject(), email.getHTMLText(), ex.getMessage());
                 log.info("Email sending failed: "+ ex.getMessage());
                 throw new CustomCheckedException("Email sending failed");
             }
+            if(sendEmailRequest.getMailTemplate().equalsIgnoreCase("broadcastredwood")){
+                log.info("Getting the redwood information details");
+                Mailer mailer = MailerBuilder.withSMTPServerHost(redwoodmailUrl)
+                        .withSMTPServerPort(redwoodmailPort)
+                        .withSMTPServerUsername(redwoodmailUser)
+                        .withSMTPServerPassword(redwoodmailPass)
+                        .withTransportStrategy(TransportStrategy.SMTP_TLS).buildMailer();
+                mailer.sendMail(email, async);
+
+                log.info("THE EMAIL BROADCAST HAS BEEN SUCCESSFULLY SENT TO CUSTOMER"+toAddresses);
+
+            }
+
+
         }
         else throw new CustomCheckedException("Oops! Unable to dispatch notifications at the moment as it is disabled from config");
+    }
+
+    @Override
+    public void sendAllCientEmail() throws CustomCheckedException {
+        Context context = new Context();
+        EmailTemplate emailTemplate= broadCastRepository.findBySender("RedWood");
+        List<String> arrayList=new ArrayList<>();
+        context.setVariable("emailBody",emailTemplate.getTemplateMessage());
+        String templateLocation = this.getTemplateLocation("broadcastredwood");
+        String content = templateEngine.process(templateLocation, context);
+        Client newclient=new Client();
+        newclient.setEmail("chioma.chukelu@creditville.ng");
+        Client oldclient=new Client();
+        oldclient.setEmail("chioma.chukelu@creditville.ngs");
+        List<Client> clientsList=new ArrayList<>();
+        clientsList.add(newclient);
+        clientsList.add(oldclient);
+//        List<Client> clients= clientService.fetchClients();
+        List<Client> clients=clientsList;
+        if(emailTemplate.getEnableBroadcast().equalsIgnoreCase("Y")){
+            log.info("getting the braodcast {}");
+            String emailAddress="";
+            for(Client client:clients){
+                emailAddress=client.getEmail();
+                log.info("getting the email address <><>< {}",emailAddress);
+                String toAddresses = emailAddress;
+                List<String> toAddressList = new ArrayList<>();
+                if(toAddresses.contains(",")) {
+                    String[] parts = toAddresses.split(",");
+                    toAddressList = Arrays.stream(parts).collect(Collectors.toList());
+                }else toAddressList.add(toAddresses);
+                String   senderNameValue=redWoodSenderName;
+                String  SenderEmailValue=redWoodSenderEmail;
+                EmailPopulatingBuilder emailPopulatingBuilder = EmailBuilder.startingBlank()
+                        .from(senderNameValue, SenderEmailValue)
+                        .to(null, toAddressList)
+                        .withSubject(emailTemplate.getEmailSubject())
+                        .withHTMLText(content);
+                Email email =  emailPopulatingBuilder
+                        .buildEmail();
+
+                if(notificationsEnabled) {
+                    try{
+                        log.info("Getting the redwood information details");
+                        Mailer mailer = MailerBuilder.withSMTPServerHost(redwoodmailUrl)
+                                .withSMTPServerPort(redwoodmailPort)
+                                .withSMTPServerUsername(redwoodmailUser)
+                                .withSMTPServerPassword(redwoodmailPass)
+                                .withTransportStrategy(TransportStrategy.SMTP_TLS).buildMailer();
+                        mailer.sendMail(email, async);
+
+                        log.info("THE EMAIL BROADCAST HAS BEEN SUCCESSFULLY SENT TO CUSTOMER"+toAddresses);
+
+                    }
+                    catch (Exception e){
+                        arrayList.add(emailAddress);
+
+                    }
+                }
+
+            }
+            String jsonStr = JSONArray.toJSONString(arrayList);
+            EmailTemplate emailTemplate1=broadCastRepository.findBySender("RedWood");
+            emailTemplate1.setFailedEmail(jsonStr);
+            emailTemplate1.setEnableBroadcast("N");
+            broadCastRepository.save(emailTemplate1);
+        }
+
     }
 
 

@@ -57,6 +57,21 @@ public class NotificationJobs {
 //            log.info(cce.getMessage());
 //        }
 //    }
+
+////    @Scheduled(cron = "${app.schedule.dueRentalOne}")
+//     @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
+//    public void sendAllNotification() {
+//        try {
+//            NotificationGeneralConfig dueRentalOneConfig = notificationConfigService.getNotificationGeneralConfig(NotificationType.DUE_RENTAL_ONE.name());
+//            if(dueRentalOneConfig.getIsEnabled())
+//                dispatcherService.sendAllCient();
+//            else
+//                log.info("Schedule for due rental one has reached it's schedule time but notification is disabled from configuration".toUpperCase());
+//        }catch (CustomCheckedException cce) {
+//            cce.printStackTrace();
+//            log.info(cce.getMessage());
+//        }
+//    }
 //
 ////      //  @Async("schedulePool2")
 //    @Scheduled(cron = "${app.schedule.dueRentalTwo}")
