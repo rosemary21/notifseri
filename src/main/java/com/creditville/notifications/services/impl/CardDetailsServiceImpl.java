@@ -244,150 +244,150 @@ public class CardDetailsServiceImpl implements CardDetailsService {
     @Override
     public void cardRecurringCharges(String email, BigDecimal amount, String loanId, LocalDate currentDate, String clientID,String obligDate) {
         log.info("Email {}, Amount {}, Loan ID {}, Local Date {}, ClientID: {}", email, amount.toString(), loanId, currentDate.toString(), clientID);
-//        ChargeDto chargeDto = new ChargeDto();
-//        CardTransactionsDto ctDTO = new CardTransactionsDto();
-//        RepayLoanReq repayLoanReq = new RepayLoanReq();
-//        boolean repaymentStatus = true;
-//
-//        var cardDetails = cardDetailsRepo.findByClientIdAndEmail(clientID, email);
-//        String errorMessage = null;
-//        if(null == cardDetails){
-//            log.info("Card is not tokenized".toUpperCase());
-//            repaymentStatus = false;
-//        }else {
-//            try {
-//                CardTransactions existingTransaction = cardTransactionRepository.findByCardDetailsAndStatusInAndLastUpdate(cardDetails, Collections.singletonList("success"), currentDate);
-//                if (existingTransaction == null) {
-//                    log.info("There is no such existing transaction. Creating one now...");
-//                    if(amount.compareTo(BigDecimal.ZERO) > 0) {
-//                        chargeDto.setAmount(amount);
-//                        chargeDto.setAuthorization_code(cardDetails.getAuthorizationCode());
-//                        chargeDto.setEmail(email);
-//                        var chargeResp = chargeCard(chargeDto);
-//                        ctDTO.setPaystackResponse(chargeResp);
-//
-//                        var chargeRespObj = cardUtil.getJsonObjResponse(chargeResp);
-////                        log.info("ENTRY -> recurringCharges response: " + chargeRespObj);
-//                        if (null != chargeRespObj && chargeRespObj.containsKey("data")) {
-//                            log.info("Data response was gotten from PAYSTACK for client: {} with loan id: {}", cardDetails.getClientId(), loanId);
-//                            var dataObj = (JSONObject) chargeRespObj.get("data");
-//                            var authObj = (JSONObject) dataObj.get("authorization");
-//
-//                            BigDecimal chargedAmount = new BigDecimal(dataObj.get("amount").toString());
-//                            BigDecimal newChargedAmount = chargedAmount.divide(new BigDecimal(100)).setScale(2, RoundingMode.CEILING);
-//
-////                            ctDTO.setAmount(new BigDecimal(dataObj.get("amount").toString()));
-//                            ctDTO.setAmount(newChargedAmount);
-//                            ctDTO.setCurrency(dataObj.get("currency").toString());
-//                            ctDTO.setTransactionDate(dataObj.get("transaction_date").toString());
-//                            ctDTO.setStatus(dataObj.get("status").toString());
-//                            ctDTO.setReference(dataObj.get("reference").toString());
-//
-//                            ctDTO.setCardType(authObj.get("card_type").toString());
-//
-//                            ctDTO.setCardDetails(cardDetails);
-//
-//                            var savedCardTransaction = ctService.saveCardTransaction(ctDTO);
-//                            if(ctDTO.getStatus().equalsIgnoreCase("success")){
-//                                //repay Loan
-//                                repayLoanReq.setAccountID(loanId);
-////                                repayLoanReq.setAmount(new BigDecimal(dataObj.get("amount").toString()));
-//                                repayLoanReq.setAmount(newChargedAmount);
-//                                repayLoanReq.setPaymentMethodName(AppConstants.InstafinPaymentMethod.PAYSTACK_PAYMENT_METHOD);
-//                                repayLoanReq.setTransactionBranchID(AppConstants.InstafinBranch.TRANSACTION_BRANCH_ID);
-//                                repayLoanReq.setRepaymentDate(currentDate.toString());
-//                                repayLoanReq.setNotes("Card loan repayment"+" Loan ID : "+loanId+" Reference Id : "+ctDTO.getReference());
-//                                var repaymentResp = loanRepaymentService.makeLoanRepayment(repayLoanReq);
-//                                if(repaymentResp != null) {
-//                                    JSONObject repaymentResponseObject;
-//                                    try{
-//                                        repaymentResponseObject = cardUtil.getJsonObjResponse(repaymentResp);
-//                                        if(responseContainsValidationError(repaymentResponseObject)) {
-//                                            errorMessage = repaymentResponseObject.get("message").toString();
-//                                            repaymentStatus = false;
-//                                        }
-//                                    }catch (Exception ex) {
-//                                        ex.printStackTrace();
-//                                        repaymentResponseObject = null;
-//                                    }
-//                                    if(repaymentResponseObject == null) {
-//                                        boolean isEmpty = repaymentResp.trim().equals("");
-//                                        errorMessage = isEmpty ?
-//                                                "Charge successful but loan repayment failed. Reason: No response gotten from Instafin" :
-//                                                repaymentResp;
-//                                        if(isEmpty) repaymentStatus = false;
-//                                    }
-//                                }else {
-//                                    errorMessage = "Charge successful but loan repayment failed. Reason: No response gotten from Instafin";
-//                                    repaymentStatus = false;
-//                                }
-//                                if(!repaymentStatus) {
-////                                  ctDTO.setStatus("repayment_failure");
-////                                  ctDTO.setInstafinResponse(errorMessage);
-////                                  ctService.saveCardTransaction(ctDTO);
-//                                    savedCardTransaction.setStatus("repayment_failure");
-//                                    savedCardTransaction.setInstafinResponse(errorMessage);
-//                                    ctService.addCardTransaction(savedCardTransaction);
-//                                    RetryLoanRepaymentDTO retryLoanRepaymentDTO=retryLoanRepaymentService.getLoanRepayment(savedCardTransaction,loanId,email,obligDate);
-//                                    retryLoanRepaymentDTO.setMethodOfRepayment("paystack");
-//                                    retryLoanRepaymentService.saveRetryLoan(savedCardTransaction,retryLoanRepaymentDTO,loanId);
-//
-//                                }else {
-////                                    ctDTO.setInstafinResponse("REPAYMENT SUCCESSFUL");
-////                                    ctService.saveCardTransaction(ctDTO);
-//                                    savedCardTransaction.setStatus("REPAYMENT SUCCESSFUL");
-//                                    ctService.addCardTransaction(savedCardTransaction);
-//                                }
-//                            }else {
-////                                Charge failed. Attempt PD...
-//                                Map<String, String> pdResponse = this.performPd(dataObj, chargeDto, repayLoanReq, loanId, currentDate, clientID);
-//                                repaymentStatus = Boolean.valueOf(pdResponse.get("repaymentStatus"));
-//                                errorMessage = pdResponse.get("errorMessage");
-//                            }
-//
-//                        }else {
-//                            log.info("No response was gotten from PAYSTACK. Aborting operation for client: {} with loan id: {}", cardDetails.getClientId(), loanId);
-//                            repaymentStatus = false;
-//                            errorMessage = "No response gotten from paystack";
-//                        }
-//                    }else {
-////                        Customer is no longer owing...
-//                        PartialDebit partialDebit = partialDebitService.getPartialDebit(
-//                                chargeDto.getAuthorization_code(),
-//                                chargeDto.getAmount(),
-//                                chargeDto.getEmail()
-//                        );
-//                        if(partialDebit != null){
-//                            partialDebitService.deletePartialDebitRecord(partialDebit.getId());
-//                        }
-//                    }
-//                }else {
-//                    log.info("An existing transaction already exists. See ID: "+ existingTransaction.getId());
-//                }
-//            } catch (ParseException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//
-//        Map<String, String> notificationData = new HashMap<>();
-//        notificationData.put("toName", tokenizationName);
-//        notificationData.put("customerName", tokenizationName);
-//        notificationData.put("toAddress", tokenizationEmail);
-////        notificationData.put("toAddress", email);
-//        notificationData.put("loanId", loanId);
-//        notificationData.put("todayDate", LocalDate.now().toString());
-//        notificationData.put("failureMessage", errorMessage);
-//        notificationData.put("paymentDate", currentDate.toString());
-//        String mailSubject = repaymentStatus ? repaymentSuccessSubject : repaymentFailureSubject;
-//        String templateLocation = repaymentStatus ? "email/repayment-success" : "email/repayment-failure";
-//        if(!emailService.alreadySentOutEmailToday(email, tokenizationName, mailSubject, currentDate)) {
-//            try {
-//                notificationService.sendEmailNotification(mailSubject, notificationData, templateLocation);
-//            } catch (CustomCheckedException cce) {
-//                cce.printStackTrace();
-//                log.info("An error occurred while trying to notify team of repayment status: Error message: " +  cce.getMessage());
-//            }
-//        }
+        ChargeDto chargeDto = new ChargeDto();
+        CardTransactionsDto ctDTO = new CardTransactionsDto();
+        RepayLoanReq repayLoanReq = new RepayLoanReq();
+        boolean repaymentStatus = true;
+
+        var cardDetails = cardDetailsRepo.findByClientIdAndEmail(clientID, email);
+        String errorMessage = null;
+        if(null == cardDetails){
+            log.info("Card is not tokenized".toUpperCase());
+            repaymentStatus = false;
+        }else {
+            try {
+                CardTransactions existingTransaction = cardTransactionRepository.findByCardDetailsAndStatusInAndLastUpdate(cardDetails, Collections.singletonList("success"), currentDate);
+                if (existingTransaction == null) {
+                    log.info("There is no such existing transaction. Creating one now...");
+                    if(amount.compareTo(BigDecimal.ZERO) > 0) {
+                        chargeDto.setAmount(amount);
+                        chargeDto.setAuthorization_code(cardDetails.getAuthorizationCode());
+                        chargeDto.setEmail(email);
+                        var chargeResp = chargeCard(chargeDto);
+                        ctDTO.setPaystackResponse(chargeResp);
+
+                        var chargeRespObj = cardUtil.getJsonObjResponse(chargeResp);
+//                        log.info("ENTRY -> recurringCharges response: " + chargeRespObj);
+                        if (null != chargeRespObj && chargeRespObj.containsKey("data")) {
+                            log.info("Data response was gotten from PAYSTACK for client: {} with loan id: {}", cardDetails.getClientId(), loanId);
+                            var dataObj = (JSONObject) chargeRespObj.get("data");
+                            var authObj = (JSONObject) dataObj.get("authorization");
+
+                            BigDecimal chargedAmount = new BigDecimal(dataObj.get("amount").toString());
+                            BigDecimal newChargedAmount = chargedAmount.divide(new BigDecimal(100)).setScale(2, RoundingMode.CEILING);
+
+//                            ctDTO.setAmount(new BigDecimal(dataObj.get("amount").toString()));
+                            ctDTO.setAmount(newChargedAmount);
+                            ctDTO.setCurrency(dataObj.get("currency").toString());
+                            ctDTO.setTransactionDate(dataObj.get("transaction_date").toString());
+                            ctDTO.setStatus(dataObj.get("status").toString());
+                            ctDTO.setReference(dataObj.get("reference").toString());
+
+                            ctDTO.setCardType(authObj.get("card_type").toString());
+
+                            ctDTO.setCardDetails(cardDetails);
+
+                            var savedCardTransaction = ctService.saveCardTransaction(ctDTO);
+                            if(ctDTO.getStatus().equalsIgnoreCase("success")){
+                                //repay Loan
+                                repayLoanReq.setAccountID(loanId);
+//                                repayLoanReq.setAmount(new BigDecimal(dataObj.get("amount").toString()));
+                                repayLoanReq.setAmount(newChargedAmount);
+                                repayLoanReq.setPaymentMethodName(AppConstants.InstafinPaymentMethod.PAYSTACK_PAYMENT_METHOD);
+                                repayLoanReq.setTransactionBranchID(AppConstants.InstafinBranch.TRANSACTION_BRANCH_ID);
+                                repayLoanReq.setRepaymentDate(currentDate.toString());
+                                repayLoanReq.setNotes("Card loan repayment"+" Loan ID : "+loanId+" Reference Id : "+ctDTO.getReference());
+                                var repaymentResp = loanRepaymentService.makeLoanRepayment(repayLoanReq);
+                                if(repaymentResp != null) {
+                                    JSONObject repaymentResponseObject;
+                                    try{
+                                        repaymentResponseObject = cardUtil.getJsonObjResponse(repaymentResp);
+                                        if(responseContainsValidationError(repaymentResponseObject)) {
+                                            errorMessage = repaymentResponseObject.get("message").toString();
+                                            repaymentStatus = false;
+                                        }
+                                    }catch (Exception ex) {
+                                        ex.printStackTrace();
+                                        repaymentResponseObject = null;
+                                    }
+                                    if(repaymentResponseObject == null) {
+                                        boolean isEmpty = repaymentResp.trim().equals("");
+                                        errorMessage = isEmpty ?
+                                                "Charge successful but loan repayment failed. Reason: No response gotten from Instafin" :
+                                                repaymentResp;
+                                        if(isEmpty) repaymentStatus = false;
+                                    }
+                                }else {
+                                    errorMessage = "Charge successful but loan repayment failed. Reason: No response gotten from Instafin";
+                                    repaymentStatus = false;
+                                }
+                                if(!repaymentStatus) {
+//                                  ctDTO.setStatus("repayment_failure");
+//                                  ctDTO.setInstafinResponse(errorMessage);
+//                                  ctService.saveCardTransaction(ctDTO);
+                                    savedCardTransaction.setStatus("repayment_failure");
+                                    savedCardTransaction.setInstafinResponse(errorMessage);
+                                    ctService.addCardTransaction(savedCardTransaction);
+                                    RetryLoanRepaymentDTO retryLoanRepaymentDTO=retryLoanRepaymentService.getLoanRepayment(savedCardTransaction,loanId,email,obligDate);
+                                    retryLoanRepaymentDTO.setMethodOfRepayment("paystack");
+                                    retryLoanRepaymentService.saveRetryLoan(savedCardTransaction,retryLoanRepaymentDTO,loanId);
+
+                                }else {
+//                                    ctDTO.setInstafinResponse("REPAYMENT SUCCESSFUL");
+//                                    ctService.saveCardTransaction(ctDTO);
+                                    savedCardTransaction.setStatus("REPAYMENT SUCCESSFUL");
+                                    ctService.addCardTransaction(savedCardTransaction);
+                                }
+                            }else {
+//                                Charge failed. Attempt PD...
+                                Map<String, String> pdResponse = this.performPd(dataObj, chargeDto, repayLoanReq, loanId, currentDate, clientID);
+                                repaymentStatus = Boolean.valueOf(pdResponse.get("repaymentStatus"));
+                                errorMessage = pdResponse.get("errorMessage");
+                            }
+
+                        }else {
+                            log.info("No response was gotten from PAYSTACK. Aborting operation for client: {} with loan id: {}", cardDetails.getClientId(), loanId);
+                            repaymentStatus = false;
+                            errorMessage = "No response gotten from paystack";
+                        }
+                    }else {
+//                        Customer is no longer owing...
+                        PartialDebit partialDebit = partialDebitService.getPartialDebit(
+                                chargeDto.getAuthorization_code(),
+                                chargeDto.getAmount(),
+                                chargeDto.getEmail()
+                        );
+                        if(partialDebit != null){
+                            partialDebitService.deletePartialDebitRecord(partialDebit.getId());
+                        }
+                    }
+                }else {
+                    log.info("An existing transaction already exists. See ID: "+ existingTransaction.getId());
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+
+        Map<String, String> notificationData = new HashMap<>();
+        notificationData.put("toName", tokenizationName);
+        notificationData.put("customerName", tokenizationName);
+        notificationData.put("toAddress", tokenizationEmail);
+//        notificationData.put("toAddress", email);
+        notificationData.put("loanId", loanId);
+        notificationData.put("todayDate", LocalDate.now().toString());
+        notificationData.put("failureMessage", errorMessage);
+        notificationData.put("paymentDate", currentDate.toString());
+        String mailSubject = repaymentStatus ? repaymentSuccessSubject : repaymentFailureSubject;
+        String templateLocation = repaymentStatus ? "email/repayment-success" : "email/repayment-failure";
+        if(!emailService.alreadySentOutEmailToday(email, tokenizationName, mailSubject, currentDate)) {
+            try {
+                notificationService.sendEmailNotification(mailSubject, notificationData, templateLocation);
+            } catch (CustomCheckedException cce) {
+                cce.printStackTrace();
+                log.info("An error occurred while trying to notify team of repayment status: Error message: " +  cce.getMessage());
+            }
+        }
     }
 
     @Override

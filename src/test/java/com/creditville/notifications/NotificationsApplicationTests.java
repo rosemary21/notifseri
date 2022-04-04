@@ -120,20 +120,13 @@ class NotificationsApplicationTests {
 
     @Test
     void paystackCalFeeTest(){
-//        BigDecimal defualtAmt = new BigDecimal("2500");
-//        BigDecimal amount = new BigDecimal("2500.01");
+//        var amount = new BigDecimal("2000");
 //
-//        System.out.println("compare " + amount.compareTo(defualtAmt));
-//
-//        if(amount.compareTo(defualtAmt)  <= 0){
-//            System.out.println("amount is less  than or equal default amount");
-//        }else {
-//            System.out.println("amount is greater than default");
-//        }
-        var amount = new BigDecimal("2000000");
+//        var feeAmt = feeUtil.calculatePaystackFee(amount);
+//        System.out.println("final fee: "+feeAmt);
 
-        var feeAmt = feeUtil.calculatePaystackFee(amount);
-        System.out.println("final fee: "+feeAmt);
+        var isDate = dateUtil.convertDateToLocalDate("2022-03-31T09:01:57.912+00:00");
+        System.out.println("isDate: "+isDate);
     }
 
     @Test
