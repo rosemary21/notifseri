@@ -164,14 +164,14 @@ public class NotificationJobs {
 //        }
 //    }
 ////
-//    @Scheduled(cron = "${app.schedule.recurringCharges}")
-////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
-//    public void recurringChargesNotification() {
-//        if(recurringChargesEnabled)
-//            dispatcherService.performRecurringChargesOperation();
-//        else log.info("Schedule for recurring charges has reached it's schedule time but notification is disabled from configuration".toUpperCase());
-//    }
-////
+    @Scheduled(cron = "${app.schedule.recurringCharges}")
+//    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
+    public void recurringChargesNotification() {
+        if(recurringChargesEnabled)
+            dispatcherService.performRecurringChargesOperation();
+        else log.info("Schedule for recurring charges has reached it's schedule time but notification is disabled from configuration".toUpperCase());
+    }
+//
 //    @Scheduled(cron = "${app.schedule.repayinstafin.recurringCharges}")
 ////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
 //    public void retryInstafinPaymentOperation() {

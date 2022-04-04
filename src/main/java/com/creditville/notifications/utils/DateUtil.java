@@ -3,6 +3,7 @@ package com.creditville.notifications.utils;
 import com.creditville.notifications.exceptions.CustomCheckedException;
 import org.springframework.stereotype.Service;
 
+import javax.xml.crypto.Data;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -50,6 +51,7 @@ public class DateUtil {
         calendarForToday.set(Calendar.SECOND, 0);
         calendarForToday.set(Calendar.MILLISECOND, 0);
         return (paymentDateCalendar.compareTo(calendarForToday) <= 0);
+//        return (paymentDate.equalsIgnoreCase("2022-04-04T00:00:00.000+01:00"));
     }
 
     public boolean isPaymentDateGtOrEqToday(String paymentDate) {
@@ -310,5 +312,32 @@ public class DateUtil {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         return localDate.format(formatter);
     }
+
+    public boolean compareDates(String setDate,String loanCreatedDate) {
+        boolean applyCharge = false;
+        try{
+            // Create 2 dates starts
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            Date date1 = sdf.parse(setDate);
+            Date date2 = sdf.parse(loanCreatedDate);
+
+            // after() will return true if and only if date1 is after or equal date 2
+            if(date1.after(date2) || date1.equals(date2)){
+                System.out.println("compareDate: "+ "true");
+                applyCharge = true;
+            }
+        }
+        catch(ParseException ex){
+            ex.printStackTrace();
+            applyCharge = false;
+        }
+        return applyCharge;
+    }
+
+    //2022-03-16
+    public LocalDate formatDateToLocalDate(Date inputDate){
+         return LocalDate.ofInstant(inputDate.toInstant(), ZoneId.systemDefault());
+    }
+
 
 }

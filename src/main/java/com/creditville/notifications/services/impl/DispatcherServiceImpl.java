@@ -14,6 +14,7 @@ import com.creditville.notifications.services.*;
 import com.creditville.notifications.utils.CardUtil;
 import com.creditville.notifications.utils.CurrencyUtil;
 import com.creditville.notifications.utils.DateUtil;
+import com.creditville.notifications.utils.FeeUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
@@ -22,6 +23,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.HashMap;
@@ -74,6 +76,8 @@ public class DispatcherServiceImpl implements DispatcherService {
     private String merchantId;
     @Value("${remita.api.key}")
     private String remitaApiKey;
+    @Value("${app.paystack.charge.on.customer.startDate}")
+    private String chargeOnCustomerStartDate;
 
     @Autowired
     private CardTransactionsService ctService;
@@ -165,6 +169,8 @@ public class DispatcherServiceImpl implements DispatcherService {
     private RetryLoanRepaymentRepository loanRepaymentRepository;
     @Autowired
     private MandateRepository mandateRepo;
+    @Autowired
+    private FeeUtil feeUtil;
 
     @Override
     public void performDueRentalOperation() {
@@ -1183,12 +1189,13 @@ public class DispatcherServiceImpl implements DispatcherService {
 //                Since there can be only one open client loan at a time, check if the list is empty, if not, get the first element...
                                 if (!openClientLoanList.isEmpty()) {
                                     LookUpClientLoan clientLoan = openClientLoanList.get(0);
-//                                System.out.println("Open client loan is: " + clientLoan.getId() + ". Status: " + clientLoan.getStatus());
                                     LookUpLoanAccount lookUpLoanAccount = clientService.lookupLoanAccount(clientLoan.getId());
                                     String modeOfRepayment = lookUpLoanAccount.getLoanAccount().getOptionalFields().getModeOfRepayment() == null ?
                                             "" :
                                             lookUpLoanAccount.getLoanAccount().getOptionalFields().getModeOfRepayment();
+                                    log.info("modeOfRepayment: "+modeOfRepayment);
                                     if (modeOfRepayment.equalsIgnoreCase(cardModeOfRepaymentKey)) {
+//                                    if (modeOfRepayment.equalsIgnoreCase("1007")) {
                                         List<LookUpLoanInstalment> loanInstalments = lookUpLoanAccount.getLoanAccount().getInstalments();
                                         if (!loanInstalments.isEmpty()) {
 
@@ -1198,7 +1205,6 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                     .collect(Collectors.toList());
 
                                             if (!loanInstalmentsLtOrEqToday.isEmpty()) {
-
                                                 for (LookUpLoanInstalment dueDateInstalment : loanInstalmentsLtOrEqToday) {
                                                     Client customer = lookUpClient.getClient();
                                                     LocalDate obligatoryPaymentDate = dateUtil.convertDateToLocalDate(dueDateInstalment.getObligatoryPaymentDate());
@@ -1207,10 +1213,21 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                     if (principalDueAmount.compareTo(BigDecimal.ZERO) > 0) {
                                                         BigDecimal totalDue = principalDueAmount
                                                                 .add(dueDateInstalment.getCurrentState().getInterestDueAmount());
-                                                        if(dueDateInstalment.getCurrentState().getFeeDueAmount() != null)
+
+                                                        if(dueDateInstalment.getCurrentState().getFeeDueAmount() != null){
                                                             totalDue = totalDue.add(dueDateInstalment.getCurrentState().getFeeDueAmount());
-                                                        BigDecimal newTotalDue = totalDue.multiply(new BigDecimal(100));
-                                                        cardDetailsService.cardRecurringCharges(toAddress, newTotalDue, clientLoan.getId(), obligatoryPaymentDate, customer.getExternalID(),dueDateInstalment.getObligatoryPaymentDate());
+                                                        }
+                                                        LocalDate createdOn = dateUtil.formatDateToLocalDate(lookUpLoanAccount.getLoanAccount().getCreatedOn());
+                                                        var isChargeStartDate = dateUtil.compareDates(chargeOnCustomerStartDate,createdOn.toString());
+                                                        BigDecimal paystackFee = new BigDecimal("0.00");
+                                                        if(isChargeStartDate){
+                                                            paystackFee = feeUtil.calculatePaystackFee(totalDue);
+                                                            log.info("ENTRY -> performRecurringChargesOperation: paystack charge:{} ",paystackFee);
+                                                            totalDue = totalDue.add(paystackFee);
+                                                        }
+                                                        BigDecimal newTotalDue = totalDue.multiply(new BigDecimal(100)); //multiple by 100 to remove decimal places
+                                                        log.info("ENTRY -> performRecurringChargesOperation: newTotalDue: {} ",newTotalDue);
+                                                        cardDetailsService.cardRecurringCharges(toAddress, newTotalDue, clientLoan.getId(), obligatoryPaymentDate, customer.getExternalID(),dueDateInstalment.getObligatoryPaymentDate(), paystackFee);
                                                     }
                                                 }
 //                                                List<LookUpLoanInstalment> lookUpLoanInstalments = loanInstalmentsLtOrEqToday
@@ -1454,8 +1471,16 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                                 .add(dueDateInstalment.getCurrentState().getInterestDueAmount());
                                                         if(dueDateInstalment.getCurrentState().getFeeDueAmount() != null)
                                                             totalDue = totalDue.add(dueDateInstalment.getCurrentState().getFeeDueAmount());
+                                                        LocalDate createdOn = dateUtil.formatDateToLocalDate(lookUpLoanAccount.getLoanAccount().getCreatedOn());
+                                                        var isChargeStartDate = dateUtil.compareDates(chargeOnCustomerStartDate,createdOn.toString());
+                                                        BigDecimal paystackFee = new BigDecimal("0.00");
+                                                        if(isChargeStartDate){
+                                                            paystackFee = feeUtil.calculatePaystackFee(totalDue);
+                                                            log.info("ENTRY -> performRecurringChargesOperation: paystack charge:{} ",paystackFee);
+                                                            totalDue = totalDue.add(paystackFee);
+                                                        }
                                                         BigDecimal newTotalDue = totalDue.multiply(new BigDecimal(100));
-                                                        cardDetailsService.cardRecurringCharges(toAddress, newTotalDue, clientLoan.getId(), obligatoryPaymentDate, customer.getExternalID(),dueDateInstalment.getObligatoryPaymentDate());
+                                                        cardDetailsService.cardRecurringCharges(toAddress, newTotalDue, clientLoan.getId(), obligatoryPaymentDate, customer.getExternalID(),dueDateInstalment.getObligatoryPaymentDate(), paystackFee);
                                                     }
                                                 }
                                                 log.info("Done with OP...." + cardDetails.getClientId());
