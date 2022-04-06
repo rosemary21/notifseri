@@ -1170,16 +1170,20 @@ public class DispatcherServiceImpl implements DispatcherService {
 
     @Override
     public void performRecurringChargesOperation() {
+        log.info("tokenized start{}");
         try {
             Integer pageNumber = 0;
-
+            log.info("tokenized pageNumber{}",pageNumber);
             while (pageNumber != null) {
                 List<CardDetails> tokenizedCardDetails = cardDetailsService.getAllCardDetails(pageNumber, 100);
+                log.info("tokenized CardDetails{}",tokenizedCardDetails);
                 if (!tokenizedCardDetails.isEmpty()) {
                     for (CardDetails cardDetails : tokenizedCardDetails) {
                         try {
                             LookUpClient lookUpClient = clientService.lookupClient(cardDetails.getClientId());
+                            log.info("Client Service <><><><><><><> {}",lookUpClient.getClient());
                             String clientStatus = lookUpClient.getClient().getClientStatus();
+                            log.info("CLIENT STATUS <><><><><><>< {} ",clientStatus);
                             if (clientStatus.equals("ACTIVE") || clientStatus.contains("ARREARS")) {
                                 List<LookUpClientLoan> openClientLoanList = lookUpClient.getLoans()
                                         .stream()
@@ -1218,6 +1222,8 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                             totalDue = totalDue.add(dueDateInstalment.getCurrentState().getFeeDueAmount());
                                                         }
                                                         LocalDate createdOn = dateUtil.formatDateToLocalDate(lookUpLoanAccount.getLoanAccount().getCreatedOn());
+                                                        log.info("ENTRY -> performRecurringChargesOperation: chargeOnCustomerStartDate {}",chargeOnCustomerStartDate);
+                                                        log.info("ENTRY -> performRecurringChargesOperation: createdOn {}",createdOn.toString());
                                                         var isChargeStartDate = dateUtil.compareDates(chargeOnCustomerStartDate,createdOn.toString());
                                                         BigDecimal paystackFee = new BigDecimal("0.00");
                                                         if(isChargeStartDate){

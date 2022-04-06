@@ -134,4 +134,10 @@ class NotificationsApplicationTests {
         dispatcherService.performRecurringChargesOperation();
     }
 
+    @Test
+    void testCompareDate(){
+       var resp = dateUtil.compareDates("2022-04-01","2022-04-06");
+        System.out.println("resp: "+resp);
+    }
+
 }

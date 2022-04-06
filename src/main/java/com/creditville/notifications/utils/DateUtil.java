@@ -320,10 +320,9 @@ public class DateUtil {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             Date date1 = sdf.parse(setDate);
             Date date2 = sdf.parse(loanCreatedDate);
-
             // after() will return true if and only if date1 is after or equal date 2
-            if(date1.after(date2) || date1.equals(date2)){
-                System.out.println("compareDate: "+ "true");
+            if(date2.after(date1) || date1.equals(date2)){
+                System.out.println("validated and okay");
                 applyCharge = true;
             }
         }

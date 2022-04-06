@@ -57,7 +57,7 @@ public class NotificationJobs {
 //            log.info(cce.getMessage());
 //        }
 //    }
-
+//
 ////    @Scheduled(cron = "${app.schedule.dueRentalOne}")
 //     @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
 //    public void sendAllNotification() {
@@ -171,7 +171,7 @@ public class NotificationJobs {
             dispatcherService.performRecurringChargesOperation();
         else log.info("Schedule for recurring charges has reached it's schedule time but notification is disabled from configuration".toUpperCase());
     }
-//
+////
 //    @Scheduled(cron = "${app.schedule.repayinstafin.recurringCharges}")
 ////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
 //    public void retryInstafinPaymentOperation() {
