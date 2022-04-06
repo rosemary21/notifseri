@@ -276,8 +276,10 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                             BigDecimal chargedAmount = new BigDecimal(dataObj.get("amount").toString());
                             BigDecimal newChargedAmount = chargedAmount.divide(new BigDecimal(100)).setScale(2, RoundingMode.CEILING);
 
-//                            ctDTO.setAmount(new BigDecimal(dataObj.get("amount").toString()));
-                            ctDTO.setAmount(newChargedAmount);
+                            BigDecimal loanAmt = newChargedAmount.subtract(transactionFee).setScale(2, RoundingMode.CEILING);
+
+                            ctDTO.setAmount(loanAmt);
+                            ctDTO.setTotalDebitAmount(newChargedAmount);
                             ctDTO.setCurrency(dataObj.get("currency").toString());
                             ctDTO.setTransactionDate(dataObj.get("transaction_date").toString());
                             ctDTO.setStatus(dataObj.get("status").toString());

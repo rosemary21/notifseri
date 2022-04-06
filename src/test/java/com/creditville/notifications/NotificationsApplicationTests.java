@@ -120,13 +120,13 @@ class NotificationsApplicationTests {
 
     @Test
     void paystackCalFeeTest(){
-//        var amount = new BigDecimal("2000");
-//
-//        var feeAmt = feeUtil.calculatePaystackFee(amount);
-//        System.out.println("final fee: "+feeAmt);
+        var amount = new BigDecimal("8592.02");
 
-        var isDate = dateUtil.convertDateToLocalDate("2022-03-31T09:01:57.912+00:00");
-        System.out.println("isDate: "+isDate);
+        var feeAmt = feeUtil.calculatePaystackFee(amount);
+        System.out.println("final fee: "+feeAmt);
+
+//        var isDate = dateUtil.convertDateToLocalDate("2022-03-31T09:01:57.912+00:00");
+//        System.out.println("isDate: "+isDate);
     }
 
     @Test

@@ -45,4 +45,5 @@ public class CardTransactions {
     @Enumerated(value = EnumType.STRING)
     private Channel tranType;
     private BigDecimal paystackFee;
+    private BigDecimal totalDebitAmount;
 }
