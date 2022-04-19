@@ -281,15 +281,15 @@ public class NotificationServiceImpl implements NotificationService {
         context.setVariable("emailBody",emailTemplate.getTemplateMessage());
         String templateLocation = this.getTemplateLocation("broadcastredwood");
         String content = templateEngine.process(templateLocation, context);
-        Client newclient=new Client();
-        newclient.setEmail("chioma.chukelu@creditville.ng");
-        Client oldclient=new Client();
-        oldclient.setEmail("chioma.chukelu@creditville.ngs");
-        List<Client> clientsList=new ArrayList<>();
-        clientsList.add(newclient);
-        clientsList.add(oldclient);
-//        List<Client> clients= clientService.fetchClients();
-        List<Client> clients=clientsList;
+//        Client newclient=new Client();
+//        newclient.setEmail("chioma.chukelu@creditville.ng");
+//        Client oldclient=new Client();
+//        oldclient.setEmail("chioma.chukelu@creditville.ngs");
+//        List<Client> clientsList=new ArrayList<>();
+//        clientsList.add(newclient);
+//        clientsList.add(oldclient);
+        List<Client> clients= clientService.fetchClients();
+//        List<Client> clients=clientsList;
         if(emailTemplate.getEnableBroadcast().equalsIgnoreCase("Y")){
             log.info("getting the braodcast {}");
             String emailAddress="";
