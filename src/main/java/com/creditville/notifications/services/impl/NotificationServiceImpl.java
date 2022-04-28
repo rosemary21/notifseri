@@ -167,6 +167,7 @@ public class NotificationServiceImpl implements NotificationService {
         while(jsonNodeIterator.hasNext()) {
             Map.Entry<String, JsonNode> jsonNode = jsonNodeIterator.next();
             log.info("getting the key node {}",jsonNode.getKey());
+            log.info("getting the text value {}",jsonNode.getValue().textValue());
             context.setVariable(jsonNode.getKey(), jsonNode.getValue().textValue());
         }
         String mailTemplate = sendEmailRequest.getMailTemplate();
@@ -510,6 +511,8 @@ public class NotificationServiceImpl implements NotificationService {
                 return "email/mandateActivated";
             case "broadcastredwood":
                 return "email/redwoodbroadcast";
+            case "staffemail":
+                return "email/staffemail";
 
 
             default:

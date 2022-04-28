@@ -22,13 +22,20 @@ public class BranchManager {
     private String officerEmail;
     private String officerPhoneNo;
     private Date createdOn;
+    private String accountNumber;
+    private String accountName;
+    private String bankName;
 
-    public BranchManager(String branch, String officerName, String officerEmail, String officerPhoneNo) {
+
+    public BranchManager(String branch, String officerName, String officerEmail, String officerPhoneNo,String accountNumber,String accountName, String bankName) {
         this.branch = branch;
         this.officerName = officerName;
         this.officerEmail = officerEmail;
         this.officerPhoneNo = officerPhoneNo;
         this.createdOn = new Date();
+        this.accountName=accountName;
+        this.accountNumber=accountNumber;
+        this.bankName=bankName;
     }
 
     @Override
