@@ -11,7 +11,6 @@ public interface BranchManagerService {
 
     BranchManager getBranchManager(Long branchManagerId) throws CustomCheckedException;
 
-    BranchManager createNew(String branch, String officerName, String officerEmail, String officerPhoneNo);
-
+    BranchManager createNew(String branch, String officerName, String officerEmail, String officerPhoneNo,String accountNumber,String accountName, String bankName);
     List<BranchManager> getAllBranchManagers();
 }

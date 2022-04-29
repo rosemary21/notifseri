@@ -28,8 +28,8 @@ public class BranchManagerServiceImpl implements BranchManagerService {
     }
 
     @Override
-    public BranchManager createNew(String branch, String officerName, String officerEmail, String officerPhoneNo) {
-        return branchManagerRepository.save(new BranchManager(branch, officerName, officerEmail, officerPhoneNo));
+    public BranchManager createNew(String branch, String officerName, String officerEmail, String officerPhoneNo,String accountNumber,String accountName, String bankName) {
+        return branchManagerRepository.save(new BranchManager(branch, officerName, officerEmail, officerPhoneNo,accountNumber,accountName,bankName));
     }
 
     @Override

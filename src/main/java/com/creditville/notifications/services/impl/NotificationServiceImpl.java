@@ -167,6 +167,7 @@ public class NotificationServiceImpl implements NotificationService {
         while(jsonNodeIterator.hasNext()) {
             Map.Entry<String, JsonNode> jsonNode = jsonNodeIterator.next();
             log.info("getting the key node {}",jsonNode.getKey());
+            log.info("getting the text value {}",jsonNode.getValue().textValue());
             context.setVariable(jsonNode.getKey(), jsonNode.getValue().textValue());
         }
         String mailTemplate = sendEmailRequest.getMailTemplate();
@@ -281,15 +282,15 @@ public class NotificationServiceImpl implements NotificationService {
         context.setVariable("emailBody",emailTemplate.getTemplateMessage());
         String templateLocation = this.getTemplateLocation("broadcastredwood");
         String content = templateEngine.process(templateLocation, context);
-        Client newclient=new Client();
-        newclient.setEmail("chioma.chukelu@creditville.ng");
-        Client oldclient=new Client();
-        oldclient.setEmail("chioma.chukelu@creditville.ngs");
-        List<Client> clientsList=new ArrayList<>();
-        clientsList.add(newclient);
-        clientsList.add(oldclient);
-//        List<Client> clients= clientService.fetchClients();
-        List<Client> clients=clientsList;
+//        Client newclient=new Client();
+//        newclient.setEmail("chioma.chukelu@creditville.ng");
+//        Client oldclient=new Client();
+//        oldclient.setEmail("chioma.chukelu@creditville.ngs");
+//        List<Client> clientsList=new ArrayList<>();
+//        clientsList.add(newclient);
+//        clientsList.add(oldclient);
+        List<Client> clients= clientService.fetchClients();
+//        List<Client> clients=clientsList;
         if(emailTemplate.getEnableBroadcast().equalsIgnoreCase("Y")){
             log.info("getting the braodcast {}");
             String emailAddress="";
@@ -510,6 +511,8 @@ public class NotificationServiceImpl implements NotificationService {
                 return "email/mandateActivated";
             case "broadcastredwood":
                 return "email/redwoodbroadcast";
+            case "staffemail":
+                return "email/staffemail";
 
 
             default:

@@ -286,6 +286,9 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                     notificationData.put("accountName", accountName);
                                                     notificationData.put("accountNumber", accountNumber);
                                                     notificationData.put("bankName", bankName);
+//                                                    notificationData.put("accountName", branchManager.getAccountName());
+//                                                    notificationData.put("accountNumber", branchManager.getAccountNumber());
+//                                                    notificationData.put("bankName", branchManager.getBankName());
                                                     totalSuccessfulCounter++;
                                                     try {
                                                         notificationService.sendEmailNotification(doRentalSubject, notificationData, "email/due_rental");
@@ -433,6 +436,9 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                     notificationData.put("accountName", accountName);
                                                     notificationData.put("accountNumber", accountNumber);
                                                     notificationData.put("bankName", bankName);
+//                                                    notificationData.put("accountName", branchManager.getAccountName());
+//                                                    notificationData.put("accountNumber",  branchManager.getAccountNumber());
+//                                                    notificationData.put("bankName", branchManager.getBankName());
                                                     totalSuccessfulCounter++;
                                                     try {
                                                         notificationService.sendEmailNotification(doRentalSubject, notificationData, "email/due_rental");
@@ -588,6 +594,9 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                     notificationData.put("accountName", accountName);
                                                     notificationData.put("accountNumber", accountNumber);
                                                     notificationData.put("bankName", bankName);
+//                                                    notificationData.put("accountName", branchManager.getAccountName());
+//                                                    notificationData.put("accountNumber", branchManager.getAccountNumber());
+//                                                    notificationData.put("bankName", branchManager.getBankName());
                                                     totalSuccessfulCounter++;
                                                     try {
                                                         notificationService.sendEmailNotification(doRentalSubject, notificationData, "email/due_rental");
@@ -766,6 +775,9 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                     notificationData.put("financeEmail",finEm);
                                                     notificationData.put("financeName",finNam);
                                                     notificationData.put("financePhoneNo",finPh);
+//                                                    notificationData.put("accountName", branchManager.getAccountName());
+//                                                    notificationData.put("accountNumber", branchManager.getAccountNumber());
+//                                                    notificationData.put("bankName", branchManager.getBankName());
 
 
                                                     totalSuccessfulCounter++;
@@ -945,6 +957,9 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                         notificationData.put("accountName", accountName);
                                                         notificationData.put("accountNumber", accountNumber);
                                                         notificationData.put("bankName", bankName);
+//                                                        notificationData.put("accountName", branchManager.getAccountName());
+//                                                        notificationData.put("accountNumber", branchManager.getAccountNumber());
+//                                                        notificationData.put("bankName", branchManager.getBankName());
                                                         totalSuccessfulCounter++;
                                                         try {
                                                             notificationService.sendEmailNotification(postMaturitySubject, notificationData, "email/post_maturity");
@@ -995,6 +1010,8 @@ public class DispatcherServiceImpl implements DispatcherService {
                         try {
                             CollectionOfficer collectionOfficer = collectionOfficerService.getCollectionOfficer(client.getBranchName());
                             Branch branch = branchService.getBranch(client.getBranchName());
+                            BranchManager branchManager=branchManagerService.getBranchManager(client.getBranchName());
+
                             if(!branch.getIsEnabled()) {
                                 log.info("Branch {} is disabled from receiving notifications. Hence, notification would not be sent out for client with ID {}", client.getBranchName(), client.getExternalID());
                                 throw new CustomCheckedException("Customer branch is disabled. Notification would not be sent out");
@@ -1075,6 +1092,10 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                         notificationData.put("accountName", accountName);
                                                         notificationData.put("accountNumber", accountNumber);
                                                         notificationData.put("bankName", bankName);
+
+//                                                        notificationData.put("accountName",branchManager.getAccountName() );
+//                                                        notificationData.put("accountNumber", branchManager.getAccountNumber());
+//                                                        notificationData.put("bankName", branchManager.getBankName());
                                                         totalSuccessfulCounter++;
                                                         try {
                                                             notificationService.sendEmailNotification(chequeLodgementSubject, notificationData, "email/cheque_lodgement");
