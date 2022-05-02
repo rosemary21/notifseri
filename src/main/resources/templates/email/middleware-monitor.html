@@ -1,0 +1,148 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" style="height: 100%">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--[if gte mso 9]>
+    <style type="text/css">
+        @media only screen and (min-device-width : 375px) and (max-device-width : 667px) {
+            table{
+                width: 90% !important;
+            }
+        }
+    </style>
+    <![endif]-->
+
+    <!--[if !mso]><!-->
+    <style type="text/css">
+        @media only screen and (min-device-width : 375px) and (max-device-width : 667px) {
+            font{
+                -webkit-text-size-adjust: none;
+                /*font-size: 9px !important;*/
+                font-size: 11px !important;
+            }
+            img{
+                width: 95px !important;
+                /*height: 64px !important;*/
+                float: right; !important;
+                margin-bottom: 5%; !important;
+            }
+            .customHeaderFont{
+                font-size: 12px !important;
+            }
+        }
+    </style>
+    <!--<![endif]-->
+</head>
+<body style="padding: 30px 0 30px 0 !important;">
+
+<!--Microsoft Outlook template begins below....-->
+
+<!--[if (gte mso 9)|(IE)]>
+<center>
+    <table width="70%" style="border-collapse: collapse !important;" cellspacing="2">
+        <tbody>
+        <tr>
+            <td align="left" width="80%" height="20">
+                <font face="Arial,sans-serif" color="#fff" size="4"><b></b></font>
+            </td>
+        </tr>
+        <tr>
+            <td bgcolor="#003057" align="left" width="80%" height="60">
+                <font face="Arial,sans-serif" color="#fff" size="4"><b>&nbsp;&nbsp;&nbsp;&nbsp;Successful Card Tokenization Notification</b></font>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <p></p>
+
+    <table width="70%" style="border-collapse: collapse !important;" cellspacing="2">
+        <thead>
+        <tr>
+            <th width="40%"></th>
+            <th width="60%"></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td width="40%" height="42" bgcolor="#c2cbda">
+                <font face="Arial,sans-serif" color="#000000" size="3">Hi <b>Team</b></font>
+            </td>
+            <td width="60%" height="42">
+                <font face="Arial,sans-serif" color="#000000" size="3"></font>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <table width="70%" style="border-collapse: collapse !important;">
+        <tbody>
+        <tr>
+            <td width="70%" height="12"></td>
+        </tr>
+        <tr>
+            <td width="70%" height="33"><font face="Arial,sans-serif" color="#000000" size="3">The recent process initiated to tokenize the card for <b th:text="${clientName}">client name</b> with email address <b th:text="${clientEmail}"></b> and client id <b th:text="${clientId}"></b> was completed successfully.</font></td>
+        </tr>
+        <tr>
+            <td width="70%" height="16"></td>
+        </tr>
+        <tr>
+            <td width="70%" height="36">
+                <font face="Arial,sans-serif" color="#000000" size="3">
+                    <u><b>Card Details:</b></u> <br>
+                    Account Name:     <b th:text="${accountName}">account name</b> <br>
+                    Expiry Date:   <b th:text="${expiryDate}">account number</b> <br>
+                    Expiry Year:        <b th:text="${expiryYear}">bank name</b> <br>
+                    Bank Name:        <b th:text="${bankName}">bank name</b> <br>
+                    Card Type:        <b th:text="${cardType}">card type</b>
+                </font>
+            </td>
+        </tr>
+        <tr>
+            <td width="70%" height="8"></td>
+        </tr>
+        <tr>
+            <td width="70%" height="36">
+                <font face="Arial,sans-serif" color="#000000" size="3">Warm Regards.</font>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</center>
+<![endif]-->
+
+<!--Non-Microsoft Outlook template begins below....-->
+
+<!--[if !mso]><!-->
+<center>
+    <!--<div style="width: 86%; display: inline-block">-->
+    <div style="width: 75%; display: inline-block">
+        <!--<div align="left" style="width: 70%; float: left; display: table; padding-top: 2%">-->
+        <div align="left" style="width: 90%; float: left; display: table; padding-top: 2%">
+            <div style="text-align: left; height: auto; width: 100%; padding-top: 4%; background-color: #003057; padding-left: 16px; padding-right: 4px; padding-bottom: 20px;float: left; display: inline-block">
+                <font style="font-size: 15px" face="Arial,sans-serif" color="#fff">
+                    <b>&nbsp;&nbsp;Middleware Error Notification</b>
+                </font>
+            </div>
+            <div style="text-align: left; height: 50px; width: auto; float: left; display: inline-block; margin: 3% 0; background-color: #c2cbda; min-width: 35%">
+                <font style="font-size: 14px; line-height: 50px" face="Arial,sans-serif" color="#000">Hi <b>Team</b></font>
+            </div>
+            <div style="text-align: left; height: auto; width: 100%; padding-bottom: 1%; padding-top: 1%; float: left; display: inline-block">
+                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">Below mail is an error from Middleware API.</font>
+            </div>
+            <div style="text-align: left; height: auto; width: 100%; padding-bottom: 1%; padding-top: 1%; float: left; display: inline-block">
+                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">
+                    <u><b>Error Details:</b></u> <br>
+                    Error read:     <b th:text="${errorMessage}">error message</b> <br>
+                    Error Time:     <b th:text="${errorTime}">error time</b> <br>
+                </font>
+            </div>
+            <div style="text-align: left; height: auto; width: 100%; padding-bottom: 1%; padding-top: 3%; float: left; display: inline-block">
+                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">Warm Regards.</font>
+            </div>
+        </div>
+    </div>
+</center>
+<!--<![endif]-->
+</body>
+</html>
