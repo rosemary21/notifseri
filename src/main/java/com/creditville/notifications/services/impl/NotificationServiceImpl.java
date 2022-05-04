@@ -517,6 +517,8 @@ public class NotificationServiceImpl implements NotificationService {
                 return "email/redwoodbroadcast";
             case "staffemail":
                 return "email/staffemail";
+            case "middlewareMonitor":
+                return "email/middleware-monitor";
 
 
             default:

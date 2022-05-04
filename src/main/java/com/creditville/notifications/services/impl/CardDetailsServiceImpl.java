@@ -296,7 +296,6 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                                 repayLoanReq.setAccountID(loanId);
 //                                repayLoanReq.setAmount(new BigDecimal(dataObj.get("amount").toString()));
                                 var loanAmount = newChargedAmount.subtract(transactionFee);
-//                                repayLoanReq.setAmount(newChargedAmount);
                                 repayLoanReq.setAmount(loanAmount);
                                 repayLoanReq.setPaymentMethodName(AppConstants.InstafinPaymentMethod.PAYSTACK_PAYMENT_METHOD);
                                 repayLoanReq.setTransactionBranchID(AppConstants.InstafinBranch.TRANSACTION_BRANCH_ID);
