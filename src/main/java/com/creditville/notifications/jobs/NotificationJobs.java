@@ -42,7 +42,7 @@ public class NotificationJobs {
     @Autowired
     TransferService transferService;
 
-//       // @Async("schedulePool1")
+       // @Async("schedulePool1")
 //    @Scheduled(cron = "${app.schedule.dueRentalOne}")
 //   // @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
 //    public void dueRentalNotification() {
@@ -57,8 +57,8 @@ public class NotificationJobs {
 //            log.info(cce.getMessage());
 //        }
 //    }
-
-//    @Scheduled(cron = "${app.schedule.dueRentalOne}")
+//
+////    @Scheduled(cron = "${app.schedule.dueRentalOne}")
 //     @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
 //    public void sendAllNotification() {
 //        try {
@@ -72,8 +72,8 @@ public class NotificationJobs {
 //            log.info(cce.getMessage());
 //        }
 //    }
-
-//      //  @Async("schedulePool2")
+//
+////      //  @Async("schedulePool2")
 //    @Scheduled(cron = "${app.schedule.dueRentalTwo}")
 ////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
 //    public void dueRentalNotification2() {
@@ -88,10 +88,10 @@ public class NotificationJobs {
 //            log.info(cce.getMessage());
 //        }
 //    }
-
-       // @Async("schedulePool3")
+//
+//       // @Async("schedulePool3")
 //    @Scheduled(cron = "${app.schedule.dueRentalThree}")
-//    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
+////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
 //    public void dueRentalNotification3() {
 //        try {
 //            NotificationGeneralConfig dueRentalThreeConfig = notificationConfigService.getNotificationGeneralConfig(NotificationType.DUE_RENTAL_THREE.name());
@@ -115,8 +115,8 @@ public class NotificationJobs {
 //            log.info(cce.getMessage());
 //        }
 //    }
-
-//       // @Async("schedulePool4")
+//
+////       // @Async("schedulePool4")
 //    @Scheduled(cron = "${app.schedule.arrears}")
 ////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
 //    public void arrearsNotification() {
@@ -147,8 +147,8 @@ public class NotificationJobs {
 //            log.info(cce.getMessage());
 //        }
 //    }
-
-//       // @Async("schedulePool6")
+//
+////       // @Async("schedulePool6")
 //    @Scheduled(cron = "${app.schedule.chequeLodgement}")
 ////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
 //    public void chequeLodgementNotification() {
@@ -196,7 +196,7 @@ public class NotificationJobs {
 //            dispatcherService.performRecurringMandateDebitInstruction();
 //        else log.info("Schedule for recurring mandate charge (remita) has reached it's schedule time but notification is disabled from configuration".toUpperCase());
 //    }
-
+//
 ////
 //    @Scheduled(cron = "${app.schedule.confirmRemitaAndRepayLoan}")
 ////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
@@ -206,10 +206,10 @@ public class NotificationJobs {
 //        else log.info("Schedule for confirmation of remita and repayment of loan operation".toUpperCase());
 //    }
 //
-
-
-
-
+//
+//
+//
+//
 //    @Scheduled(cron = "${app.schedule.notifyTeam}")
 ////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
 //    public void notifyTeamOperation() {
@@ -219,7 +219,7 @@ public class NotificationJobs {
 //            log.info("An error occurred while trying to notify team of operation");
 //        }
 //    }
-
+//
 //    @Scheduled(cron = "${app.schedule.verify.mandateactivation}")
 //    public void verifyMandateActivation(){
 //        try {
