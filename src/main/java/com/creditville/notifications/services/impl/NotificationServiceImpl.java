@@ -503,6 +503,10 @@ public class NotificationServiceImpl implements NotificationService {
                 return "email/failedtransfer";
             case "reversetranfer":
                 return "email/reversetranfer";
+            case "regotp":
+                return "email/regotp";
+            case "tranotp":
+                return "email/tranotp";
 
             case "disbursefailed":
                 return "email/disbursefailed";
