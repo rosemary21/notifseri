@@ -7,6 +7,7 @@ import com.creditville.notifications.services.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -41,8 +42,8 @@ public class NotificationJobs {
 
     @Autowired
     TransferService transferService;
-
-       // @Async("schedulePool1")
+//
+//        @Async("schedulePool1")
 //    @Scheduled(cron = "${app.schedule.dueRentalOne}")
 //   // @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
 //    public void dueRentalNotification() {
