@@ -42,10 +42,10 @@ public class NotificationJobs {
 
     @Autowired
     TransferService transferService;
-//
-//        @Async("schedulePool1")
+
+      //  @Async("schedulePool1")
 //    @Scheduled(cron = "${app.schedule.dueRentalOne}")
-//   // @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
+////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
 //    public void dueRentalNotification() {
 //        try {
 //            NotificationGeneralConfig dueRentalOneConfig = notificationConfigService.getNotificationGeneralConfig(NotificationType.DUE_RENTAL_ONE.name());
