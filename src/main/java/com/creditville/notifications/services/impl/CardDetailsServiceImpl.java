@@ -373,25 +373,29 @@ public class CardDetailsServiceImpl implements CardDetailsService {
             }
         }
 
-        Map<String, String> notificationData = new HashMap<>();
-        notificationData.put("toName", tokenizationName);
-        notificationData.put("customerName", tokenizationName);
-        notificationData.put("toAddress", tokenizationEmail);
-//        notificationData.put("toAddress", email);
-        notificationData.put("loanId", loanId);
-        notificationData.put("todayDate", LocalDate.now().toString());
-        notificationData.put("failureMessage", errorMessage);
-        notificationData.put("paymentDate", currentDate.toString());
-        String mailSubject = repaymentStatus ? repaymentSuccessSubject : repaymentFailureSubject;
-        String templateLocation = repaymentStatus ? "email/repayment-success" : "email/repayment-failure";
-        if(!emailService.alreadySentOutEmailToday(email, tokenizationName, mailSubject, currentDate)) {
-            try {
-                notificationService.sendEmailNotification(mailSubject, notificationData, templateLocation);
-            } catch (CustomCheckedException cce) {
-                cce.printStackTrace();
-                log.info("An error occurred while trying to notify team of repayment status: Error message: " +  cce.getMessage());
-            }
-        }
+        //business do not require notification of failed transaction 13//05/2022
+
+//        Map<String, String> notificationData = new HashMap<>();
+//        notificationData.put("toName", tokenizationName);
+//        notificationData.put("customerName", tokenizationName);
+//        notificationData.put("toAddress", tokenizationEmail);
+////        notificationData.put("toAddress", email);
+//        notificationData.put("loanId", loanId);
+//        notificationData.put("todayDate", LocalDate.now().toString());
+//        notificationData.put("failureMessage", errorMessage);
+//        notificationData.put("paymentDate", currentDate.toString());
+//        String mailSubject = repaymentStatus ? repaymentSuccessSubject : repaymentFailureSubject;
+//        String templateLocation = repaymentStatus ? "email/repayment-success" : "email/repayment-failure";
+//        if(!emailService.alreadySentOutEmailToday(email, tokenizationName, mailSubject, currentDate)) {
+//            try {
+//                notificationService.sendEmailNotification(mailSubject, notificationData, templateLocation);
+//            } catch (CustomCheckedException cce) {
+//                cce.printStackTrace();
+//                log.info("An error occurred while trying to notify team of repayment status: Error message: " +  cce.getMessage());
+//            }
+//        }
+        // business do not require notification of failed transaction 13//05/2022
+        
     }
 
     @Override

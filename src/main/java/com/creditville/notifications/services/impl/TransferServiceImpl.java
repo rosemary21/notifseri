@@ -85,7 +85,8 @@ public class TransferServiceImpl implements TransferService {
     @Override
     public void disburseLoan(){
         try{
-            List<DisbursementHistory> disbursementHistories=disbursementHistoryRepository.findByStatus("DP");
+            List<DisbursementHistory> disbursementHistories=disbursementHistoryRepository.findByStatusAndFailedStatus("DP","DFFV");
+            log.info("getting the disbursementHistories {} ",disbursementHistories.size());
             for(DisbursementHistory disbursementHistory:disbursementHistories){
                 if(disbursementHistory.getReference()!=null){
                     if(!(disbursementHistory.getReference().isEmpty())){
@@ -123,23 +124,39 @@ public class TransferServiceImpl implements TransferService {
                                 payStackTransferRepository.save(payStackTransfer);
                             }
                             if(disburseLoanResponse==null){
+                                log.info("getting the retry count {}",disbursementHistory.getRetryCount());
+                                if(disbursementHistory.getRetryCount()==null){
+                                    disbursementHistory.setRetryCount(0);
+                                }
+                                int value=disbursementHistory.getRetryCount();
+                                value= value+1;
+                                disbursementHistory.setRetryCount(value);
                                 disbursementHistory.setStatus("DFFV");
                                 disbursementHistory.setStatusDesc("Disbursement Failed Payment Verified");
                                 PayStackTransfer payStackTransfer=payStackTransferRepository.findByReferenceCode(disbursementHistory.getReference());
                                 payStackTransfer.setTransactionStatus("S");
                                 disbursementHistoryRepository.save(disbursementHistory);
                                 payStackTransferRepository.save(payStackTransfer);
-                                disburseFailNotification(disbursementHistory);
+                                if(disbursementHistory.getRetryCount()<3){
+                                    log.info("Sending Notification for failed transaction");
+                                    disburseFailNotification(disbursementHistory);
+                                }
                             }
                         }
                         if(listTransferStatus.getData().getStatus().equals("failed")){
                             PayStackTransfer payStackTransfer=payStackTransferRepository.findByReferenceCode(disbursementHistory.getReference());
                             payStackTransfer.setTransactionStatus("F");
+                            int value=disbursementHistory.getRetryCount();
+                            value= value+1;
+                            disbursementHistory.setRetryCount(value);
                             disbursementHistory.setStatusDesc("Payment Failed And Disbursement Not Done");
                             disbursementHistory.setStatus("F");
                             disbursementHistoryRepository.save(disbursementHistory);
                             payStackTransferRepository.save(payStackTransfer);
-                            transferFailNotification(disbursementHistory);
+                            log.info("getting the retry count {}",disbursementHistory.getRetryCount());
+                            if(disbursementHistory.getRetryCount()<3){
+                                transferFailNotification(disbursementHistory);
+                            }
                         }
                     }
 

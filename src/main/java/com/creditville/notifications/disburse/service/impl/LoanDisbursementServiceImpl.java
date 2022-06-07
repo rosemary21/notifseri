@@ -6,6 +6,7 @@ import com.creditville.notifications.disburse.model.LookupDisburse;
 import com.creditville.notifications.disburse.model.Payments;
 import com.creditville.notifications.disburse.service.LoanDisbursementService;
 import com.creditville.notifications.executor.HttpCallService;
+import com.creditville.notifications.instafin.common.AppConstants;
 import com.creditville.notifications.utils.DateUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,9 +53,9 @@ public class LoanDisbursementServiceImpl implements LoanDisbursementService {
         Payments payments=new Payments();
         List<Payments> listPayment=new ArrayList<>();
         payments.setAmount(requestDisburseDto.getAmount());
-        payments.setPaymentMethodName("Cash");
+//        payments.setPaymentMethodName("Cash");
 
-//        payments.setPaymentMethodName(AppConstants.InstafinPaymentMethod.REMITTA_PAYMENT_METHOD);
+        payments.setPaymentMethodName(AppConstants.InstafinPaymentMethod.AUTO_DISBURSE_PAYMENT_METHOD);
         lookupDisburse.setAccountID(requestDisburseDto.getLoanAccount());
         lookupDisburse.setDisbursementDate(DateUtil.currentDate());
         listPayment.add(payments);

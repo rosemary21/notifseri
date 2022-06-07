@@ -520,6 +520,9 @@ public class NotificationServiceImpl implements NotificationService {
             case "middlewareMonitor":
                 return "email/middleware-monitor";
 
+            case "sendMessage":
+                return "email/send-message";
+
 
             default:
                 throw new CustomCheckedException("Invalid template name provided");

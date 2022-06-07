@@ -6,6 +6,8 @@ public class AppConstants {
         public static final String FROM_TO_ACCOUNT = "From/To Account";
         public static final String PAYSTACK_PAYMENT_METHOD = "PAYSTACK_PAYMENT_METHOD";
         public static final String REMITA_PAYMENT_METHOD="REMITA_PAYMENT_METHOD";
+        public static final String AUTO_DISBURSE_PAYMENT_METHOD="AUTO_DISBURSEMENT";
+
     }
 
     public static final class InstafinBranch {
