@@ -14,25 +14,39 @@ public class FeeUtil {
         log.info("amt: "+amt);
 
         final BigDecimal defaultAmt = new BigDecimal("2500");
-        final BigDecimal chargePerc = new BigDecimal("0.015");
-        final BigDecimal hundred = new BigDecimal("100");
+        final BigDecimal decimalFee = new BigDecimal("0.015");
+        final BigDecimal flatFee = new BigDecimal("100");
         final BigDecimal one = new BigDecimal("1.00");
         final BigDecimal maxFee = new BigDecimal("2000");
+        final BigDecimal zeroPointZeroOne = new BigDecimal("0.01");
+        BigDecimal finalFeeAmt;
+        BigDecimal finalChargeFeeAmt;
 
         BigDecimal feeAmt;
+        BigDecimal fee;
+        BigDecimal dfAmt;
 
         if(amt.compareTo(defaultAmt) < 0){
 
-            feeAmt = amt.multiply(chargePerc).setScale(2, RoundingMode.CEILING);
+            finalFeeAmt = decimalFee.multiply(amt).add(flatFee).setScale(2, RoundingMode.CEILING);
+//            finalFeeAmt = decimalFee.multiply(amt).setScale(2, RoundingMode.CEILING);
+            finalFeeAmt = amt.add(finalFeeAmt).setScale(2,RoundingMode.CEILING);
+            System.out.println("finalFeeAmt1: "+finalFeeAmt);
 
         }else {
-            feeAmt = amt.multiply(chargePerc).add(hundred).setScale(2,RoundingMode.CEILING);
+//            finalFeeAmt = amt.multiply(decimalFee).add(flatFee).setScale(2,RoundingMode.CEILING);
+            fee = amt.add(flatFee);
+            dfAmt = one.subtract(decimalFee);
+            feeAmt = fee.divide(dfAmt,2,RoundingMode.CEILING);
+            finalFeeAmt = feeAmt.add(zeroPointZeroOne).setScale(2,RoundingMode.CEILING);
+            System.out.println("finalFeeAmt: " + finalFeeAmt);
         }
-        log.info("feeAmt: "+feeAmt);
+        finalChargeFeeAmt = finalFeeAmt.subtract(amt).setScale(2,RoundingMode.CEILING);
+        log.info("finalChargeFeeAmt: "+finalChargeFeeAmt);
 
-        if(feeAmt.compareTo(maxFee) > 0){
+        if(finalChargeFeeAmt.compareTo(maxFee) > 0){
             return maxFee;
         }
-        return feeAmt;
+        return finalChargeFeeAmt;
     }
 }
