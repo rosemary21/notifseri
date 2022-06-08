@@ -44,127 +44,127 @@ public class NotificationJobs {
     TransferService transferService;
 
       //  @Async("schedulePool1")
-    @Scheduled(cron = "${app.schedule.dueRentalOne}")
-//    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
-    public void dueRentalNotification() {
-        try {
-            NotificationGeneralConfig dueRentalOneConfig = notificationConfigService.getNotificationGeneralConfig(NotificationType.DUE_RENTAL_ONE.name());
-            if(dueRentalOneConfig.getIsEnabled())
-                dispatcherService.performDueRentalOperation();
-            else
-                log.info("Schedule for due rental one has reached it's schedule time but notification is disabled from configuration".toUpperCase());
-        }catch (CustomCheckedException cce) {
-            cce.printStackTrace();
-            log.info(cce.getMessage());
-        }
-    }
-
 //    @Scheduled(cron = "${app.schedule.dueRentalOne}")
-     @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
-    public void sendAllNotification() {
-        try {
-            NotificationGeneralConfig dueRentalOneConfig = notificationConfigService.getNotificationGeneralConfig(NotificationType.DUE_RENTAL_ONE.name());
-            if(dueRentalOneConfig.getIsEnabled())
-                dispatcherService.sendAllCient();
-            else
-                log.info("Schedule for due rental one has reached it's schedule time but notification is disabled from configuration".toUpperCase());
-        }catch (CustomCheckedException cce) {
-            cce.printStackTrace();
-            log.info(cce.getMessage());
-        }
-    }
-
-//      //  @Async("schedulePool2")
-    @Scheduled(cron = "${app.schedule.dueRentalTwo}")
-//    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
-    public void dueRentalNotification2() {
-        try {
-            NotificationGeneralConfig dueRentalTwoConfig = notificationConfigService.getNotificationGeneralConfig(NotificationType.DUE_RENTAL_TWO.name());
-            if(dueRentalTwoConfig.getIsEnabled())
-                dispatcherService.performDueRentalTwoOperation();
-            else
-                log.info("Schedule for due rental two has reached it's schedule time but notification is disabled from configuration".toUpperCase());
-        }catch (CustomCheckedException cce) {
-            cce.printStackTrace();
-            log.info(cce.getMessage());
-        }
-    }
-
-       // @Async("schedulePool3")
-    @Scheduled(cron = "${app.schedule.dueRentalThree}")
-//    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
-    public void dueRentalNotification3() {
-        try {
-            NotificationGeneralConfig dueRentalThreeConfig = notificationConfigService.getNotificationGeneralConfig(NotificationType.DUE_RENTAL_THREE.name());
-            if(dueRentalThreeConfig.getIsEnabled())
-                dispatcherService.performDueRentalThreeOperation();
-            else
-                log.info("Schedule for due rental three has reached it's schedule time but notification is disabled from configuration".toUpperCase());
-        }catch (CustomCheckedException cce) {
-            cce.printStackTrace();
-            log.info(cce.getMessage());
-        }
-    }
-
-
-    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
-    public void disburselaon() {
-        try {
-            transferService.disburseLoan();
-        }catch (Exception cce) {
-            cce.printStackTrace();
-            log.info(cce.getMessage());
-        }
-    }
-
-//       // @Async("schedulePool4")
-    @Scheduled(cron = "${app.schedule.arrears}")
-//    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
-    public void arrearsNotification() {
-        try {
-            NotificationGeneralConfig arrearsConfig = notificationConfigService.getNotificationGeneralConfig(NotificationType.ARREARS.name());
-            if(arrearsConfig.getIsEnabled())
-                dispatcherService.performArrearsOperation();
-            else
-                log.info("Schedule for arrears has reached it's schedule time but notification is disabled from configuration".toUpperCase());
-        }catch (CustomCheckedException cce) {
-            cce.printStackTrace();
-            log.info(cce.getMessage());
-        }
-    }
+////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
+//    public void dueRentalNotification() {
+//        try {
+//            NotificationGeneralConfig dueRentalOneConfig = notificationConfigService.getNotificationGeneralConfig(NotificationType.DUE_RENTAL_ONE.name());
+//            if(dueRentalOneConfig.getIsEnabled())
+//                dispatcherService.performDueRentalOperation();
+//            else
+//                log.info("Schedule for due rental one has reached it's schedule time but notification is disabled from configuration".toUpperCase());
+//        }catch (CustomCheckedException cce) {
+//            cce.printStackTrace();
+//            log.info(cce.getMessage());
+//        }
+//    }
 //
-//       // @Async("schedulePool5")
-    @Scheduled(cron = "${app.schedule.postMaturity}")
+////    @Scheduled(cron = "${app.schedule.dueRentalOne}")
+//     @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
+//    public void sendAllNotification() {
+//        try {
+//            NotificationGeneralConfig dueRentalOneConfig = notificationConfigService.getNotificationGeneralConfig(NotificationType.DUE_RENTAL_ONE.name());
+//            if(dueRentalOneConfig.getIsEnabled())
+//                dispatcherService.sendAllCient();
+//            else
+//                log.info("Schedule for due rental one has reached it's schedule time but notification is disabled from configuration".toUpperCase());
+//        }catch (CustomCheckedException cce) {
+//            cce.printStackTrace();
+//            log.info(cce.getMessage());
+//        }
+//    }
+//
+////      //  @Async("schedulePool2")
+//    @Scheduled(cron = "${app.schedule.dueRentalTwo}")
+////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
+//    public void dueRentalNotification2() {
+//        try {
+//            NotificationGeneralConfig dueRentalTwoConfig = notificationConfigService.getNotificationGeneralConfig(NotificationType.DUE_RENTAL_TWO.name());
+//            if(dueRentalTwoConfig.getIsEnabled())
+//                dispatcherService.performDueRentalTwoOperation();
+//            else
+//                log.info("Schedule for due rental two has reached it's schedule time but notification is disabled from configuration".toUpperCase());
+//        }catch (CustomCheckedException cce) {
+//            cce.printStackTrace();
+//            log.info(cce.getMessage());
+//        }
+//    }
+//
+//       // @Async("schedulePool3")
+//    @Scheduled(cron = "${app.schedule.dueRentalThree}")
+////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
+//    public void dueRentalNotification3() {
+//        try {
+//            NotificationGeneralConfig dueRentalThreeConfig = notificationConfigService.getNotificationGeneralConfig(NotificationType.DUE_RENTAL_THREE.name());
+//            if(dueRentalThreeConfig.getIsEnabled())
+//                dispatcherService.performDueRentalThreeOperation();
+//            else
+//                log.info("Schedule for due rental three has reached it's schedule time but notification is disabled from configuration".toUpperCase());
+//        }catch (CustomCheckedException cce) {
+//            cce.printStackTrace();
+//            log.info(cce.getMessage());
+//        }
+//    }
+//
+//
 //    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
-    public void postMaturityNotification() {
-        try {
-            NotificationGeneralConfig postMaturityConfig = notificationConfigService.getNotificationGeneralConfig(NotificationType.POST_MATURITY.name());
-            if(postMaturityConfig.getIsEnabled())
-                dispatcherService.performPostMaturityOperation();
-            else
-                log.info("Schedule for post maturity has reached it's schedule time but notification is disabled from configuration".toUpperCase());
-        }catch (CustomCheckedException cce) {
-            cce.printStackTrace();
-            log.info(cce.getMessage());
-        }
-    }
-
-//       // @Async("schedulePool6")
-    @Scheduled(cron = "${app.schedule.chequeLodgement}")
-//    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
-    public void chequeLodgementNotification() {
-        try {
-            NotificationGeneralConfig chequeLodgementConfig = notificationConfigService.getNotificationGeneralConfig(NotificationType.CHEQUE_LODGEMENT.name());
-            if(chequeLodgementConfig.getIsEnabled())
-                dispatcherService.performChequeLodgementOperation();
-            else
-                log.info("Schedule for cheque lodgement has reached it's schedule time but notification is disabled from configuration".toUpperCase());
-        }catch (CustomCheckedException cce) {
-            cce.printStackTrace();
-            log.info(cce.getMessage());
-        }
-    }
+//    public void disburselaon() {
+//        try {
+//            transferService.disburseLoan();
+//        }catch (Exception cce) {
+//            cce.printStackTrace();
+//            log.info(cce.getMessage());
+//        }
+//    }
+//
+////       // @Async("schedulePool4")
+//    @Scheduled(cron = "${app.schedule.arrears}")
+////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
+//    public void arrearsNotification() {
+//        try {
+//            NotificationGeneralConfig arrearsConfig = notificationConfigService.getNotificationGeneralConfig(NotificationType.ARREARS.name());
+//            if(arrearsConfig.getIsEnabled())
+//                dispatcherService.performArrearsOperation();
+//            else
+//                log.info("Schedule for arrears has reached it's schedule time but notification is disabled from configuration".toUpperCase());
+//        }catch (CustomCheckedException cce) {
+//            cce.printStackTrace();
+//            log.info(cce.getMessage());
+//        }
+//    }
 ////
+////       // @Async("schedulePool5")
+//    @Scheduled(cron = "${app.schedule.postMaturity}")
+////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
+//    public void postMaturityNotification() {
+//        try {
+//            NotificationGeneralConfig postMaturityConfig = notificationConfigService.getNotificationGeneralConfig(NotificationType.POST_MATURITY.name());
+//            if(postMaturityConfig.getIsEnabled())
+//                dispatcherService.performPostMaturityOperation();
+//            else
+//                log.info("Schedule for post maturity has reached it's schedule time but notification is disabled from configuration".toUpperCase());
+//        }catch (CustomCheckedException cce) {
+//            cce.printStackTrace();
+//            log.info(cce.getMessage());
+//        }
+//    }
+//
+////       // @Async("schedulePool6")
+//    @Scheduled(cron = "${app.schedule.chequeLodgement}")
+////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
+//    public void chequeLodgementNotification() {
+//        try {
+//            NotificationGeneralConfig chequeLodgementConfig = notificationConfigService.getNotificationGeneralConfig(NotificationType.CHEQUE_LODGEMENT.name());
+//            if(chequeLodgementConfig.getIsEnabled())
+//                dispatcherService.performChequeLodgementOperation();
+//            else
+//                log.info("Schedule for cheque lodgement has reached it's schedule time but notification is disabled from configuration".toUpperCase());
+//        }catch (CustomCheckedException cce) {
+//            cce.printStackTrace();
+//            log.info(cce.getMessage());
+//        }
+//    }
+//////
     @Scheduled(cron = "${app.schedule.recurringCharges}")
 //    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
     public void recurringChargesNotification() {
@@ -172,16 +172,16 @@ public class NotificationJobs {
             dispatcherService.performRecurringChargesOperation();
         else log.info("Schedule for recurring charges has reached it's schedule time but notification is disabled from configuration".toUpperCase());
     }
-////
-    @Scheduled(cron = "${app.schedule.repayinstafin.recurringCharges}")
-//    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
-    public void retryInstafinPaymentOperation() {
-        if(instafinrepaymentEnabled)
-            dispatcherService.performRetryInstafinPayment();
-        else log.info("Schedule for repayment on instafin is disabled".toUpperCase());
-    }
-
+//////
+//    @Scheduled(cron = "${app.schedule.repayinstafin.recurringCharges}")
+////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
+//    public void retryInstafinPaymentOperation() {
+//        if(instafinrepaymentEnabled)
+//            dispatcherService.performRetryInstafinPayment();
+//        else log.info("Schedule for repayment on instafin is disabled".toUpperCase());
+//    }
 //
+////
     @Scheduled(cron = "${app.schedule.partialDebit}")
 //    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
     public void partialDebitOperation() {
@@ -189,45 +189,45 @@ public class NotificationJobs {
             partialDebitService.performPartialDebitOp();
         else log.info("Schedule for partial debit operation has reached it's schedule time but is operation is disabled from configuration".toUpperCase());
     }
-
-    @Scheduled(cron = "${app.schedule.recurringCharges}")
-//    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
-    public void mandateDebitInstruction() {
-        if(mandateDebitInstructionEnabled)
-            dispatcherService.performRecurringMandateDebitInstruction();
-        else log.info("Schedule for recurring mandate charge (remita) has reached it's schedule time but notification is disabled from configuration".toUpperCase());
-    }
-
 //
-    @Scheduled(cron = "${app.schedule.confirmRemitaAndRepayLoan}")
-//    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
-    public void confirmRemitaAndRepayLoanOperation() {
-        if(mandateDebitInstructionEnabled)
-            remitaService.checkDebitStatusAndRepayLoan();
-        else log.info("Schedule for confirmation of remita and repayment of loan operation".toUpperCase());
-    }
-
-
-
-
-
-    @Scheduled(cron = "${app.schedule.notifyTeam}")
-//    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
-    public void notifyTeamOperation() {
-        try {
-            dispatcherService.notifyTeamOfOperation();
-        }catch (CustomCheckedException cce) {
-            log.info("An error occurred while trying to notify team of operation");
-        }
-    }
-
-    @Scheduled(cron = "${app.schedule.verify.mandateactivation}")
-    public void verifyMandateActivation(){
-        try {
-            dispatcherService.checkStatusAndUpdateMandate();
-        }catch (Exception e){
-            log.info("An error occurred while trying to notify team of operation: {} ",e.getMessage());
-        }
-    }
+//    @Scheduled(cron = "${app.schedule.recurringCharges}")
+////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
+//    public void mandateDebitInstruction() {
+//        if(mandateDebitInstructionEnabled)
+//            dispatcherService.performRecurringMandateDebitInstruction();
+//        else log.info("Schedule for recurring mandate charge (remita) has reached it's schedule time but notification is disabled from configuration".toUpperCase());
+//    }
+//
+////
+//    @Scheduled(cron = "${app.schedule.confirmRemitaAndRepayLoan}")
+////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
+//    public void confirmRemitaAndRepayLoanOperation() {
+//        if(mandateDebitInstructionEnabled)
+//            remitaService.checkDebitStatusAndRepayLoan();
+//        else log.info("Schedule for confirmation of remita and repayment of loan operation".toUpperCase());
+//    }
+//
+//
+//
+//
+//
+//    @Scheduled(cron = "${app.schedule.notifyTeam}")
+////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
+//    public void notifyTeamOperation() {
+//        try {
+//            dispatcherService.notifyTeamOfOperation();
+//        }catch (CustomCheckedException cce) {
+//            log.info("An error occurred while trying to notify team of operation");
+//        }
+//    }
+//
+//    @Scheduled(cron = "${app.schedule.verify.mandateactivation}")
+//    public void verifyMandateActivation(){
+//        try {
+//            dispatcherService.checkStatusAndUpdateMandate();
+//        }catch (Exception e){
+//            log.info("An error occurred while trying to notify team of operation: {} ",e.getMessage());
+//        }
+//    }
 
 }
