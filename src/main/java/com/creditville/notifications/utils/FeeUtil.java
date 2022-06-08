@@ -49,4 +49,31 @@ public class FeeUtil {
         }
         return finalChargeFeeAmt;
     }
+
+    public BigDecimal CalculatePaystackCharge(BigDecimal loanAmt){
+        final BigDecimal decimalFee = new BigDecimal("0.985");
+        final BigDecimal hundred = new BigDecimal("100");
+        final BigDecimal defaultAmt = new BigDecimal("2500");
+        final BigDecimal maxFee = new BigDecimal("2000");
+
+        final BigDecimal finalFeeAmt;
+        final BigDecimal finalChargeAmt;
+
+        if(loanAmt.compareTo(defaultAmt) < 0){
+
+            finalFeeAmt = loanAmt.divide(decimalFee, 2,RoundingMode.CEILING);
+
+        }else {
+            finalFeeAmt = loanAmt.add(hundred).divide(decimalFee,2,RoundingMode.CEILING);
+        }
+
+        finalChargeAmt = finalFeeAmt.subtract(loanAmt).setScale(2,RoundingMode.CEILING);
+
+        log.info("ENTRY CalculatePaystackCharge -> finalChargeAmt: {}",finalChargeAmt);
+
+        if(finalChargeAmt.compareTo(maxFee) > 0){
+            return maxFee;
+        }
+        return finalChargeAmt;
+    }
 }
