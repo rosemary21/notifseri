@@ -120,8 +120,8 @@ class NotificationsApplicationTests {
 
     @Test
     void paystackCalFeeTest(){
-        var amount = new BigDecimal("127086.29");
-//        var amount = new BigDecimal("2500");
+//        var amount = new BigDecimal("117086.29");
+        var amount = new BigDecimal("2499.97");
 
         var feeAmt = feeUtil.CalculatePaystackCharge(amount);
         System.out.println("final fee: "+feeAmt);
