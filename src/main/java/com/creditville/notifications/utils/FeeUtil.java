@@ -10,7 +10,7 @@ import java.math.RoundingMode;
 @Service
 public class FeeUtil {
 
-    public BigDecimal calculatePaystackFee(BigDecimal amt){
+    public BigDecimal calculatePaystackCharge(BigDecimal amt){
         log.info("amt: "+amt);
 
         final BigDecimal defaultAmt = new BigDecimal("2500");
@@ -50,7 +50,7 @@ public class FeeUtil {
         return finalChargeFeeAmt;
     }
 
-    public BigDecimal CalculatePaystackCharge(BigDecimal loanAmt){
+    public BigDecimal calculatePaystackFee(BigDecimal loanAmt){
         final BigDecimal decimalFee = new BigDecimal("0.985");
         final BigDecimal hundred = new BigDecimal("100");
         final BigDecimal defaultAmt = new BigDecimal("2500");
