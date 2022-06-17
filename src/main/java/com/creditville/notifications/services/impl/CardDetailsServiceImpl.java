@@ -14,6 +14,7 @@ import com.creditville.notifications.repositories.CardTransactionRepository;
 import com.creditville.notifications.repositories.MandateRepository;
 import com.creditville.notifications.services.*;
 import com.creditville.notifications.utils.CardUtil;
+import com.creditville.notifications.utils.GeneralUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -98,6 +99,9 @@ public class CardDetailsServiceImpl implements CardDetailsService {
     @Autowired
     private RemitaService remitaService;
 
+    @Autowired
+    private GeneralUtil gu;
+
     @Override
     public void saveCustomerCardDetails(CardDetails cardDetails) {
         cardDetailsRepo.save(cardDetails);
@@ -106,7 +110,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
     @Override
     public void cardAuthorization(String reference, String clientId) {
         CardDetailsDto cdDto = new CardDetailsDto();
-        var authResp = verifyTransaction(reference);
+        var authResp = verifyTransaction(reference, gu.isClientTG(clientId));
         cdDto.setPaystackResponse(authResp);
         boolean isTokenized = false;
         try {
@@ -263,7 +267,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                         chargeDto.setAmount(amount);
                         chargeDto.setAuthorization_code(cardDetails.getAuthorizationCode());
                         chargeDto.setEmail(email);
-                        var chargeResp = chargeCard(chargeDto);
+                        var chargeResp = chargeCard(chargeDto, gu.isClientTG(clientID));
                         ctDTO.setPaystackResponse(chargeResp);
 
                         var chargeRespObj = cardUtil.getJsonObjResponse(chargeResp);
@@ -297,7 +301,13 @@ public class CardDetailsServiceImpl implements CardDetailsService {
 //                                repayLoanReq.setAmount(new BigDecimal(dataObj.get("amount").toString()));
                                 var loanAmount = newChargedAmount.subtract(transactionFee);
                                 repayLoanReq.setAmount(loanAmount);
-                                repayLoanReq.setPaymentMethodName(AppConstants.InstafinPaymentMethod.PAYSTACK_PAYMENT_METHOD);
+                                String paymentMethod;
+                                if(!gu.isClientTG(clientID)){
+                                    paymentMethod = AppConstants.InstafinPaymentMethod.PAYSTACK_PAYMENT_METHOD;
+                                }else {
+                                    paymentMethod = AppConstants.TG_InstafinPaymentMethod.TG_PAYSTACK_PAYMENT_METHOD;
+                                }
+                                repayLoanReq.setPaymentMethodName(paymentMethod);
                                 repayLoanReq.setTransactionBranchID(AppConstants.InstafinBranch.TRANSACTION_BRANCH_ID);
                                 repayLoanReq.setRepaymentDate(currentDate.toString());
                                 repayLoanReq.setNotes("Card loan repayment"+" Loan ID : "+loanId+" Reference Id : "+ctDTO.getReference());
@@ -464,7 +474,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                 String pdResp = this.makePartialDebit(new PartialDebitDto(
                         chargeDto.getAuthorization_code(),
                         chargeDto.getAmount(),
-                        chargeDto.getEmail()));
+                        chargeDto.getEmail()), gu.isClientTG(clientId));
                 ctDTO.setPaystackResponse(pdResp);
                 if (pdResp != null) {
                     JSONObject pdRespObj = cardUtil.getJsonObjResponse(pdResp);
@@ -488,10 +498,15 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                             var savedCardTransaction = ctService.saveCardTransaction(ctDTO);
 
 //                          Make loan repayment...
+                            String paymentMethod;
+                            if(!gu.isClientTG(clientId)){
+                                paymentMethod = AppConstants.InstafinPaymentMethod.PAYSTACK_PAYMENT_METHOD;
+                            }else {
+                                paymentMethod = AppConstants.TG_InstafinPaymentMethod.TG_PAYSTACK_PAYMENT_METHOD;
+                            }
+                            repayLoanReq.setPaymentMethodName(paymentMethod);
                             repayLoanReq.setAccountID(loanId);
-//                                                    repayLoanReq.setAmount(pdAmount);
                             repayLoanReq.setAmount(newPdAmount);
-                            repayLoanReq.setPaymentMethodName(AppConstants.InstafinPaymentMethod.PAYSTACK_PAYMENT_METHOD);
                             repayLoanReq.setTransactionBranchID(AppConstants.InstafinBranch.TRANSACTION_BRANCH_ID);
                             repayLoanReq.setRepaymentDate(currentDate.toString());
                             repayLoanReq.setNotes("Paystack Card loan repayment "+" Loan Id: "+loanId+" Reference Id: "+ctDTO.getReference());
@@ -563,12 +578,12 @@ public class CardDetailsServiceImpl implements CardDetailsService {
     }
 
     @Override
-    public String makePartialDebit(PartialDebitDto partialDebitDto) {
+    public String makePartialDebit(PartialDebitDto partialDebitDto, boolean isClientTG) {
         String resp = null;
         try {
             var payload = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(partialDebitDto);
             log.info("ENTRY -> makePartialDebit payload: "+ payload);
-            resp = httpCallService.httpPaystackCall(psBaseUrl+partialDebitUrl, payload);
+            resp = httpCallService.httpPaystackCall(psBaseUrl+partialDebitUrl, payload, isClientTG);
             log.info("ENTRY -> makePartialDebit resp: "+resp);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
@@ -578,12 +593,12 @@ public class CardDetailsServiceImpl implements CardDetailsService {
 
 
     @Override
-    public String chargeCard(ChargeDto chargeDto) {
+    public String chargeCard(ChargeDto chargeDto, boolean isTGClient) {
         String chargeResp = null;
         try {
             var payload = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(chargeDto);
             log.info("ENTRY -> recurringCharges payload: "+ payload);
-            chargeResp = httpCallService.httpPaystackCall(psBaseUrl+psChargeAuthUrl, payload);
+            chargeResp = httpCallService.httpPaystackCall(psBaseUrl+psChargeAuthUrl, payload, isTGClient);
             log.info("recurringCharges response: "+chargeResp);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
@@ -592,9 +607,9 @@ public class CardDetailsServiceImpl implements CardDetailsService {
     }
 
     @Override
-    public String verifyTransaction(String reference) {
+    public String verifyTransaction(String reference, boolean isClientTG) {
         log.info("Verify transaction reference: "+reference);
-        var transResp = httpCallService.httpPaystackCall(psBaseUrl+psTransVerification+reference, null);
+        var transResp = httpCallService.httpPaystackCall(psBaseUrl+psTransVerification+reference, null, isClientTG);
 //        System.out.println("transResp: "+transResp);
         return transResp;
     }
