@@ -42,10 +42,10 @@ public class NotificationJobs {
 
     @Autowired
     TransferService transferService;
-
-      //  @Async("schedulePool1")
+//
+//        @Async("schedulePool1")
 //    @Scheduled(cron = "${app.schedule.dueRentalOne}")
-////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
+//   // @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
 //    public void dueRentalNotification() {
 //        try {
 //            NotificationGeneralConfig dueRentalOneConfig = notificationConfigService.getNotificationGeneralConfig(NotificationType.DUE_RENTAL_ONE.name());
@@ -165,38 +165,38 @@ public class NotificationJobs {
 //        }
 //    }
 //////
-    @Scheduled(cron = "${app.schedule.recurringCharges}")
-   // @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
+//    @Scheduled(cron = "${app.schedule.recurringCharges}")
+    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
     public void recurringChargesNotification() {
         if(recurringChargesEnabled)
             dispatcherService.performRecurringChargesOperation();
         else log.info("Schedule for recurring charges has reached it's schedule time but notification is disabled from configuration".toUpperCase());
     }
-//////
-    @Scheduled(cron = "${app.schedule.repayinstafin.recurringCharges}")
-//    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
-    public void retryInstafinPaymentOperation() {
-        if(instafinrepaymentEnabled)
-            dispatcherService.performRetryInstafinPayment();
-        else log.info("Schedule for repayment on instafin is disabled".toUpperCase());
-    }
+////
+//    @Scheduled(cron = "${app.schedule.repayinstafin.recurringCharges}")
+////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
+//    public void retryInstafinPaymentOperation() {
+//        if(instafinrepaymentEnabled)
+//            dispatcherService.performRetryInstafinPayment();
+//        else log.info("Schedule for repayment on instafin is disabled".toUpperCase());
+//    }
 //
 ////
-    @Scheduled(cron = "${app.schedule.partialDebit}")
-    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
+//    @Scheduled(cron = "${app.schedule.partialDebit}")
+//    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
     public void partialDebitOperation() {
         if(partialDebitEnabled)
             partialDebitService.performPartialDebitOp();
         else log.info("Schedule for partial debit operation has reached it's schedule time but is operation is disabled from configuration".toUpperCase());
     }
-//
-    @Scheduled(cron = "${app.schedule.recurringCharges}")
-//    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
-    public void mandateDebitInstruction() {
-        if(mandateDebitInstructionEnabled)
-            dispatcherService.performRecurringMandateDebitInstruction();
-        else log.info("Schedule for recurring mandate charge (remita) has reached it's schedule time but notification is disabled from configuration".toUpperCase());
-    }
+
+//    @Scheduled(cron = "${app.schedule.recurringCharges}")
+////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
+//    public void mandateDebitInstruction() {
+//        if(mandateDebitInstructionEnabled)
+//            dispatcherService.performRecurringMandateDebitInstruction();
+//        else log.info("Schedule for recurring mandate charge (remita) has reached it's schedule time but notification is disabled from configuration".toUpperCase());
+//    }
 //
 ////
 //    @Scheduled(cron = "${app.schedule.confirmRemitaAndRepayLoan}")

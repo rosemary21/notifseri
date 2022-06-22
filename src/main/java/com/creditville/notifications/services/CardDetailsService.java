@@ -17,11 +17,11 @@ public interface CardDetailsService {
 
     void initiateRemitaRecurringCharges(BigDecimal amount, String loanId, LocalDate currentDate, String clientID);
 
-    String makePartialDebit(PartialDebitDto partialDebitDto);
+    String makePartialDebit(PartialDebitDto partialDebitDto, boolean isClientTG);
 
-    public String chargeCard(ChargeDto chargeDto);
+    public String chargeCard(ChargeDto chargeDto,  boolean isTGClient);
 
-    public String verifyTransaction(String reference);
+    public String verifyTransaction(String reference, boolean isClientTG);
 
     List<CardDetails> getAllCardDetails(Integer pageNo, Integer pageSize);
 }

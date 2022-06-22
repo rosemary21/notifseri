@@ -11,10 +11,7 @@ import com.creditville.notifications.repositories.CardTransactionRepository;
 import com.creditville.notifications.repositories.MandateRepository;
 import com.creditville.notifications.repositories.RetryLoanRepaymentRepository;
 import com.creditville.notifications.services.*;
-import com.creditville.notifications.utils.CardUtil;
-import com.creditville.notifications.utils.CurrencyUtil;
-import com.creditville.notifications.utils.DateUtil;
-import com.creditville.notifications.utils.FeeUtil;
+import com.creditville.notifications.utils.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
@@ -171,6 +168,8 @@ public class DispatcherServiceImpl implements DispatcherService {
     private MandateRepository mandateRepo;
     @Autowired
     private FeeUtil feeUtil;
+    @Autowired
+    private GeneralUtil gu;
 
     @Override
     public void performDueRentalOperation() {
@@ -1311,7 +1310,15 @@ public class DispatcherServiceImpl implements DispatcherService {
             RepayLoanReq repayLoanReq = new RepayLoanReq();
             repayLoanReq.setAccountID(loanRepayment.getLoanId());
             repayLoanReq.setAmount(loanRepayment.getAmount());
-            repayLoanReq.setPaymentMethodName(AppConstants.InstafinPaymentMethod.PAYSTACK_PAYMENT_METHOD);
+
+            String paymentMethod = AppConstants.InstafinPaymentMethod.PAYSTACK_PAYMENT_METHOD;
+            if(null != savedCardTransaction.getCardDetails()){
+                if(gu.isClientTG(savedCardTransaction.getCardDetails().getClientId())){
+                    paymentMethod = AppConstants.TG_InstafinPaymentMethod.TG_PAYSTACK_PAYMENT_METHOD;
+                }
+            }
+
+            repayLoanReq.setPaymentMethodName(paymentMethod);
             repayLoanReq.setTransactionBranchID(AppConstants.InstafinBranch.TRANSACTION_BRANCH_ID);
             repayLoanReq.setRepaymentDate(loanRepayment.getInstafinObliDate());
             repayLoanReq.setNotes("Card loan repayment"+" Loan ID : "+loanRepayment.getLoanId()+" Reference Id : "+loanRepayment.getReference());

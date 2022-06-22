@@ -121,10 +121,10 @@ class NotificationsApplicationTests {
     @Test
     void paystackCalFeeTest(){
 //        var amount = new BigDecimal("117086.29");
-        var amount = new BigDecimal("2499.97");
+        var amount = new BigDecimal("126665.99");
 
-        //var feeAmt = feeUtil.CalculatePaystackCharge(amount);
-        //System.out.println("final fee: "+feeAmt);
+        var feeAmt = feeUtil.calculatePaystackFee(amount);
+        System.out.println("final fee: "+feeAmt);
 
 //        var isDate = dateUtil.convertDateToLocalDate("2022-03-31T09:01:57.912+00:00");
 //        System.out.println("isDate: "+isDate);

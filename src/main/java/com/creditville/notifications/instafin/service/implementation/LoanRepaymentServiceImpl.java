@@ -29,7 +29,7 @@ public class LoanRepaymentServiceImpl implements LoanRepaymentService {
     public String makeLoanRepayment(RepayLoanReq repayLoanReq) {
         try {
             var payload = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(repayLoanReq);
-            log.info("ENTRY makeLoanRepayment -> payload: {} ",objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(payload));
+            log.info("ENTRY makeLoanRepayment -> payload: {} ",payload);
             var repayLoanResp = httpCallService.doBasicPost(baseUrl+loanRepayUrl,payload);
             log.info("ENTRY makeLoanRepayment -> Resp: {} ",repayLoanResp);
             return repayLoanResp;

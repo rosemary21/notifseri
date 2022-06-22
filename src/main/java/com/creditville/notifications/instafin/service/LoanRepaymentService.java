@@ -5,5 +5,5 @@ import com.creditville.notifications.instafin.req.RepayLoanReq;
 
 public interface LoanRepaymentService {
 
-    public String makeLoanRepayment(RepayLoanReq repayLoanReq);
+    String makeLoanRepayment(RepayLoanReq repayLoanReq);
 }
