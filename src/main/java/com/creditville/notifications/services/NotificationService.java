@@ -25,10 +25,6 @@ public interface NotificationService {
 
     void sendEmailBroadcastNotification(SendEmailRequest sendEmailRequest) throws CustomCheckedException;
 
-    void sendTransactionEmail(SendTransactionMailRequestDTO request) throws CustomCheckedException;
-
-    void sendCompleteRegistrationEmail(SendOnboardMailRequestDTO request) throws CustomCheckedException;
-
     NotificationServiceImpl.NotificationStatistics getCurrentNotificationStatistics();
 
     List<ExcludedEmail> getMailExceptionList();

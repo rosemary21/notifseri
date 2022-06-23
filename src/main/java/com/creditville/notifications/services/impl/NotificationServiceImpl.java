@@ -536,32 +536,6 @@ public class NotificationServiceImpl implements NotificationService {
         }
     }
 
-    @Override
-    public void sendTransactionEmail(SendTransactionMailRequestDTO request) throws CustomCheckedException {
-
-        this.processSendingEmail(Map.of("transaction", request.getTransactionDTO()),
-                getAllRecipient(request.getTos(), request.getCc(), request.getBcc()),
-                request.getSubject(),
-                request.getFromName(),
-                request.getFromEmail(),
-                "email/transaction"
-        );
-
-    }
-
-    @Override
-    public void sendCompleteRegistrationEmail(SendOnboardMailRequestDTO request) throws CustomCheckedException {
-
-        this.processSendingEmail(Map.of("customerName", request.getCustomerName(), "accountNumber", request.getAccountNumber()),
-                getAllRecipient(request.getTos(), request.getCc(), request.getBcc()),
-                request.getSubject(),
-                request.getFromName(),
-                request.getFromEmail(),
-                "email/complete_registration"
-        );
-
-    }
-
     private List<Recipient> getAllRecipient(List<To> requestTo, List<To> requestCC, List<To> requestBcc){
         var to = toRecipient(requestTo);
         List<Recipient> cc = (requestCC != null) ? toCcRecipient(requestCC) : new ArrayList<>();

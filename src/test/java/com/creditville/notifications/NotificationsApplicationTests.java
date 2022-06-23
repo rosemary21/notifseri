@@ -140,42 +140,6 @@ class NotificationsApplicationTests {
     }
 
     @Test
-    void sendNotificationTransaction() throws CustomCheckedException {
-        notificationService.sendTransactionEmail(SendTransactionMailRequestDTO.builder()
-                .fromEmail("noreply@creditville.ng")
-                .fromName("Creditville")
-                .subject("Transaction Notification")
-                .tos(List.of(
-                        To.builder().email("ucheumeevuruo@yahoo.com").name("Uchechukwu").build(),
-                        To.builder().email("uche.umeevuruo@creditville.ng").name("Uche").build()
-                ))
-                .transactionDTO(TransactionDTO.builder()
-                        .accountNumber("***9876")
-                        .amount(BigDecimal.valueOf(45000.00))
-                        .transactionDate(LocalDate.now())
-                        .narration("NIP-/Transfer-In/ Chioma ,Online self")
-                        .type("Credit")
-                        .balanceAfter(BigDecimal.valueOf(5600000000.00))
-                        .build())
-                .build());
-    }
-
-    @Test
-    void sendOnboardNotification() throws CustomCheckedException {
-        notificationService.sendCompleteRegistrationEmail(SendOnboardMailRequestDTO.builder()
-                .fromEmail("noreply@creditville.ng")
-                .fromName("Creditville")
-                .subject("Onboard Notification")
-                .tos(List.of(
-                        To.builder().email("ucheumeevuruo@yahoo.com").name("Uchechukwu").build(),
-                        To.builder().email("uche.umeevuruo@creditville.ng").name("Uche").build()
-                ))
-                .accountNumber("***9870")
-                .customerName("Uche")
-                .build());
-    }
-
-    @Test
     void testRecurringCharges(){
         dispatcherService.performRecurringChargesOperation();
     }
