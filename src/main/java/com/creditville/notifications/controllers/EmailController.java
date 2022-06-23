@@ -26,18 +26,6 @@ public class EmailController {
         return new ResponseEntity<>(new SuccessResponse("Mail dispatched successfully"), HttpStatus.OK);
     }
 
-    @PostMapping("/send-transaction-message")
-    public ResponseEntity<?> sendTransactionEmail(@Valid @RequestBody SendTransactionMailRequestDTO request) throws CustomCheckedException {
-        notificationService.sendTransactionEmail(request);
-        return new ResponseEntity<>(new SuccessResponse("Mails dispatched successfully"), HttpStatus.OK);
-    }
-
-    @PostMapping("/send-onboard-message")
-    public ResponseEntity<?> sendOnboardEmail(@Valid @RequestBody SendOnboardMailRequestDTO request) throws CustomCheckedException {
-        notificationService.sendCompleteRegistrationEmail(request);
-        return new ResponseEntity<>(new SuccessResponse("Mails dispatched successfully"), HttpStatus.OK);
-    }
-
     @PostMapping("/send-broadcast-message")
     public ResponseEntity<?> sendOutBroadcastEmail(@Valid @RequestBody SendEmailRequest sendEmailRequest) throws CustomCheckedException {
         notificationService.sendEmailBroadcastNotification(sendEmailRequest);
