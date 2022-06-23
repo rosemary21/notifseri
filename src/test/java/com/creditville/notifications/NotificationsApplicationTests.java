@@ -1,10 +1,17 @@
 package com.creditville.notifications;
 
+import com.creditville.notifications.exceptions.CustomCheckedException;
+import com.creditville.notifications.models.DTOs.TransactionDTO;
+import com.creditville.notifications.models.To;
 import com.creditville.notifications.models.requests.RemitaDebitStatus;
+import com.creditville.notifications.models.requests.SendOnboardMailRequestDTO;
+import com.creditville.notifications.models.requests.SendTransactionMailRequestDTO;
 import com.creditville.notifications.repositories.CardTransactionRepository;
 import com.creditville.notifications.services.DispatcherService;
+import com.creditville.notifications.services.NotificationService;
 import com.creditville.notifications.services.PartialDebitService;
 import com.creditville.notifications.services.RemitaService;
+import com.creditville.notifications.services.impl.NotificationServiceImpl;
 import com.creditville.notifications.utils.DateUtil;
 import com.creditville.notifications.utils.FeeUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -37,6 +44,8 @@ class NotificationsApplicationTests {
     private ObjectMapper om;
     @Autowired
     private FeeUtil feeUtil;
+    @Autowired
+    private NotificationServiceImpl notificationService;
     @Autowired
     private DispatcherService dispatcherService;
 
@@ -128,6 +137,42 @@ class NotificationsApplicationTests {
 
 //        var isDate = dateUtil.convertDateToLocalDate("2022-03-31T09:01:57.912+00:00");
 //        System.out.println("isDate: "+isDate);
+    }
+
+    @Test
+    void sendNotificationTransaction() throws CustomCheckedException {
+        notificationService.sendTransactionEmail(SendTransactionMailRequestDTO.builder()
+                .fromEmail("noreply@creditville.ng")
+                .fromName("Creditville")
+                .subject("Transaction Notification")
+                .tos(List.of(
+                        To.builder().email("ucheumeevuruo@yahoo.com").name("Uchechukwu").build(),
+                        To.builder().email("uche.umeevuruo@creditville.ng").name("Uche").build()
+                ))
+                .transactionDTO(TransactionDTO.builder()
+                        .accountNumber("***9876")
+                        .amount(BigDecimal.valueOf(45000.00))
+                        .transactionDate(LocalDate.now())
+                        .narration("NIP-/Transfer-In/ Chioma ,Online self")
+                        .type("Credit")
+                        .balanceAfter(BigDecimal.valueOf(5600000000.00))
+                        .build())
+                .build());
+    }
+
+    @Test
+    void sendOnboardNotification() throws CustomCheckedException {
+        notificationService.sendCompleteRegistrationEmail(SendOnboardMailRequestDTO.builder()
+                .fromEmail("noreply@creditville.ng")
+                .fromName("Creditville")
+                .subject("Onboard Notification")
+                .tos(List.of(
+                        To.builder().email("ucheumeevuruo@yahoo.com").name("Uchechukwu").build(),
+                        To.builder().email("uche.umeevuruo@creditville.ng").name("Uche").build()
+                ))
+                .accountNumber("***9870")
+                .customerName("Uche")
+                .build());
     }
 
     @Test

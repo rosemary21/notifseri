@@ -1,0 +1,137 @@
+
+<!DOCTYPE html
+        PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" style="height: 100%">
+
+<head>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+            href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Open+Sans:ital,wght@0,500;0,600;1,400&display=swap"
+            rel="stylesheet">
+
+    <title>Welcome</title>
+    <style>
+        body {
+
+            font-size: 14.8px;
+            font-weight: 400;
+            color: #174375;
+            font-family: 'Nanum Pen Script', cursive;
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        .fa:hover {
+            opacity: 0.9;
+            /* background-color: rgb(111, 95, 111); */
+        }
+
+        .fa-linkedin {
+            color: #174375;
+        }
+
+        .fa-facebook {
+            color: #174375;
+
+        }
+
+        .fa-instagram {
+            color: #174375;
+        }
+
+        .fa-twitter {
+            color: #174375;
+        }
+
+        .fa-whatsapp {
+            color: #174375;
+        }
+
+        .fa {
+            font-size: 20px;
+            width: 2% 2%;
+            height: 2%;
+            text-decoration: none;
+            margin: 10px;
+        }
+
+        .text {
+            margin: 25px 0px 20px 0px;
+        }
+
+        .tbody {
+            color: #233858;
+            margin: 5px 0px 5px 0px
+        }
+
+        .ft1 {
+            /* text-align: center; */
+            margin-top: 30px;
+            color: white;
+            font-weight: 700;
+        }
+    </style>
+</head>
+
+<body>
+<div style="padding: 0% 10%;background-color: #eeeeeea8;">
+    <div style="padding:5% 8%; background-color: white;">
+        <div>
+
+        </div>
+        <section>
+            <img src="https://res.cloudinary.com/dj9f3izo0/image/upload/v1655214850/cmoneyImage_xor5lu.png"
+                 style="width: 100%;">
+        </section>
+        <section>
+            <div class="text">
+                <div class="tbody"> Welcome on Board <span style="font-weight: 700;" th:text="${customerName}"></span></div>
+                <div class="tbody"><br>Thank you so much for opening an account with C Money.<br>Your C Money Account
+                    number is <span style="font-weight: 700;" th:text="${accountNumber}">.</span> </div>
+                <div class="tbody"><br>We are commited to providing our customers with the highest level of service
+                    and the most innovative banking products possible.</div>
+                <div class="tbody"><br>We are very glad you chose us as your financial partner and hope you will
+                    take advantage of our wide variety of savings,
+                    investment, and loan products, all designed to meet your specific needs.</div>
+                <div class="tbody"><br>For more details about our products, services or offerings, you may contact
+                    us on <span style="font-weight: 700;">07000330330</span> or WhatsApp: <span
+                            style="font-weight: 700;">08055100010.</span></div>
+
+
+            </div>
+            <div class="tbody" style="font-weight: 700;">Financing You For A Good Life.</div>
+
+            <div style="display: flex;margin: auto;justify-content: center;margin-top: 10px;">
+                <a href="https://www.facebook.com/Creditvilleng" class="fa fa-facebook"></a>
+                <a href="https://www.instagram.com/creditville/" class="fa fa-instagram"></a>
+                <a href="https://www.linkedin.com/company/creditvilleltd/" class="fa fa-linkedin"></a>
+                <a href="https://twitter.com/creditville/" class="fa fa-twitter"></a>
+                <a href="https://wa.me//+2348055100010" target="_blank" class="fa fa-whatsapp"></a>
+            </div>
+
+            <div style="border-bottom: 1px solid rgba(29, 28, 28, 0.07);background-color: transparent !important; ">
+            </div>
+
+
+            <div class="text" style="text-align:center; font-size: 12px;">
+                If you have reason to suspect any unauthorised activity on your account<br> please contact us by
+                sending an email to <span style="font-weight: bold;">customer@creditville.ng</span> <br><br>For more
+                information on our products and
+                services, please call our 24/7<br>
+                contact centre on <span style="font-weight: bold;">07000330330</span> or chat with us via
+                <br>Whatsapp on <a href="https://wa.me//+2348055100010"><span style="font-weight: bold;">(+234)
+                            08055100010</span>.</a>
+                <br>Alternatively send an email to <span style="font-weight: bold;">customer@creditville.ng</span>
+
+
+                <div style="font-size: 12px;"><br>Copyright © 2022. Creditville</div>
+
+            </div>
+
+        </section>
+
+    </div>
+</body>

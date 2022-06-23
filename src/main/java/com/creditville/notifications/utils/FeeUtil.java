@@ -76,4 +76,8 @@ public class FeeUtil {
         }
         return finalChargeAmt;
     }
+
+    public BigDecimal CalculatePaystackCharge(BigDecimal amount) {
+        return null;
+    }
 }
