@@ -43,4 +43,8 @@ public class GeneralUtil {
         public static final String thirdPattern = "dd/MM/yyyy"; //2021-04-20
         public static final String forthPattern = "DD/MM/YYYY";
     }
+
+    public boolean isClientTG(String clientId){
+        return clientId.startsWith("TG");
+    }
 }

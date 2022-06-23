@@ -31,6 +31,7 @@ public class CardDetails {
     @Lob
     private String paystackResponse;
     private Date lastUpdate;
+    private String type;
 
 //    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 //    private Collection<CardTransactions> transactions;

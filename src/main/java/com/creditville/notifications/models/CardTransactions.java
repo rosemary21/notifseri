@@ -46,4 +46,6 @@ public class CardTransactions {
     private Channel tranType;
     private BigDecimal paystackFee;
     private BigDecimal totalDebitAmount;
+
+    private String clientType;
 }

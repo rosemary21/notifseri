@@ -57,7 +57,7 @@ public class FeeUtil {
         final BigDecimal maxFee = new BigDecimal("2000");
 
         final BigDecimal finalFeeAmt;
-        final BigDecimal finalChargeAmt;
+        BigDecimal finalChargeAmt;
 
         if(loanAmt.compareTo(defaultAmt) < 0){
 
@@ -70,6 +70,7 @@ public class FeeUtil {
         finalChargeAmt = finalFeeAmt.subtract(loanAmt).setScale(2,RoundingMode.CEILING);
 
         log.info("ENTRY CalculatePaystackCharge -> finalChargeAmt: {}",finalChargeAmt);
+        finalChargeAmt = finalChargeAmt.add(new BigDecimal("0.01"));
 
         if(finalChargeAmt.compareTo(maxFee) > 0){
             return maxFee;

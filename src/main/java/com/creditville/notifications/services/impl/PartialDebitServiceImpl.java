@@ -1,6 +1,7 @@
 package com.creditville.notifications.services.impl;
 
 import com.creditville.notifications.exceptions.CustomCheckedException;
+import com.creditville.notifications.instafin.common.AppConstants;
 import com.creditville.notifications.instafin.req.RepayLoanReq;
 import com.creditville.notifications.instafin.service.LoanRepaymentService;
 import com.creditville.notifications.models.DTOs.CardTransactionsDto;
@@ -17,6 +18,7 @@ import com.creditville.notifications.repositories.PartialDebitRepository;
 import com.creditville.notifications.services.*;
 import com.creditville.notifications.utils.CardUtil;
 import com.creditville.notifications.utils.DateUtil;
+import com.creditville.notifications.utils.GeneralUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,6 +81,8 @@ public class PartialDebitServiceImpl implements PartialDebitService {
 
     @Autowired
     private CardTransactionsService ctService;
+    @Autowired
+    private GeneralUtil gu;
 
     @Override
     public PartialDebit savePartialDebit(String authCode, String loanId, BigDecimal amount, String email, LocalDate paymentDate) {
@@ -148,10 +152,11 @@ public class PartialDebitServiceImpl implements PartialDebitService {
                         if (!maxAttemptsReached) {
                             CardTransactionsDto ctDTO = new CardTransactionsDto();
                             var cardDetails = cardDetailsRepo.findByClientIdAndEmail(lookUpLoanAccount.getClient().getExternalID(), pdRecord.getEmail());
+
                             String pdResp = cardDetailsService.makePartialDebit(new PartialDebitDto(
                                     pdRecord.getAuthorizationCode(),
                                     newTotalDue,
-                                    pdRecord.getEmail()));
+                                    pdRecord.getEmail()), gu.isClientTG(cardDetails.getClientId()));
                             if (pdResp != null) {
                                 JSONObject pdRespObj = cardUtil.getJsonObjResponse(pdResp);
                                 if (pdRespObj != null) {
@@ -176,7 +181,14 @@ public class PartialDebitServiceImpl implements PartialDebitService {
 //                                            Make loan repayment...
                                         repayLoanReq.setAccountID(pdRecord.getLoanId());
                                         repayLoanReq.setAmount(newPdAmount);
-                                        repayLoanReq.setPaymentMethodName("Cash");
+
+                                        String paymentMethod;
+
+                                        if(gu.isClientTG(cardDetails.getClientId())){
+                                          paymentMethod = AppConstants.TG_InstafinPaymentMethod.TG_PAYSTACK_PAYMENT_METHOD;
+                                        }else paymentMethod = AppConstants.InstafinPaymentMethod.PAYSTACK_PAYMENT_METHOD;
+
+                                        repayLoanReq.setPaymentMethodName(paymentMethod);
                                         repayLoanReq.setTransactionBranchID("CVLHQB");
                                         repayLoanReq.setRepaymentDate(LocalDate.now().toString());
                                         repayLoanReq.setNotes("Paystack Card loan repayment");

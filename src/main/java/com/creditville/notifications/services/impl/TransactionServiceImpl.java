@@ -19,6 +19,7 @@ import com.creditville.notifications.repositories.MandateRepository;
 import com.creditville.notifications.services.*;
 import com.creditville.notifications.utils.CardUtil;
 import com.creditville.notifications.utils.DateUtil;
+import com.creditville.notifications.utils.GeneralUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
@@ -94,6 +95,8 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Value("${remitta.success.activation.code}")
     private String successfulActivationStatusCode;
+    @Autowired
+    private GeneralUtil gu;
 
     @Override
     public void handlePaystackTransactionEvent(HookEvent hookEvent) {
@@ -105,7 +108,7 @@ public class TransactionServiceImpl implements TransactionService {
                     CardDetails customerRecord = cardDetailsRepository.findByAuthorizationCode(hookEvent.getData().getAuthorization().getAuthorizationCode());
                     if(customerRecord == null) {
 //                        Customer'a auth code is not found. Hence, this is a tokenization process. Do nothing because tokenization requires a response to front end...
-                        System.out.println("Received hook event for tokenization but no operation was performed due to the structure of our system...");
+                        log.info("Received hook event for tokenization but no operation was performed due to the structure of our system...");
                     }else {
 //                        Customer's record is found. Hence, this is a repayment process. Attempt repayment...
                         CardTransactionsDto ctDTO = new CardTransactionsDto();
@@ -182,15 +185,16 @@ public class TransactionServiceImpl implements TransactionService {
 //                        Send out operation notification...
                         this.sendOutOpNotification(loanId, errorMessage, currentDate, repaymentStatus);
                     }
-                }else System.out.println("No Auuthorization information was returned for customer with email: "+ hookEvent.getData().getCustomer().getEmail());
+                }else log.info("No Auuthorization information was returned for customer with email: "+ hookEvent.getData().getCustomer().getEmail());
             }
         }else {
-            System.out.println("Charge was not successful. See status below: \n" + hookEvent.getEvent());
+            log.info("Charge was not successful. See status below: \n" + hookEvent.getEvent());
             String message = hookEvent.getData().getMessage();
-            System.out.println("Unsuccessful charge message is: "+ message);
+            log.info("Unsuccessful charge message is: "+ message);
             if(message.equalsIgnoreCase("insufficient funds")) {
 //                Charge failed due to insufficient funds. Attempt partial debit...
 //                TODO check if PD is disabled for customer...
+                CardDetails custDetails = cardDetailsRepository.findByAuthorizationCode(hookEvent.getData().getAuthorization().getAuthorizationCode());
                 if(hookEvent.getData() != null) {
                     if (hookEvent.getData().getAuthorization() != null) {
                         HookEventData data = hookEvent.getData();
@@ -200,7 +204,7 @@ public class TransactionServiceImpl implements TransactionService {
                                         authorization.getAuthorizationCode(),
                                         data.getAmount(),
                                         data.getCustomer().getEmail()
-                                )
+                                ),gu.isClientTG(custDetails.getClientId())
                         );
                     }
                 }
@@ -351,63 +355,63 @@ public class TransactionServiceImpl implements TransactionService {
         }
     }
 
-    private void performPdOperation(String authCode, BigDecimal amount, String email, RepayLoanReq repayLoanReq, String loanId, LocalDate currentDate) throws ParseException {
-//        Partial debit operation...
-        PartialDebit partialDebit = partialDebitService.getPartialDebit(authCode, amount, email);
-        boolean isNewPdRecord = false;
-        boolean maxAttemptsReached = false;
-        boolean repaymentStatus = false;
-        String errorMessage = null;
-        if (partialDebit == null) isNewPdRecord = true;
-        else {
-//            Check that partial debit attempts has not exceeded maximum (4)
-            if(partialDebitService.getPartialDebitAttempt(partialDebit, LocalDate.now()).getTotalNoOfAttempts() == 4)
-                maxAttemptsReached = true;
-        }
-        if(!maxAttemptsReached) {
-            String pdResp = cardDetailsService.makePartialDebit(new PartialDebitDto(authCode, amount, email));
-            if (pdResp != null) {
-                JSONObject pdRespObj = cardUtil.getJsonObjResponse(pdResp);
-                if (pdRespObj != null) {
-                    JSONObject data = cardUtil.getJsonObjResponse(pdRespObj.get("data").toString());
-                    if (data.get("status").toString().equalsIgnoreCase("success")) {
-//                        Partial debit successful...
-                        BigDecimal pdAmount = new BigDecimal(data.get("amount").toString());
-                        BigDecimal newPdAmount = pdAmount.divide(new BigDecimal(100)).setScale(2, RoundingMode.CEILING);
-//                        Make loan repayment...
-                        repayLoanReq.setAccountID(loanId);
-//                        repayLoanReq.setAmount(pdAmount);
-                        repayLoanReq.setAmount(newPdAmount);
-                        repayLoanReq.setPaymentMethodName(AppConstants.InstafinPaymentMethod.PAYSTACK_PAYMENT_METHOD);
-                        repayLoanReq.setTransactionBranchID(AppConstants.InstafinBranch.TRANSACTION_BRANCH_ID);
-                        repayLoanReq.setRepaymentDate(currentDate.toString());
-                        repayLoanReq.setNotes("Paystack Card loan repayment");
-                        var repaymentResp = loanRepaymentService.makeLoanRepayment(repayLoanReq);
-                        if (null == repaymentResp) {
-                            repaymentStatus = false;
-                            errorMessage = pdRespObj.get("message").toString();
-                        } else {
-                            if (repaymentResp.trim().equals("")) {
-                                repaymentStatus = false;
-                                errorMessage = pdRespObj.get("message").toString();
-                            } else {
-//                                Repayment successful...
-                                if (isNewPdRecord)
-                                    partialDebitService.savePartialDebit(authCode, loanId, amount, email, currentDate);
-                                else {
-                                    PartialDebitAttempt partialDebitAttempt = partialDebitService.getPartialDebitAttempt(partialDebit, LocalDate.now());
-                                    int totalAttempts = partialDebitAttempt.getTotalNoOfAttempts();
-                                    int totalAttemptsInc = (totalAttempts + 1);
-                                    partialDebitAttempt.setTotalNoOfAttempts(totalAttemptsInc);
-                                    partialDebitService.savePartialDebitAttempt(partialDebitAttempt);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+//    private void performPdOperation(String authCode, BigDecimal amount, String email, RepayLoanReq repayLoanReq, String loanId, LocalDate currentDate) throws ParseException {
+////        Partial debit operation...
+//        PartialDebit partialDebit = partialDebitService.getPartialDebit(authCode, amount, email);
+//        boolean isNewPdRecord = false;
+//        boolean maxAttemptsReached = false;
+//        boolean repaymentStatus = false;
+//        String errorMessage = null;
+//        if (partialDebit == null) isNewPdRecord = true;
+//        else {
+////            Check that partial debit attempts has not exceeded maximum (4)
+//            if(partialDebitService.getPartialDebitAttempt(partialDebit, LocalDate.now()).getTotalNoOfAttempts() == 4)
+//                maxAttemptsReached = true;
+//        }
+//        if(!maxAttemptsReached) {
+//            String pdResp = cardDetailsService.makePartialDebit(new PartialDebitDto(authCode, amount, email));
+//            if (pdResp != null) {
+//                JSONObject pdRespObj = cardUtil.getJsonObjResponse(pdResp);
+//                if (pdRespObj != null) {
+//                    JSONObject data = cardUtil.getJsonObjResponse(pdRespObj.get("data").toString());
+//                    if (data.get("status").toString().equalsIgnoreCase("success")) {
+////                        Partial debit successful...
+//                        BigDecimal pdAmount = new BigDecimal(data.get("amount").toString());
+//                        BigDecimal newPdAmount = pdAmount.divide(new BigDecimal(100)).setScale(2, RoundingMode.CEILING);
+////                        Make loan repayment...
+//                        repayLoanReq.setAccountID(loanId);
+////                        repayLoanReq.setAmount(pdAmount);
+//                        repayLoanReq.setAmount(newPdAmount);
+//                        repayLoanReq.setPaymentMethodName(AppConstants.InstafinPaymentMethod.PAYSTACK_PAYMENT_METHOD);
+//                        repayLoanReq.setTransactionBranchID(AppConstants.InstafinBranch.TRANSACTION_BRANCH_ID);
+//                        repayLoanReq.setRepaymentDate(currentDate.toString());
+//                        repayLoanReq.setNotes("Paystack Card loan repayment");
+//                        var repaymentResp = loanRepaymentService.makeLoanRepayment(repayLoanReq);
+//                        if (null == repaymentResp) {
+//                            repaymentStatus = false;
+//                            errorMessage = pdRespObj.get("message").toString();
+//                        } else {
+//                            if (repaymentResp.trim().equals("")) {
+//                                repaymentStatus = false;
+//                                errorMessage = pdRespObj.get("message").toString();
+//                            } else {
+////                                Repayment successful...
+//                                if (isNewPdRecord)
+//                                    partialDebitService.savePartialDebit(authCode, loanId, amount, email, currentDate);
+//                                else {
+//                                    PartialDebitAttempt partialDebitAttempt = partialDebitService.getPartialDebitAttempt(partialDebit, LocalDate.now());
+//                                    int totalAttempts = partialDebitAttempt.getTotalNoOfAttempts();
+//                                    int totalAttemptsInc = (totalAttempts + 1);
+//                                    partialDebitAttempt.setTotalNoOfAttempts(totalAttemptsInc);
+//                                    partialDebitService.savePartialDebitAttempt(partialDebitAttempt);
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
 
     private boolean responseContainsValidationError(JSONObject jsonObject){
         String[] validationErrors = new String[] {"LEGACY_VALIDATION_ERROR", "VALIDATION",

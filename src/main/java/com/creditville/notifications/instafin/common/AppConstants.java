@@ -8,6 +8,11 @@ public class AppConstants {
         public static final String REMITA_PAYMENT_METHOD="REMITA_PAYMENT_METHOD";
     }
 
+    public static class TG_InstafinPaymentMethod{
+        public static final String TG_PAYSTACK_PAYMENT_METHOD = "TG_PAYSTACK_PAYMENT_METHOD";
+
+    }
+
     public static final class InstafinBranch {
         public static final String TRANSACTION_BRANCH_ID = "CVLHQB";
     }

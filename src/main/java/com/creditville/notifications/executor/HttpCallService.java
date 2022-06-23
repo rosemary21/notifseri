@@ -22,6 +22,8 @@ public class HttpCallService {
 
     @Value("${paystack.basic.auth}")
     private String psBasicAuth;
+    @Value("${tg.paystack.basic.auth}")
+    private String tgPsBasicAuth;
 
     @Value("${instafin.auth.username}")
     private String instafinBasicAuthUsername;
@@ -46,6 +48,7 @@ public class HttpCallService {
     }
 
     public String doBasicPost(String url, String payload) throws CustomCheckedException {
+        logger.info("ENTRY doBasicPost -> url: "+url);
         HttpResponse<String> httpResponse;
         try {
             httpResponse = Unirest.post(url)
@@ -61,19 +64,25 @@ public class HttpCallService {
         else throw new CustomCheckedException("Unable to perform basic post operation with status code: "+ httpResponse.getStatus() + ". Payload is \n "+ payload);
     }
 
-    public String httpPaystackCall(String url, String payload){
+    public String httpPaystackCall(String url, String payload,boolean isClientTG){
         logger.info("ENTRY -> httpGetCall: {} "+url);
         HttpResponse<String> response = null;
+        String basicPsAuth= null;
+        if(!isClientTG){
+           basicPsAuth = psBasicAuth;
+        }else {
+            basicPsAuth = tgPsBasicAuth;
+        }
         try {
             if(null != payload){
                 response = Unirest.post(url)
-                        .header("Authorization","Bearer "+ psBasicAuth)
+                        .header("Authorization","Bearer "+ basicPsAuth)
                         .header("Content-Type","application/json")
                         .body(payload)
                         .asString();
             }else {
                 response = Unirest.get(url)
-                        .header("Authorization","Bearer "+ psBasicAuth)
+                        .header("Authorization","Bearer "+ basicPsAuth)
                         .header("Content-Type","application/json")
                         .asString();
             }
