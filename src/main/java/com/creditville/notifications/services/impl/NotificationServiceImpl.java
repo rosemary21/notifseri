@@ -527,6 +527,8 @@ public class NotificationServiceImpl implements NotificationService {
                 return "email/staffemail";
             case "middlewareMonitor":
                 return "email/middleware-monitor";
+            case "onboardCustomer":
+                return "email/complete_registration";
 
 
             default:
