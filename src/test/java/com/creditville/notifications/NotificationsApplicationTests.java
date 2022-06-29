@@ -1,10 +1,17 @@
 package com.creditville.notifications;
 
+import com.creditville.notifications.exceptions.CustomCheckedException;
+import com.creditville.notifications.models.DTOs.TransactionDTO;
+import com.creditville.notifications.models.To;
 import com.creditville.notifications.models.requests.RemitaDebitStatus;
+import com.creditville.notifications.models.requests.SendOnboardMailRequestDTO;
+import com.creditville.notifications.models.requests.SendTransactionMailRequestDTO;
 import com.creditville.notifications.repositories.CardTransactionRepository;
 import com.creditville.notifications.services.DispatcherService;
+import com.creditville.notifications.services.NotificationService;
 import com.creditville.notifications.services.PartialDebitService;
 import com.creditville.notifications.services.RemitaService;
+import com.creditville.notifications.services.impl.NotificationServiceImpl;
 import com.creditville.notifications.utils.DateUtil;
 import com.creditville.notifications.utils.FeeUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -37,6 +44,8 @@ class NotificationsApplicationTests {
     private ObjectMapper om;
     @Autowired
     private FeeUtil feeUtil;
+    @Autowired
+    private NotificationServiceImpl notificationService;
     @Autowired
     private DispatcherService dispatcherService;
 

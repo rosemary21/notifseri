@@ -165,8 +165,8 @@ public class NotificationJobs {
 //        }
 //    }
 //////
-//    @Scheduled(cron = "${app.schedule.recurringCharges}")
-    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
+    @Scheduled(cron = "${app.schedule.recurringCharges}")
+  //  @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
     public void recurringChargesNotification() {
         if(recurringChargesEnabled)
             dispatcherService.performRecurringChargesOperation();

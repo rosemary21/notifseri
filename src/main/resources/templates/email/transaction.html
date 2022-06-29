@@ -1,0 +1,144 @@
+
+<!DOCTYPE html
+        PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" style="height: 100%">
+
+<head>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Open+Sans:ital,wght@0,500;0,600;1,400&display=swap"
+          rel="stylesheet">
+
+    <title>Transaction Notification</title>
+    <style>
+            body {
+                  font-size: 14.8px;
+                  font-weight: 400;
+                  color: #174375;
+                  font-family: 'Nanum Pen Script', cursive;
+                  font-family: 'Open Sans', sans-serif;
+
+            }
+
+            table {
+                  border-collapse: collapse;
+                  width: 100%;
+                  margin-top: 5%;
+            }
+
+            td,
+            th {
+                  border: 1px solid #dddddd;
+                  text-align: start;
+                  padding: 10px;
+            }
+
+            .fa:hover {
+                  opacity: 0.9;
+                  /* background-color: rgb(111, 95, 111); */
+            }
+
+            .fa-linkedin {
+                  color: #174375;
+            }
+
+            .fa-facebook {
+                  color: #174375;
+
+            }
+
+            .fa-instagram {
+                  color: #174375;
+            }
+
+            .fa-twitter {
+                  color: #174375;
+            }
+
+            .fa-whatsapp {
+                  color: #174375;
+            }
+
+            .fa {
+                  font-size: 14px;
+                  width: 2% 2%;
+                  height: 2%;
+                  text-decoration: none;
+                  margin: 10px;
+            }
+      </style>
+</head>
+
+<body>
+<div style="padding: 0% 10%;background-color: #eeeeeea8;">
+    <div style="padding:5% 8%; background-color: white;">
+        <div style="text-align:center; margin-bottom: 30px;">
+
+            <img src="https://res.cloudinary.com/dj9f3izo0/image/upload/v1655214850/cmoneyImage_xor5lu.png" style="width: 100%;">
+        </div>
+
+        <div style="background-color: transparent">
+                        <span> Dear Customer, <br>
+                              <p> Thank you for choosing C Money </p>
+                        </span>
+            <span> <b>Below are your transaction details: </b></span>
+            <div>
+                <table>
+
+                    <tr>
+                        <td>Date/Time:</td>
+                        <td th:text="${transaction.transactionDate}"></td>
+                    </tr>
+
+                    <tr>
+                        <td>Account Number:</td>
+                        <td th:text="${transaction.accountNumber}"></td>
+                    </tr>
+
+                    <tr>
+                        <td>Description:</td>
+                        <td th:text="${transaction.narration}"></td>
+                    </tr>
+                    <tr>
+                        <td>Amount:</td>
+                        <td th:text="${transaction.amount}"></td>
+                    </tr>
+                    <tr>
+                        <td>Credit/Debit:</td>
+                        <td th:text="${transaction.type}"></td>
+                    </tr>
+                    <tr>
+                        <td>Available Balance:</td>
+                        <td th:text="${transaction.balanceAfter}"></td>
+                    </tr>
+                </table>
+            </div>
+            <div style="text-align: center;">
+                <a href="https://www.facebook.com/Creditvilleng" class="fa fa-facebook"></a>
+                <a href="https://www.instagram.com/creditville/" class="fa fa-instagram"></a>
+                <a href="https://www.linkedin.com/company/creditvilleltd/" class="fa fa-linkedin"></a>
+                <a href="https://twitter.com/creditville/" class="fa fa-twitter"></a>
+                <a href="https://wa.me//+2348055100010" target="_blank" class="fa fa-whatsapp"></a>
+
+
+            </div>
+            <div style="text-align:center; font-size: 12px;">
+                If you have reason to suspect any unauthorised activity on your account<br> please contact
+                us by
+                sending an email to customer@creditville.ng <br><br>For more information on our products
+                and
+                services,
+                please call our 24/7<br>
+                contact centre on 07000330330 or chat with us via
+                <br>Whatsapp on <a href="https://wa.me//+2348055100010">(+234) 08055100010</a>
+                <br>Alternatively send an email to <span style="font-weight: bold;">customer@creditville.ng</span>
+                <div style="font-size: 12px;"><br>Copyright © 2022. Creditville</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>

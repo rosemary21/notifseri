@@ -1,14 +1,20 @@
 package com.creditville.notifications.services.impl;
 
 //import com.creditville.notifications.configurations.MailConfiguration;
+
 import com.creditville.notifications.exceptions.CustomCheckedException;
 import com.creditville.notifications.models.EmailTemplate;
 import com.creditville.notifications.models.ExcludedEmail;
-import com.creditville.notifications.models.FailedEmail;
+import com.creditville.notifications.models.To;
 import com.creditville.notifications.models.requests.SendEmailRequest;
+import com.creditville.notifications.models.requests.SendOnboardMailRequestDTO;
+import com.creditville.notifications.models.requests.SendTransactionMailRequestDTO;
 import com.creditville.notifications.models.response.Client;
 import com.creditville.notifications.redwood.model.EmailRequest;
-import com.creditville.notifications.repositories.*;
+import com.creditville.notifications.repositories.BroadCastRepository;
+import com.creditville.notifications.repositories.EmailAuditRepository;
+import com.creditville.notifications.repositories.ExcludedEmailRepository;
+import com.creditville.notifications.repositories.FailedEmailRepository;
 import com.creditville.notifications.services.ClientService;
 import com.creditville.notifications.services.EmailService;
 import com.creditville.notifications.services.NotificationService;
@@ -21,6 +27,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONArray;
 import org.simplejavamail.api.email.Email;
 import org.simplejavamail.api.email.EmailPopulatingBuilder;
+import org.simplejavamail.api.email.Recipient;
+import org.simplejavamail.api.mailer.AsyncResponse;
 import org.simplejavamail.api.mailer.Mailer;
 import org.simplejavamail.api.mailer.config.TransportStrategy;
 import org.simplejavamail.email.EmailBuilder;
@@ -31,10 +39,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+import org.thymeleaf.util.ObjectUtils;
+import org.thymeleaf.util.StringUtils;
 
 import javax.activation.FileDataSource;
+import javax.mail.Message;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by Chuks on 02/07/2021.
@@ -519,6 +531,8 @@ public class NotificationServiceImpl implements NotificationService {
                 return "email/staffemail";
             case "middlewareMonitor":
                 return "email/middleware-monitor";
+            case "onboardCustomer":
+                return "email/complete_registration";
 
             case "sendMessage":
                 return "email/send-message";
@@ -527,6 +541,62 @@ public class NotificationServiceImpl implements NotificationService {
             default:
                 throw new CustomCheckedException("Invalid template name provided");
         }
+    }
+
+    private List<Recipient> getAllRecipient(List<To> requestTo, List<To> requestCC, List<To> requestBcc){
+        var to = toRecipient(requestTo);
+        List<Recipient> cc = (requestCC != null) ? toCcRecipient(requestCC) : new ArrayList<>();
+        List<Recipient> bcc = (requestBcc != null) ? toBccRecipient(requestBcc) : new ArrayList<>();
+
+        return Stream.of(to, cc, bcc)
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
+    }
+
+    private List<Recipient> toRecipient(List<To> tos){
+        return tos.stream().map(to ->
+                new Recipient(to.getName(), to.getEmail(), Message.RecipientType.TO))
+                .collect(Collectors.toList());
+    }
+
+    private List<Recipient> toBccRecipient(List<To> tos){
+        return tos.stream().map(to ->
+                        new Recipient(to.getName(), to.getEmail(), Message.RecipientType.BCC))
+                .collect(Collectors.toList());
+    }
+
+    private List<Recipient> toCcRecipient(List<To> tos){
+        return tos.stream().map(to ->
+                        new Recipient(to.getName(), to.getEmail(), Message.RecipientType.CC))
+                .collect(Collectors.toList());
+    }
+
+    public void processSendingEmail(Map<String, Object> maps, List<Recipient> tos, String subject, String fromName, String fromEmail, String templateName) throws CustomCheckedException {
+        if(!notificationsEnabled) throw new CustomCheckedException("Notification not enabled");
+
+        Context context = new Context();
+        maps.forEach(context::setVariable);
+
+        String content = templateEngine.process(templateName, context);
+
+        Email email = EmailBuilder.startingBlank()
+                .from(new Recipient(fromName, fromEmail, Message.RecipientType.TO))
+                .to(tos)
+                .withSubject(subject)
+                .withHTMLText(content)
+                .buildEmail();
+
+        sendMail(email);
+    }
+
+    public AsyncResponse sendMail(Email email){
+        Mailer mailer = MailerBuilder.withSMTPServerHost(mailUrl)
+                .withSMTPServerPort(mailPort)
+                .withSMTPServerUsername(mailUser)
+                .withSMTPServerPassword(mailPass)
+                .withTransportStrategy(TransportStrategy.SMTP_TLS).buildMailer();
+
+        return mailer.sendMail(email, async);
     }
 
 //    @Override
