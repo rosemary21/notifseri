@@ -7,6 +7,7 @@ public class AppConstants {
         public static final String PAYSTACK_PAYMENT_METHOD = "PAYSTACK_PAYMENT_METHOD";
         public static final String REMITA_PAYMENT_METHOD="REMITA_PAYMENT_METHOD";
         public static final String AUTO_DISBURSE_PAYMENT_METHOD="AUTO_DISBURSEMENT";
+        public static final String TG_PAYSTACK_PAYMENT_METHOD = "TG_PAYSTACK_PAYMENT_METHOD";
 
     }
 

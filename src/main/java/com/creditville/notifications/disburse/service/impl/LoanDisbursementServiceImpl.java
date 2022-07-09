@@ -30,15 +30,28 @@ public class LoanDisbursementServiceImpl implements LoanDisbursementService {
     @Value("${instafin.base.url}")
     private String baseUrl;
 
+    @Value("${instafin.loan.disbursement.url}")
+    private String tgdisburseLoanUrl;
+    @Value("${instafin.base.url}")
+    private String tgbaseUrl;
+
     @Override
     public DisburseLoanResponse disburseLoanResponse(RequestDisburseDto requestDisburseDto){
         DisburseLoanResponse disburseLoanResponse=null;
         try{
             LookupDisburse lookupDisburse=initiateRequest(requestDisburseDto);
             String payload = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(lookupDisburse);
-            String lookUpLoanAccountResp = httpCallService.doBasicPost((baseUrl + disburseLoanUrl), payload);
-            disburseLoanResponse = objectMapper.readValue(lookUpLoanAccountResp, DisburseLoanResponse.class);
-            return disburseLoanResponse;
+            if(requestDisburseDto.isTgValid()){
+                String lookUpLoanAccountResp = httpCallService.doBasicPost((tgbaseUrl + tgdisburseLoanUrl), payload);
+                disburseLoanResponse = objectMapper.readValue(lookUpLoanAccountResp, DisburseLoanResponse.class);
+                return disburseLoanResponse;
+            }
+            if(!requestDisburseDto.isTgValid()){
+                String lookUpLoanAccountResp = httpCallService.doBasicPost((baseUrl + disburseLoanUrl), payload);
+                disburseLoanResponse = objectMapper.readValue(lookUpLoanAccountResp, DisburseLoanResponse.class);
+                return disburseLoanResponse;
+            }
+           return null;
         }
         catch (Exception e){
             e.printStackTrace();
@@ -55,7 +68,13 @@ public class LoanDisbursementServiceImpl implements LoanDisbursementService {
         payments.setAmount(requestDisburseDto.getAmount());
 //        payments.setPaymentMethodName("Cash");
 
-        payments.setPaymentMethodName(AppConstants.InstafinPaymentMethod.AUTO_DISBURSE_PAYMENT_METHOD);
+        if(requestDisburseDto.isTgValid()){
+            payments.setPaymentMethodName(AppConstants.InstafinPaymentMethod.TG_PAYSTACK_PAYMENT_METHOD);
+        }
+        if(!requestDisburseDto.isTgValid()){
+            payments.setPaymentMethodName(AppConstants.InstafinPaymentMethod.AUTO_DISBURSE_PAYMENT_METHOD);
+
+        }
         lookupDisburse.setAccountID(requestDisburseDto.getLoanAccount());
         lookupDisburse.setDisbursementDate(DateUtil.currentDate());
         listPayment.add(payments);
