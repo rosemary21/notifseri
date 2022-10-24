@@ -59,6 +59,8 @@ public class TransferServiceImpl implements TransferService {
     private String payStackAuth;
     @Value("${loan.pattern}")
     private String loanPattern;
+    @Value("${tg.paystack.basic.auth}")
+    private String tgPayStackAuth;
 
     @Autowired
     LoanDisbursementService loanDisbursementService;
@@ -77,13 +79,13 @@ public class TransferServiceImpl implements TransferService {
             if(tgValid){
                 UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(tgpayStackurl+tglistenStatusurl+code);
                 headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-                headers.setBearerAuth(payStackAuth);
+                headers.setBearerAuth(tgPayStackAuth);
                 HttpEntity<String> entity = new HttpEntity<String>(headers);
                 ResponseEntity<ListTransferStatus> accountStatus= restTemplate.exchange(builder.toUriString(), HttpMethod.GET,entity,ListTransferStatus.class);
                 return accountStatus.getBody();
             }
             if(!tgValid){
-                UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(tgpayStackurl+tglistenStatusurl+code);
+                UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(payStackurl+listenStatusurl+code);
                 headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
                 headers.setBearerAuth(payStackAuth);
                 HttpEntity<String> entity = new HttpEntity<String>(headers);
@@ -108,7 +110,7 @@ public class TransferServiceImpl implements TransferService {
             for(DisbursementHistory disbursementHistory:disbursementHistories){
                 if(disbursementHistory.getReference()!=null){
                     if(!(disbursementHistory.getReference().isEmpty())){
-                        boolean tgValue=  confirmLoanId(disbursementHistory.getAccountId());
+                        boolean tgValue=  confirmLoanId(disbursementHistory.getClientId());
                         ListTransferStatus listTransferStatus=ListenTransferStatus(disbursementHistory.getReference(),tgValue);
                         if(listTransferStatus.getData().getStatus().equals("success")){
                             RequestDisburseDto requestDisburseDto=new RequestDisburseDto();

@@ -214,10 +214,12 @@ public class DispatcherServiceImpl implements DispatcherService {
 //                            if (!modeOfRepayment.equalsIgnoreCase(chequeModeOfRepaymentKey)) {
                                 List<LookUpLoanInstalment> loanInstalments = lookUpLoanAccount.getLoanAccount().getInstalments();
                                 if (!loanInstalments.isEmpty()) {
+
                                     List<LookUpLoanInstalment> loanInstalmentsGtOrEqToday = loanInstalments
                                             .stream()
                                             .filter(lookUpLoanInstalment -> dateUtil.isPaymentDateGtOrEqToday(lookUpLoanInstalment.getObligatoryPaymentDate()))
                                             .collect(Collectors.toList());
+
                                     if (!loanInstalmentsGtOrEqToday.isEmpty()) {
 //                                        System.out.println(">= ");
                                         List<LookUpLoanInstalment> lookUpLoanInstalments = loanInstalmentsGtOrEqToday
@@ -266,7 +268,7 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                     rentalAmount = rentalAmount.add(thisMonthInstalment.getCurrentState().getFeeDueAmount());
                                                 if(rentalAmount.compareTo(BigDecimal.ZERO) > 0) {
                                                     notificationData.put("toName", useDefaultMailInfo ? defaultToName : customer.getName());
-                                                    notificationData.put("toAddress", "chioma.chukelu@creditville.ng");
+                                                    notificationData.put("toAddress", toAddress);
                                                     notificationData.put("customerName", customer.getName());
                                                     notificationData.put("paymentMonth", dateUtil.getMonthByDate(thisMonthInstalment.getObligatoryPaymentDate()));
                                                     notificationData.put("paymentDate", valueDate);

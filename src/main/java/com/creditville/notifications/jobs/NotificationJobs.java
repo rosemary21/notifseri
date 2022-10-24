@@ -43,9 +43,9 @@ public class NotificationJobs {
     @Autowired
     TransferService transferService;
 
-//      //  @Async("schedulePool1")
-//    @Scheduled(cron = "${app.schedule.dueRentalOne}")
-//   // @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
+      //  @Async("schedulePool1")
+    @Scheduled(cron = "${app.schedule.dueRentalOne}")
+   // @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
 //    public void dueRentalNotification() {
 //        try {
 //            NotificationGeneralConfig dueRentalOneConfig = notificationConfigService.getNotificationGeneralConfig(NotificationType.DUE_RENTAL_ONE.name());
@@ -74,7 +74,7 @@ public class NotificationJobs {
 //        }
 //    }
 //
-////      //  @Async("schedulePool2")
+//      //  @Async("schedulePool2")
 //    @Scheduled(cron = "${app.schedule.dueRentalTwo}")
 ////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
 //    public void dueRentalNotification2() {
@@ -165,16 +165,16 @@ public class NotificationJobs {
 //        }
 //    }
 //////
-//    @Scheduled(cron = "${app.schedule.recurringCharges}")
-//   // @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
-//    public void recurringChargesNotification() {
-//        if(recurringChargesEnabled)
-//            dispatcherService.performRecurringChargesOperation();
-//        else log.info("Schedule for recurring charges has reached it's schedule time but notification is disabled from configuration".toUpperCase());
-//    }
+    @Scheduled(cron = "${app.schedule.recurringCharges}")
+//    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
+    public void recurringChargesNotification() {
+        if(recurringChargesEnabled)
+            dispatcherService.performRecurringChargesOperation();
+        else log.info("Schedule for recurring charges has reached it's schedule time but notification is disabled from configuration".toUpperCase());
+    }
 //
 //    @Scheduled(cron = "${app.schedule.repayinstafin.recurringCharges}")
-////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
+//    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
 //    public void retryInstafinPaymentOperation() {
 //        if(instafinrepaymentEnabled)
 //            dispatcherService.performRetryInstafinPayment();

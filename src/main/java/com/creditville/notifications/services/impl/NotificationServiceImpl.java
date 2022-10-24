@@ -534,6 +534,9 @@ public class NotificationServiceImpl implements NotificationService {
             case "onboardCustomer":
                 return "email/complete_registration";
 
+            case "loanrequest":
+                return "email/webisites-loan-mail";
+
             case "sendMessage":
                 return "email/send-message";
 

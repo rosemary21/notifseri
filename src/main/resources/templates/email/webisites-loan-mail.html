@@ -1,0 +1,121 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" style="height: 100%">
+
+<head>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Open+Sans:ital,wght@0,500;0,600;1,400&display=swap"
+        rel="stylesheet">
+
+    <title>Welcome</title>
+    <style>
+        body {
+
+            font-size: 14.8px;
+            font-weight: 400;
+            color: #174375;
+            font-family: 'Nanum Pen Script', cursive;
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        .fa:hover {
+            opacity: 0.9;
+            /* background-color: rgb(111, 95, 111); */
+        }
+
+        .fa-linkedin {
+            color: #174375;
+        }
+
+        .fa-facebook {
+            color: #174375;
+
+        }
+
+        .fa-instagram {
+            color: #174375;
+        }
+
+        .fa-twitter {
+            color: #174375;
+        }
+
+        .fa-whatsapp {
+            color: #174375;
+        }
+
+        .fa {
+            font-size: 14px;
+            width: 2% 2%;
+            height: 2%;
+            text-decoration: none;
+            margin: 10px;
+        }
+
+        .text {
+            margin: 25px 0px 20px 0px;
+        }
+
+        .tbody {
+            color: #233858;
+            margin: 5px 0px 5px 0px
+        }
+
+        .ft1 {
+            /* text-align: center; */
+            margin-top: 30px;
+            color: white;
+            font-weight: 700;
+        }
+    </style>
+</head>
+
+<body>
+    <div style="padding: 0% 10%;background-color: #eeeeeea8;">
+        <div style="padding:5% 8%; background-color: white;">
+
+            <div style="background-color:white;">
+                <img src="https://res.cloudinary.com/dj9f3izo0/image/upload/v1655214867/logo_vjby6f.png"
+                    style="width: 220px">
+            </div>
+            <section style="display: flex;justify-content: space-between; margin-top: 25px;">
+                <div style="background-color: #e5ae07; height: 2px;padding: 2px;width: 5%;"></div>
+                <div style="background-color: #72b324; height: 2px;padding: 2px;width: 5%;"></div>
+                <div style="background-color: #800020; height: 2px;padding: 2px;width: 5%;"></div>
+                <div style="background-color: #174375;height: 2px;padding: 2px;width: 80%;"></div>
+            </section>
+            <section>
+                <div class="text">
+                    <div class="tbody"> Hello, </span> <span style="font-weight: 700;" th:text="${fullName}"></span>,</span> is currently
+                        requesting for a loan</div>
+                    <div class="tbody" style="margin-top: 20px;"> Please find <span
+                            style="font-weight: 700;"></span> <span style="font-weight: 700;" th:text="${fullName}"></span>,</span> details below : </div>
+
+                    <div class="text">
+                        <div class="tbody"><span style="font-weight: 700;">Full name : </span> <span style="font-weight: 700;" th:text="${fullName}"></span></div>
+                        <div class="tbody"><span style="font-weight: 700;">Email : </span><span style="font-weight: 700;" th:text="${email}"></span></div>
+                        <div class="tbody"><span style="font-weight: 700;">Phone number : </span><span style="font-weight: 700;" th:text="${phoneNumber}"></span></div>
+                        <div class="tbody"><span style="font-weight: 700;">Address : </span><span style="font-weight: 700;" th:text="${address}"></span></div>
+                        <div class="tbody"><span style="font-weight: 700;">Gender : </span><span style="font-weight: 700;" th:text="${gender}"></span></div>
+                        <div class="tbody"><span style="font-weight: 700;">BVN : </span><span style="font-weight: 700;" th:text="${bvn}"></span></div>
+                        <div class="tbody"><span style="font-weight: 700;">Amount : </span><span style="font-weight: 700;" th:text="${amount}"></span></div>
+                        <div class="tbody"><span style="font-weight: 700;">Tenor : </span><span style="font-weight: 700;" th:text="${tenor}"></span> month(s)</div>
+                        <div class="tbody"><span style="font-weight: 700;">Date of Birth : </span><span style="font-weight: 700;" th:text="${dateofBirth}"></span></div>
+                    </div>
+
+                    <div class="text">
+                        <div class="tbody">Many thanks,</div>
+                        <div class="tbody">Creditville Group</div>
+                    </div>
+
+                </div>
+
+            </section>
+
+        </div>
+</body>
