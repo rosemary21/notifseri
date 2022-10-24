@@ -30,6 +30,8 @@ public class HttpCallService {
 
     @Value("${instafin.auth.password}")
     private String instafinBasicAuthPassword;
+    @Value("${bulk.sms.apikey}")
+    private String smsApikey;
 
     public String httpPostCall(String url,String payload){
 //        logger.info("ENTRY -> Endpoint: {}",url);
@@ -126,4 +128,21 @@ public class HttpCallService {
         }
         return response.getBody();
     }
+    public String doBasicSmsPost(String url,String payload){
+        HttpResponse<String> response = null;
+        log.info("Entry doBasicSmsPost  -> url: {} ",url);
+        try {
+            response = Unirest.post(url)
+                    .header("Accept", "application/json")
+                    .header("Authorization", smsApikey)
+                    .header("Content-Type", "application/json")
+                    .body(payload)
+                    .asString();
+        } catch (UnirestException e) {
+            e.printStackTrace();
+        }
+        return response.getBody();
+
+    }
+
 }

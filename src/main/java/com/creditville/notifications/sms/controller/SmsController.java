@@ -1,6 +1,9 @@
 package com.creditville.notifications.sms.controller;
 
 import com.creditville.notifications.sms.dto.*;
+import com.creditville.notifications.sms.dto.bulksms.SmsTextDto;
+import com.creditville.notifications.sms.dto.bulksms.SmsTextResponse;
+import com.creditville.notifications.sms.services.BulkSmsService;
 import com.creditville.notifications.sms.services.SmsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -10,13 +13,22 @@ public class SmsController {
 
     @Autowired
     SmsService smsService;
+    @Autowired
+    BulkSmsService bulkSmsService;
+
+//    @RequestMapping(value = "/singlesms", method = RequestMethod.POST)
+//    public ResponseDTO getSingleSMS(@RequestBody SMSDTO requestDTO){
+//     System.out.println("getting the single sms"+requestDTO.toString());
+//     ResponseDTO responseDTO= smsService.sendSingleSms(requestDTO);
+//     System.out.println("getting the respons dto"+requestDTO);
+//     return responseDTO;
+//
+//    }
 
     @RequestMapping(value = "/singlesms", method = RequestMethod.POST)
-    public ResponseDTO getSingleSMS(@RequestBody SMSDTO requestDTO){
-     System.out.println("getting the single sms"+requestDTO.toString());
-     ResponseDTO responseDTO= smsService.sendSingleSms(requestDTO);
-     System.out.println("getting the respons dto"+requestDTO);
-     return responseDTO;
+    public SmsTextResponse sendSMS(@RequestBody SmsTextDto requestDTO){
+        SmsTextResponse response = bulkSmsService.sendSms(requestDTO);
+        return response;
 
     }
 
