@@ -30,6 +30,7 @@ public class DisbursementHistory {
     private String clientId;
     private String loanId;
     private String loanAccount;
+    private Integer retryCount;
     private String firstRepaymentMethod;
     private BigDecimal amount;
     private String approveUsername;
