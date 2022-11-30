@@ -2,7 +2,7 @@
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
     <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
 
-    <property name="DEV_HOME" value="C:/Users/Tivas Tech/Documents/java/cv-notifications/logs" />
+    <property name="DEV_HOME" value="C:/Users/HABIBAT HARUNA/Documents/java/cv-notifications/logs" />
     <property name="PROD_HOME" value="/home/ubuntu/cv-notifications/logs" />
 
     <appender name="FILE_AUDIT"
