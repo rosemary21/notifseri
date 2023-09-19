@@ -19,5 +19,7 @@ public class AppConstants {
 
     public static final class InstafinBranch {
         public static final String TRANSACTION_BRANCH_ID = "CVLHQB";
+        public static final String CMFB_TRANSACTION_BRANCH_ID = "CMFBHQB";
+
     }
 }
