@@ -51,8 +51,16 @@ public class TransferServiceImpl implements TransferService {
     private String payStackurl;
     @Value("${paystack.listen.status}")
     private String listenStatusurl;
+    @Value("${paystack.base.url}")
+    private String tgpayStackurl;
+    @Value("${paystack.listen.status}")
+    private String tglistenStatusurl;
     @Value("${paystack.basic.auth}")
     private String payStackAuth;
+    @Value("${loan.pattern}")
+    private String loanPattern;
+    @Value("${tg.paystack.basic.auth}")
+    private String tgPayStackAuth;
 
     @Autowired
     LoanDisbursementService loanDisbursementService;
@@ -63,17 +71,29 @@ public class TransferServiceImpl implements TransferService {
     private HttpCallService httpCallService;
 
 
-    public ListTransferStatus ListenTransferStatus(String code) {
+    public ListTransferStatus ListenTransferStatus(String code,boolean tgValid) {
         try
         {
             log.info("getting the reference code {}",code);
             org.springframework.http.HttpHeaders headers = new HttpHeaders();
-            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(payStackurl+listenStatusurl+code);
-            headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-            headers.setBearerAuth(payStackAuth);
-            HttpEntity<String> entity = new HttpEntity<String>(headers);
-            ResponseEntity<ListTransferStatus> accountStatus= restTemplate.exchange(builder.toUriString(), HttpMethod.GET,entity,ListTransferStatus.class);
-            return accountStatus.getBody();
+            if(tgValid){
+                UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(tgpayStackurl+tglistenStatusurl+code);
+                headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+                headers.setBearerAuth(tgPayStackAuth);
+                HttpEntity<String> entity = new HttpEntity<String>(headers);
+                ResponseEntity<ListTransferStatus> accountStatus= restTemplate.exchange(builder.toUriString(), HttpMethod.GET,entity,ListTransferStatus.class);
+                return accountStatus.getBody();
+            }
+            if(!tgValid){
+                UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(payStackurl+listenStatusurl+code);
+                headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+                headers.setBearerAuth(payStackAuth);
+                HttpEntity<String> entity = new HttpEntity<String>(headers);
+                ResponseEntity<ListTransferStatus> accountStatus= restTemplate.exchange(builder.toUriString(), HttpMethod.GET,entity,ListTransferStatus.class);
+                return accountStatus.getBody();
+            }
+            return null;
+
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -85,15 +105,18 @@ public class TransferServiceImpl implements TransferService {
     @Override
     public void disburseLoan(){
         try{
-            List<DisbursementHistory> disbursementHistories=disbursementHistoryRepository.findByStatus("DP");
+            List<DisbursementHistory> disbursementHistories=disbursementHistoryRepository.findByStatusAndFailedStatus("DP","DFFV");
+            log.info("getting the disbursementHistories {} ",disbursementHistories.size());
             for(DisbursementHistory disbursementHistory:disbursementHistories){
                 if(disbursementHistory.getReference()!=null){
                     if(!(disbursementHistory.getReference().isEmpty())){
-                        ListTransferStatus listTransferStatus=ListenTransferStatus(disbursementHistory.getReference());
+                        boolean tgValue=  confirmLoanId(disbursementHistory.getClientId());
+                        ListTransferStatus listTransferStatus=ListenTransferStatus(disbursementHistory.getReference(),tgValue);
                         if(listTransferStatus.getData().getStatus().equals("success")){
                             RequestDisburseDto requestDisburseDto=new RequestDisburseDto();
                             requestDisburseDto.setAmount(disbursementHistory.getAmount());
                             requestDisburseDto.setLoanAccount(disbursementHistory.getAccountId());
+                            requestDisburseDto.setTgValid(tgValue);
                             log.info("getting the first repayment date {}",disbursementHistory.getFirstRepaymentMethod());
                             requestDisburseDto.setFirstRepaymentMethod(disbursementHistory.getFirstRepaymentMethod());
                             DisburseLoanResponse disburseLoanResponse =loanDisbursementService.disburseLoanResponse(requestDisburseDto);
@@ -123,23 +146,39 @@ public class TransferServiceImpl implements TransferService {
                                 payStackTransferRepository.save(payStackTransfer);
                             }
                             if(disburseLoanResponse==null){
+                                log.info("getting the retry count {}",disbursementHistory.getRetryCount());
+                                if(disbursementHistory.getRetryCount()==null){
+                                    disbursementHistory.setRetryCount(0);
+                                }
+                                int value=disbursementHistory.getRetryCount();
+                                value= value+1;
+                                disbursementHistory.setRetryCount(value);
                                 disbursementHistory.setStatus("DFFV");
                                 disbursementHistory.setStatusDesc("Disbursement Failed Payment Verified");
                                 PayStackTransfer payStackTransfer=payStackTransferRepository.findByReferenceCode(disbursementHistory.getReference());
                                 payStackTransfer.setTransactionStatus("S");
                                 disbursementHistoryRepository.save(disbursementHistory);
                                 payStackTransferRepository.save(payStackTransfer);
-                                disburseFailNotification(disbursementHistory);
+                                if(disbursementHistory.getRetryCount()<3){
+                                    log.info("Sending Notification for failed transaction");
+                                    disburseFailNotification(disbursementHistory);
+                                }
                             }
                         }
                         if(listTransferStatus.getData().getStatus().equals("failed")){
                             PayStackTransfer payStackTransfer=payStackTransferRepository.findByReferenceCode(disbursementHistory.getReference());
                             payStackTransfer.setTransactionStatus("F");
+                            int value=disbursementHistory.getRetryCount();
+                            value= value+1;
+                            disbursementHistory.setRetryCount(value);
                             disbursementHistory.setStatusDesc("Payment Failed And Disbursement Not Done");
                             disbursementHistory.setStatus("F");
                             disbursementHistoryRepository.save(disbursementHistory);
                             payStackTransferRepository.save(payStackTransfer);
-                            transferFailNotification(disbursementHistory);
+                            log.info("getting the retry count {}",disbursementHistory.getRetryCount());
+                            if(disbursementHistory.getRetryCount()<3){
+                                transferFailNotification(disbursementHistory);
+                            }
                         }
                     }
 
@@ -150,6 +189,15 @@ public class TransferServiceImpl implements TransferService {
        catch (Exception e){
             e.printStackTrace();
        }
+    }
+
+
+    public boolean confirmLoanId(String loanId){
+        boolean value= loanId.startsWith(loanPattern);
+        if(value){
+            return true;
+        }
+        return  false;
     }
 
 

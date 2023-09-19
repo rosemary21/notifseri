@@ -1,5 +1,10 @@
 package com.creditville.notifications.sms.dto;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class ResponseDTO {
     private String errorCode;
     private String errorMessage;
@@ -18,43 +23,4 @@ public class ResponseDTO {
                 '}';
     }
 
-    public String getErrorCode() {
-        return errorCode;
-    }
-
-    public void setErrorCode(String errorCode) {
-        this.errorCode = errorCode;
-    }
-
-    public String getErrorMessage() {
-        return errorMessage;
-    }
-
-    public void setErrorMessage(String errorMessage) {
-        this.errorMessage = errorMessage;
-    }
-
-    public String getDestination() {
-        return destination;
-    }
-
-    public void setDestination(String destination) {
-        this.destination = destination;
-    }
-
-    public String getTicketId() {
-        return ticketId;
-    }
-
-    public void setTicketId(String ticketId) {
-        this.ticketId = ticketId;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
 }
