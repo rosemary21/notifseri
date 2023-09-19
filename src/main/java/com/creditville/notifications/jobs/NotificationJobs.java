@@ -42,8 +42,8 @@ public class NotificationJobs {
 
     @Autowired
     TransferService transferService;
-//
-//        @Async("schedulePool1")
+
+      //  @Async("schedulePool1")
 //    @Scheduled(cron = "${app.schedule.dueRentalOne}")
 //   // @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
 //    public void dueRentalNotification() {
@@ -52,7 +52,7 @@ public class NotificationJobs {
 //            if(dueRentalOneConfig.getIsEnabled())
 //                dispatcherService.performDueRentalOperation();
 //            else
-//                log.info("Schedule for due rental one has reached it's schedule time but notification is disabled from configuration".toUpperCase());
+//                log .info("Schedule for due rental one has reached it's schedule time but notification is disabled from configuration".toUpperCase());
 //        }catch (CustomCheckedException cce) {
 //            cce.printStackTrace();
 //            log.info(cce.getMessage());
@@ -189,7 +189,7 @@ public class NotificationJobs {
 //            partialDebitService.performPartialDebitOp();
 //        else log.info("Schedule for partial debit operation has reached it's schedule time but is operation is disabled from configuration".toUpperCase());
 //    }
-
+//
 //    @Scheduled(cron = "${app.schedule.recurringCharges}")
 ////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
 //    public void mandateDebitInstruction() {

@@ -505,6 +505,8 @@ public class NotificationServiceImpl implements NotificationService {
                 return "email/activate-otp";
             case "sendForm":
                 return "email/send-form";
+            case "pendingDocument":
+                return "email/pendingdoc-noti";
             case "disburseemail":
                 return "email/disburse";
             case "terminateMandate":
@@ -525,12 +527,16 @@ public class NotificationServiceImpl implements NotificationService {
 
             case "mandateActivated":
                 return "email/mandateActivated";
+
             case "broadcastredwood":
                 return "email/redwoodbroadcast";
+
             case "staffemail":
                 return "email/staffemail";
+
             case "middlewareMonitor":
                 return "email/middleware-monitor";
+
             case "onboardCustomer":
                 return "email/complete_registration";
 
@@ -540,6 +546,20 @@ public class NotificationServiceImpl implements NotificationService {
             case "sendMessage":
                 return "email/send-message";
 
+            case "contactus":
+                return "email/contactus";
+
+            case "fund-transfer":
+                return "email/fund-transfer";
+
+            case "electric-transfer":
+                return "email/electric-transfer";
+
+            case "exception":
+                return "email/exception";
+
+            case "withdrawal-request":
+                return "email/withdrawal";
 
             default:
                 throw new CustomCheckedException("Invalid template name provided");

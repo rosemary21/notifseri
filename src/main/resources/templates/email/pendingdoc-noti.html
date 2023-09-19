@@ -109,11 +109,19 @@
     <img src="https://res.cloudinary.com/creditville-ng/image/upload/v1681304690/email-template/color-line_zsfuzm.png" style="width: 100%" class="line">
     <div class="body-text-div">
 
-        <span class="dear">Dear <span th:text="${name}">Ebiwari</span>,</span>
+        <span class="dear">Dear <span>Back Office Team</span>,</span>
 
-        <p class="please" th:text="${message}">Please go and update your KYC</p>
+        <p class="please">This is an automated notification to inform you that a new KYC document has been submitted and requires your attention for approval.</p>
 
-        <p class="thanks">Thanks.</p>
+            <p class="dear">Customer Name: <span th:text="${customerName}">Ebiwari</span>
+            <p class="dear">Customer Phone Number: <span th:text="${customerPhoneNumber}">Ebiwari</span>
+            <p class="dear">KYC Document uploaded: <span th:text="${kycDocumentUploaded}">Ebiwari</span>
+
+        <p class="please">Please review the provided documentation for compliance with our KYC requirements.</p>
+
+        <p class="please">Your prompt attention to this matter is greatly appreciated.</p>
+
+        <p class="thanks">Best regards.</p>
     </div>
     <img src="https://res.cloudinary.com/creditville-ng/image/upload/v1681304690/email-template/color-line_zsfuzm.png" style="width: 100%" class="line">
     <div class="footer-outer">

@@ -21,14 +21,14 @@ public class SmsController {
     @Autowired
     VtpassService vtpassService;
 
-//    @RequestMapping(value = "/singlesms", method = RequestMethod.POST)
-//    public ResponseDTO getSingleSMS(@RequestBody SMSDTO requestDTO){
-//     System.out.println("getting the single sms"+requestDTO.toString());
-//     ResponseDTO responseDTO= smsService.sendSingleSms(requestDTO);
-//     System.out.println("getting the respons dto"+requestDTO);
-//     return responseDTO;
-//
-//    }
+    @RequestMapping(value = "/singlesms", method = RequestMethod.POST)
+    public ResponseDTO getSingleSMS(@RequestBody SMSDTO requestDTO){
+     System.out.println("getting the single sms"+requestDTO.toString());
+     ResponseDTO responseDTO= smsService.sendSingleSms(requestDTO);
+     System.out.println("getting the respons dto"+requestDTO);
+     return responseDTO;
+
+    }
 
 //    @RequestMapping(value = "/singlesms", method = RequestMethod.POST)
 //    public VtpassResponseDto sendSMS(@RequestBody VtpassRequestDto requestDTO){
@@ -36,12 +36,12 @@ public class SmsController {
 //        return response;
 //
 //    }
-    @RequestMapping(value = "/singlesms", method = RequestMethod.POST)
-    public SmsTextResponse sendSMS(@RequestBody SmsTextDto requestDTO){
-        SmsTextResponse response = bulkSmsService.sendSms(requestDTO);
-        return response;
-
-    }
+//    @RequestMapping(value = "/singlesms", method = RequestMethod.POST)
+//    public SmsTextResponse sendSMS(@RequestBody SmsTextDto requestDTO){
+//        SmsTextResponse response = bulkSmsService.sendSms(requestDTO);
+//        return response;
+//
+//    }
 
 
     @RequestMapping(value = "/multiplesms", method = RequestMethod.POST)

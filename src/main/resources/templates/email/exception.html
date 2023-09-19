@@ -107,13 +107,14 @@
         <img src="https://res.cloudinary.com/creditville-ng/image/upload/v1678887310/email-template/cMoney-logo_gf2evx.png" class="logo">
     </div>
     <img src="https://res.cloudinary.com/creditville-ng/image/upload/v1681304690/email-template/color-line_zsfuzm.png" style="width: 100%" class="line">
-    <div class="body-text-div">
-
-        <span class="dear">Dear <span th:text="${name}">Ebiwari</span>,</span>
-
-        <p class="please" th:text="${message}">Please go and update your KYC</p>
-
-        <p class="thanks">Thanks.</p>
+    <h1 class="" style="text-align: center;color: #8B0000">System Exception: <span style="color: #344054" th:text="${microserviceName}">Ebiwari</span> </h1>
+        <div class="body-text-div">
+        <p class="dear">Time: <span th:text="${timeStamp}">Ebiwari</span>
+        <p class="dear">Microservice Name: <span th:text="${microserviceName}">Ebiwari</span>
+        <p class="dear">Class Name: <span th:text="${className}">Ebiwari</span>
+        <p class="dear">Method Name: <span th:text="${methodName}">Ebiwari</span>
+        <p class="dear">Request PayLoad: <span th:text="${requestPayLoad}">Ebiwari</span>
+        <p class="dear">Descripton: <span th:text="${decription}">Ebiwari</span>
     </div>
     <img src="https://res.cloudinary.com/creditville-ng/image/upload/v1681304690/email-template/color-line_zsfuzm.png" style="width: 100%" class="line">
     <div class="footer-outer">
