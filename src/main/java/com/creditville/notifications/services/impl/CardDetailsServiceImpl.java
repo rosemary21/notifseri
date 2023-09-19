@@ -499,15 +499,18 @@ public class CardDetailsServiceImpl implements CardDetailsService {
 
 //                          Make loan repayment...
                             String paymentMethod;
+                            String transactionBranch;
                             if(!gu.isClientTG(clientId)){
                                 paymentMethod = AppConstants.InstafinPaymentMethod.PAYSTACK_PAYMENT_METHOD;
+                                transactionBranch = AppConstants.InstafinBranch.TRANSACTION_BRANCH_ID;
                             }else {
                                 paymentMethod = AppConstants.TG_InstafinPaymentMethod.TG_PAYSTACK_PAYMENT_METHOD;
+                                transactionBranch = AppConstants.InstafinBranch.CMFB_TRANSACTION_BRANCH_ID;
                             }
                             repayLoanReq.setPaymentMethodName(paymentMethod);
                             repayLoanReq.setAccountID(loanId);
                             repayLoanReq.setAmount(newPdAmount);
-                            repayLoanReq.setTransactionBranchID(AppConstants.InstafinBranch.TRANSACTION_BRANCH_ID);
+                            repayLoanReq.setTransactionBranchID(transactionBranch);
                             repayLoanReq.setRepaymentDate(currentDate.toString());
                             repayLoanReq.setNotes("Paystack Card loan repayment "+" Loan Id: "+loanId+" Reference Id: "+ctDTO.getReference());
                             var repaymentResp = loanRepaymentService.makeLoanRepayment(repayLoanReq);
