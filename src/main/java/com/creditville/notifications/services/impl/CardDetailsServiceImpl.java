@@ -302,13 +302,16 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                                 var loanAmount = newChargedAmount.subtract(transactionFee);
                                 repayLoanReq.setAmount(loanAmount);
                                 String paymentMethod;
+                                String transactionBranchID;
                                 if(!gu.isClientTG(clientID)){
                                     paymentMethod = AppConstants.InstafinPaymentMethod.PAYSTACK_PAYMENT_METHOD;
+                                    transactionBranchID = AppConstants.InstafinBranch.TRANSACTION_BRANCH_ID;
                                 }else {
                                     paymentMethod = AppConstants.TG_InstafinPaymentMethod.TG_PAYSTACK_PAYMENT_METHOD;
+                                    transactionBranchID = AppConstants.InstafinBranch.CMFB_TRANSACTION_BRANCH_ID;
                                 }
                                 repayLoanReq.setPaymentMethodName(paymentMethod);
-                                repayLoanReq.setTransactionBranchID(AppConstants.InstafinBranch.TRANSACTION_BRANCH_ID);
+                                repayLoanReq.setTransactionBranchID(transactionBranchID);
                                 repayLoanReq.setRepaymentDate(currentDate.toString());
                                 repayLoanReq.setNotes("Card loan repayment"+" Loan ID : "+loanId+" Reference Id : "+ctDTO.getReference());
                                 var repaymentResp = loanRepaymentService.makeLoanRepayment(repayLoanReq);
