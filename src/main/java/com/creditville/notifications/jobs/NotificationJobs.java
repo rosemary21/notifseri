@@ -183,7 +183,7 @@ public class NotificationJobs {
 
 //
     @Scheduled(cron = "${app.schedule.partialDebit}")
-    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
+//    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
     public void partialDebitOperation() {
         if(partialDebitEnabled)
             partialDebitService.performPartialDebitOp();

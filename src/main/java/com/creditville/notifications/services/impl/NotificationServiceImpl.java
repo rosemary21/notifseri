@@ -561,6 +561,9 @@ public class NotificationServiceImpl implements NotificationService {
             case "withdrawal-request":
                 return "email/withdrawal";
 
+            case "savings-transfer":
+                return "email/savings-transfer";
+
             default:
                 throw new CustomCheckedException("Invalid template name provided");
         }
