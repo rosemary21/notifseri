@@ -15,4 +15,10 @@ public interface RetryLoanRepaymentService {
     String repaymentOfLoan(RetryLoanRepayment retryLoanRepayment);
 
     RetryLoanRepaymentDTO getLoanMandateRepayment(CardTransactions cardTransactions,String loanId,String mandateId,String instafinOblDate);
+
+    boolean checkUntreatedManualIntervention(String loanAccount, String status);
+
+    RetryLoanRepayment getUntreatedRepaymentLoan(String loanAccount, String status);
+
+    boolean updateNotificationSent(RetryLoanRepayment retryLoanRepayment);
 }

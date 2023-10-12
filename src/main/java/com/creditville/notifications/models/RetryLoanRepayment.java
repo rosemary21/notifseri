@@ -29,5 +29,8 @@ public class RetryLoanRepayment {
     private String instafinObliDate;
     private String methodOfRepayment;
     private String mandateId;
+    private BigDecimal instafinRepayAmt;
+    private int noNotificationSent;
+    private LocalDate notificationSent;
 
 }

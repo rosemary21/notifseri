@@ -85,6 +85,22 @@ public class DateUtil {
         return (paymentDateCalendarWithAddedDays.compareTo(calendarForTodayWithAddedDays) == 0);
     }
 
+    public boolean isPaymentDateLateWithinDaysNumber(String paymentDate, int numberOfDays) {
+        Calendar paymentDateCalendarWithAddedDays = this.convertDateToCalendar(paymentDate);
+        paymentDateCalendarWithAddedDays.set(Calendar.HOUR_OF_DAY, 0);
+        paymentDateCalendarWithAddedDays.set(Calendar.MINUTE, 0);
+        paymentDateCalendarWithAddedDays.set(Calendar.SECOND, 0);
+        paymentDateCalendarWithAddedDays.set(Calendar.MILLISECOND, 0);
+
+        Calendar calendarForTodayWithAddedDays = Calendar.getInstance();
+        calendarForTodayWithAddedDays.set(Calendar.HOUR_OF_DAY, 0);
+        calendarForTodayWithAddedDays.set(Calendar.MINUTE, 0);
+        calendarForTodayWithAddedDays.set(Calendar.SECOND, 0);
+        calendarForTodayWithAddedDays.set(Calendar.MILLISECOND, 0);
+        calendarForTodayWithAddedDays.add(Calendar.DATE, numberOfDays);
+        return (paymentDateCalendarWithAddedDays.compareTo(calendarForTodayWithAddedDays) == 0);
+    }
+
     public boolean isPaymentDateWithinDaysNumber(LocalDate paymentDate, int numberOfDays) {
         Calendar paymentDateCalendarWithAddedDays = this.convertDateToCalendar(paymentDate);
         paymentDateCalendarWithAddedDays.set(Calendar.HOUR_OF_DAY, 0);
@@ -116,6 +132,8 @@ public class DateUtil {
         calendarForTodayWithAddedDays.add(Calendar.DATE, numberOfDays);
         return (paymentDateCalendarWithAddedDays.compareTo(calendarForTodayWithAddedDays) <= 0);
     }
+
+
 
     public boolean isPaymentDateToday(String paymentDate) {
         Calendar paymentDateCalendar = this.convertDateToCalendar(paymentDate);

@@ -347,6 +347,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                                     ctService.addCardTransaction(savedCardTransaction);
                                     RetryLoanRepaymentDTO retryLoanRepaymentDTO=retryLoanRepaymentService.getLoanRepayment(savedCardTransaction,loanId,email,obligDate);
                                     retryLoanRepaymentDTO.setMethodOfRepayment("paystack");
+                                    retryLoanRepaymentDTO.setInstafinRepayAmt(loanAmount);
                                     retryLoanRepaymentService.saveRetryLoan(savedCardTransaction,retryLoanRepaymentDTO,loanId);
 
                                 }else {

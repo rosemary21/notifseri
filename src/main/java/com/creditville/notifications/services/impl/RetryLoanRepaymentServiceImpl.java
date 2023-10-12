@@ -124,6 +124,25 @@ public class RetryLoanRepaymentServiceImpl implements RetryLoanRepaymentService 
         return null;
     }
 
+    @Override
+    public boolean checkUntreatedManualIntervention(String loanAccount, String status) {
+         RetryLoanRepayment result=loanRepaymentRepository.findByLoanIdAndManualStatus(loanAccount,status);
+         if(result!=null){
+             return true;
+         }
+        return false;
+    }
 
 
+    @Override
+    public boolean updateNotificationSent(RetryLoanRepayment retryLoanRepayment) {
+        loanRepaymentRepository.save(retryLoanRepayment);
+        return  true;
+    }
+
+    @Override
+    public RetryLoanRepayment getUntreatedRepaymentLoan(String loanAccount, String status) {
+        RetryLoanRepayment retryLoanRepayment=loanRepaymentRepository.findByLoanIdAndManualStatus(loanAccount,status);
+       return retryLoanRepayment;
+    }
 }
