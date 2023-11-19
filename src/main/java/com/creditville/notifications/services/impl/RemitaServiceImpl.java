@@ -341,12 +341,17 @@ public class RemitaServiceImpl implements RemitaService {
                         lr.setStatus("Pending");
                         CardTransactions cardTransactions= ctService.addCardTransaction(ct);
                         if(cardTransactions.getCardDetails() == null){
-                            RetryLoanRepaymentDTO retryLoanRepaymentDTO=retryLoanRepaymentService.getLoanMandateRepayment(cardTransactions,mandate.getLoanId(),"260606348065",ct.getTransactionDate());
+                            RetryLoanRepaymentDTO retryLoanRepaymentDTO=retryLoanRepaymentService.getLoanMandateRepayment(cardTransactions,mandate.getLoanId(),mandate.getMandateId(),ct.getTransactionDate());
                             retryLoanRepaymentDTO.setMethodOfRepayment("Remitta");
-                            retryLoanRepaymentService.saveRetryLoan(cardTransactions,retryLoanRepaymentDTO,mandate.getLoanId());
+                            retryLoanRepaymentService.saveAndUpdateRetryLoan(cardTransactions,retryLoanRepaymentDTO,mandate.getLoanId());
                         }
                     }else {
                         ct.setStatus("REPAYMENT SUCCESSFUL");
+                        RetryLoanRepayment retryLoanRepayment=new RetryLoanRepayment();
+                        retryLoanRepayment.setReference(ct.getReference());
+                        retryLoanRepayment.setClientId(mandate.getClientId());
+                        retryLoanRepayment.setLoanId(mandate.getLoanId());
+                        retryLoanRepaymentService.repaymentOfLoan(retryLoanRepayment);
                         CardTransactions cardTransactions= ctService.addCardTransaction(ct);
 
                     }

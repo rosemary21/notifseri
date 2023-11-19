@@ -1265,17 +1265,19 @@ public class DispatcherServiceImpl implements DispatcherService {
 
                                             if (!loanInstalmentsLtOrEqToday.isEmpty()) {
 
-
-
                                                 for (LookUpLoanInstalment dueDateInstalment : loanInstalmentsLtOrEqToday) {
                                                     Client customer = lookUpClient.getClient();
                                                     LocalDate obligatoryPaymentDate = dateUtil.convertDateToLocalDate(dueDateInstalment.getObligatoryPaymentDate());
                                                     String toAddress = customer.getEmail();
                                                     var principalDueAmount = dueDateInstalment.getCurrentState().getPrincipalDueAmount();
+
+                                                    log.info("ENTERING GETTING THE LOAN ID <><><??><<><><  {}",clientLoan.getId());
                                                     //recent added to prevent multiple debit
 
-                                                    boolean response=  retryLoanRepaymentService.checkUntreatedManualIntervention(clientLoan.getId(),"Y");
+                                                    boolean response=  retryLoanRepaymentService.checkUntreatedManualIntervention(clientLoan.getId(),"Y","paystack");
                                                     ////
+
+                                                    log.info("ENTERING GETTING THE RESPONSE :>?>?>?>? {}",response);
 
                                                     if ((principalDueAmount.compareTo(BigDecimal.ZERO) > 0) && !(response)) {
 
@@ -1490,7 +1492,12 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                     .filter(lookUpLoanInstalment -> dateUtil.isPaymentDateLtOrEqToday(lookUpLoanInstalment.getObligatoryPaymentDate()))
                                                     .collect(Collectors.toList());
                                             log.info("GETTING  LOAN INSTALLMENT LATE TO TODAY {}",loanInstalmentsLtOrEqToday);
-                                            if (!loanInstalmentsLtOrEqToday.isEmpty()) {
+
+                                            //recently added
+
+                                            boolean response=  retryLoanRepaymentService.checkUntreatedManualIntervention(clientLoan.getId(),"Y","remitta");
+
+                                            if (!loanInstalmentsLtOrEqToday.isEmpty() &&!response) {
                                                 for (LookUpLoanInstalment dueDateInstalment : loanInstalmentsLtOrEqToday) {
                                                     Client customer = lookUpClient.getClient();
                                                     LocalDate obligatoryPaymentDate = dateUtil.convertDateToLocalDate(dueDateInstalment.getObligatoryPaymentDate());
@@ -1503,7 +1510,16 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                         cardDetailsService.initiateRemitaRecurringCharges(totalDue, clientLoan.getId(), obligatoryPaymentDate, customer.getExternalID());
                                                     }
                                                 }
-                                            } else
+                                            } else{
+                                               // else{
+                                                    RetryLoanRepayment retryLoanRepayment=retryLoanRepaymentService.getUntreatedRepaymentLoan(clientLoan.getId(),"Y");
+                                                    boolean result = triggerNotification(retryLoanRepayment);
+                                                    if(result){
+                                                        sendFinanceNotification(clientLoan.getId(),"Y");
+
+                                                    }
+                                                //}
+                                            }
                                                 log.info("Loan installments gt or eq to today is empty...");
                                         } else log.info("Loan installments is empty...");
                                     } else log.info("Mode of repayment is not known..." + modeOfRepayment);
