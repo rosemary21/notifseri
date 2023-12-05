@@ -25,6 +25,9 @@ public interface DisbursementHistoryRepository extends JpaRepository<Disbursemen
     @Query("select s from DisbursementHistory s where s.status=:status")
     List<DisbursementHistory> findByStatus(@Param("status") String status);
 
+    @Query("select s from DisbursementHistory s where s.status=:status or s.status=:failStatus")
+    List<DisbursementHistory> findByStatusAndFailedStatus(@Param("status") String status,@Param("failStatus") String failStatus);
+
     @Query("select s from DisbursementHistory s where s.status=:status and ( s.accountId  like %:search% or s.clientId  like %:search% or s.statusDesc like %:search% or s.transactionId like %:search% )")
     List<DisbursementHistory> findByStatusSearch(@Param("search") String search, @Param("status") String status);
 

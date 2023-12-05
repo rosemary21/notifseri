@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>CreditVille Receipt</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;600&display=swap" rel="stylesheet">
+        <style>
+            body {
+                margin: 0px !important;
+            }
+            .receipt-head-div {
+                padding-top: 30px;
+                padding-left: 3.5%;
+                padding-bottom: 40px;
+            }
+            .logo {
+                width: 150px;
+                height: 50px;
+            }
+            .dear {
+                font-family: 'Inter', sans-serif;
+                font-weight: 600;
+                color: #344054;
+                line-height: 24px;
+                font-size: larger;
+            }
+            .body-text-div {
+                padding-top: 70px;
+                padding-left: 5%;
+                padding-bottom: 150px;
+            }
+            .please, .thanks {
+                font-family: 'Inter', sans-serif;
+                font-weight: 300;
+                line-height: 24px;
+                color: #383a47;
+                font-size: 19px;
+            }
+            .please {
+                padding-top: 30px;
+            }
+            .thanks {
+                padding-top: 20px;
+            }
+            .footer-outer {
+                background: #072C50;
+                
+            }
+            .footer-icon-col {
+                max-width: 50px;
+            }
+            .icon {
+                height: 20px;
+                width: 20px;
+            }
+            .line {
+                height: 5px !important;
+            }
+            .icon-container {
+                width: 20%;
+                margin: 0px auto 0px auto !important;
+            }
+            @media(max-width: 567px) {
+                .icon-container {
+                    width: 60% !important;
+                }
+                .receipt-head-div {
+                    padding-left: 2% !important;
+                    padding-top: 15px !important;
+                    padding-bottom: 35px !important;
+                }
+            }
+            .footer-inner {
+                width: 100% !important;
+                height: 100% !important;
+                background: url('https://res.cloudinary.com/creditville-ng/image/upload/v1681304691/email-template/pattern-bg_q19cto.png');
+                padding-top: 50px;
+                padding-bottom: 70px;
+                background-repeat: no-repeat;
+                background-size: cover;
+            }
+            .general-padding {
+                padding: 4% 15%;
+                background: #F9FAFB;;
+            }
+            @media(max-width: 750px) {
+                .general-padding {
+                    padding: 4% 5%!important;
+                }
+            }
+            .body-inner {
+                background-color: white;
+            }
+            @media(max-width: 991px) {
+                .body-text-div {
+                    padding-bottom: 100px !important;
+                    padding-top: 70px !important;
+                }
+            }
+        </style>
+    </head>
+    <body class="general-padding">
+        <div class="body-inner">
+            <div class="receipt-head-div">
+                <img src="https://res.cloudinary.com/creditville-ng/image/upload/v1678887310/email-template/cMoney-logo_gf2evx.png" class="logo">
+            </div>
+            <img src="https://res.cloudinary.com/creditville-ng/image/upload/v1681304690/email-template/color-line_zsfuzm.png" style="width: 100%" class="line">
+            <div class="body-text-div">
+                <span class="dear">Dear Ebiwari,</span>
+                <p class="please">Please go and update your KYC</p>
+                <p class="thanks">Thanks.</p>
+            </div>
+            <img src="https://res.cloudinary.com/creditville-ng/image/upload/v1681304690/email-template/color-line_zsfuzm.png" style="width: 100%" class="line">
+            <div class="footer-outer">
+                <div class="footer-inner">
+                    <table class="icon-container">
+                        <tr>
+                            <th><a href="https://wa.me//+2348055100010"><img src="https://res.cloudinary.com/creditville-ng/image/upload/v1678894348/email-template/whatsapp_1_avmrka.png" class="icon"></a></th>
+                            <th><a href="https://www.facebook.com/Creditvilleng"><img src="https://res.cloudinary.com/creditville-ng/image/upload/v1678893367/email-template/Facebook_-_Original_zygqik.png" class="icon"></a></th>
+                            <th><a href="https://twitter.com/creditville/"><img src="https://res.cloudinary.com/creditville-ng/image/upload/v1681304690/email-template/Twitter_-white_vddem1.png" class="icon"></a></th>
+                            <th><a href="https://www.instagram.com/creditville/"><img src="https://res.cloudinary.com/creditville-ng/image/upload/v1681304690/email-template/Instagram_-white_expeqd.png" class="icon"></a></th>
+                            <th><a href="https://www.linkedin.com/company/creditvilleltd/"><img src="https://res.cloudinary.com/creditville-ng/image/upload/v1681304690/email-template/LinkedIn-white_kdhgov.png" class="icon"></a></th>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

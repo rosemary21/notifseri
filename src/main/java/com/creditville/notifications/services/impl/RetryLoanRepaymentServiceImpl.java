@@ -28,6 +28,23 @@ public class RetryLoanRepaymentServiceImpl implements RetryLoanRepaymentService 
     @Value("${app.no.retry}")
     private String noRetry;
 
+
+    @Override
+    public String saveAndUpdateRetryLoan(CardTransactions cardTransactions, RetryLoanRepaymentDTO retryLoanRepaymentDTO, String loanId) {
+        RetryLoanRepayment loanRepayment= modelMapper.map(retryLoanRepaymentDTO,RetryLoanRepayment.class);
+        RetryLoanRepayment oldrepayment= loanRepaymentRepository.findByReferenceAndLoanIdAndClientId(cardTransactions.getReference(),loanId,retryLoanRepaymentDTO.getClientId());
+        if(oldrepayment==null){
+         RetryLoanRepayment retryLoanRepayment=loanRepaymentRepository.save(loanRepayment);
+       //  updateRetryLoan(retryLoanRepayment);
+            return "success";
+        }
+        RetryLoanRepayment retryLoanRepayment=modelMapper.map(loanRepayment,RetryLoanRepayment.class);
+        updateRetryLoan(retryLoanRepayment);
+
+
+        return "success";
+    }
+
     @Override
     public String saveRetryLoan(CardTransactions cardTransactions,RetryLoanRepaymentDTO retryLoanRepaymentDTO,String loanId) {
         RetryLoanRepayment loanRepayment= modelMapper.map(retryLoanRepaymentDTO,RetryLoanRepayment.class);
@@ -115,6 +132,7 @@ public class RetryLoanRepaymentServiceImpl implements RetryLoanRepaymentService 
             if(oldrepayment.getNoOfRetry()<Integer.valueOf(noRetry)){
                 oldrepayment.setNoOfRetry(oldrepayment.getNoOfRetry()+1);
                 oldrepayment.setProcessFlag("Y");
+                oldrepayment.setManualStatus("N");
                 oldrepayment.setStatus("Successfully_Repaid");
                 loanRepaymentRepository.save(oldrepayment);
                 return "success";
@@ -124,6 +142,32 @@ public class RetryLoanRepaymentServiceImpl implements RetryLoanRepaymentService 
         return null;
     }
 
+    @Override
+    public boolean checkUntreatedManualIntervention(String loanAccount, String status,String method) {
+        try{
+            RetryLoanRepayment result=loanRepaymentRepository.findByLoanIdAndManualStatusAndMethodOfRepayment(loanAccount,status,method);
+            if(result!=null){
+                return true;
+            }
+            return false;
+        }catch (Exception e){
+            return true;
+        }
+
+    }
 
 
+
+
+    @Override
+    public boolean updateNotificationSent(RetryLoanRepayment retryLoanRepayment) {
+        loanRepaymentRepository.save(retryLoanRepayment);
+        return  true;
+    }
+
+    @Override
+    public RetryLoanRepayment getUntreatedRepaymentLoan(String loanAccount, String status) {
+        RetryLoanRepayment retryLoanRepayment=loanRepaymentRepository.findByLoanIdAndManualStatus(loanAccount,status);
+       return retryLoanRepayment;
+    }
 }

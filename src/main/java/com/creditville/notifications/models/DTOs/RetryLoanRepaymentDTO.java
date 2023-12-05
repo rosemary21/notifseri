@@ -21,6 +21,7 @@ public class RetryLoanRepaymentDTO {
     private String instafinObliDate;
     private String methodOfRepayment;
     private String mandateId;
+    private BigDecimal instafinRepayAmt;
 
 
 }

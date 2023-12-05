@@ -1,0 +1,468 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" style="height: 100%">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Password Change done</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="x-apple-disable-message-reformatting">
+    <meta name="format-detection" content="telephone=no, date=no, address=no, email=no, url=no">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Open+Sans:ital,wght@0,500;0,600;1,400&family=Poppins:wght@400;600;800&display=swap"
+        rel="stylesheet">
+
+    <style>
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(37, 63, 101, 0.3) transparent;
+        }
+
+        *::-webkit-scrollbar {
+            width: 9px;
+            background: transparent;
+            margin-right: 10px;
+            padding-right: 10px;
+            margin-top: 12px;
+            margin-bottom: 12px;
+        }
+
+        *::-webkit-scrollbar-thumb {
+            padding: 0 4px;
+            border-right: 4px solid transparent;
+            border-left: 4px solid transparent;
+            border-top: 4px solid transparent;
+            border-bottom: 4px solid transparent;
+            background: #c4c4c4;
+            margin-top: 12px;
+            margin-bottom: 12px;
+            background-clip: padding-box;
+            border-radius: 50px;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        html {
+            height: 100%;
+            line-height: 1.15;
+            -webkit-text-size-adjust: 100%;
+            -webkit-tap-highlight-color: transparent;
+            scroll-behavior: smooth;
+        }
+
+        .receipt-body-div {
+            padding-top: 10px;
+            padding-bottom: 1px;
+            padding-left: 14px;
+            padding-right: 28px;
+        }
+
+        .receipt-dear {
+            font-family: 'Poppins', sans-serif;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 12px;
+            color: #072C50;
+            font-size: 15px;
+        }
+
+        .receipt-thanks {
+            padding-top: 20px;
+            font-size: 15px;
+            font-family: 'Poppins', sans-serif;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 9px;
+            color: #072C50;
+        }
+
+        .receipt-below {
+            padding-top: 20px;
+            margin-bottom: 0px !important;
+            font-family: 'Poppins', sans-serif;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 9px;
+            color: #072C50;
+            font-size: 15px;
+        }
+
+        .receipt-table-div {
+            margin-top: 14px;
+            padding-left: 14px;
+            padding-bottom: 40px;
+        }
+
+        .receipt-dear>span {
+            font-weight: 700 !important;
+            text-transform: uppercase;
+        }
+
+        .receipt-head-div {
+            padding-top: 13px;
+            padding-left: 20px;
+            padding-bottom: 13px;
+        }
+
+        .receipt-info-para {
+            font-family: 'Poppins', sans-serif;
+            font-style: normal;
+            font-weight: 400;
+            font-size: 17px;
+            line-height: 24px;
+            color: #072C50;
+            padding-left: 15px;
+            padding-top: 15px;
+            padding-bottom: 15px;
+            margin-bottom: 0px !important;
+        }
+
+        .receipt-info-para-last {
+            font-weight: 800 !important;
+            padding-top: 25px !important;
+        }
+
+        .receipt-container {
+            margin: 0px !important;
+            padding: 0px !important;
+            border: 0.5px solid #D1EDBF;
+            border-radius: 2px;
+        }
+
+        .receipt-td {
+            border: 0.5px solid #D1EDBF;
+        }
+
+        .collapsetable {
+            border-collapse: collapse;
+            border: 0.5px solid #D1EDBF;
+        }
+
+        .general-padding {
+            padding: 4% 15%
+        }
+
+        .fa:hover {
+            opacity: 0.9;
+            /* background-color: rgb(111, 95, 111); */
+        }
+
+        .fa-linkedin {
+            color: #174375;
+        }
+
+        .fa-facebook {
+            color: #174375;
+
+        }
+
+        .fa-instagram {
+            color: #174375;
+        }
+
+        .fa-twitter {
+            color: #174375;
+        }
+
+        .fa-whatsapp {
+            color: #174375;
+        }
+
+        .fa {
+            font-size: 14px;
+            width: 2% 2%;
+            height: 2%;
+            text-decoration: none;
+            margin: 10px;
+        }
+
+        @media only screen and (max-width: 750px) {
+            .general-padding {
+                padding: 4% 6%
+            }
+
+            table[class=body] h1 {
+                font-size: 28px !important;
+                margin-bottom: 10px !important;
+            }
+
+            table[class=body] p,
+            table[class=body] ul,
+            table[class=body] ol,
+            table[class=body] td,
+            table[class=body] span,
+            table[class=body] a {
+                font-size: 17px !important;
+            }
+
+            table[class=body] .wrapper,
+            table[class=body] .article {
+                padding: 10px !important;
+            }
+
+            table[class=body] .content {
+                padding: 0 !important;
+            }
+
+            table[class=body] .container {
+                padding: 0 !important;
+                width: 100% !important;
+            }
+
+            table[class=body] .main {
+                border-left-width: 0 !important;
+                border-radius: 0 !important;
+                border-right-width: 0 !important;
+            }
+
+            table[class=body] .btn table {
+                width: 100% !important;
+            }
+
+            table[class=body] .btn a {
+                width: 100% !important;
+            }
+
+            table[class=body] .img-responsive {
+                height: auto !important;
+                max-width: 100% !important;
+                width: auto !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="general-padding" style="background: #F9FAFB;">
+    <div bgcolor="white" style="
+  font-weight: 400;
+  letter-spacing: 0.2px;
+  color: #383a47;
+  background: #fff;
+  
+">
+        <table width="100%">
+            <thead width="100%">
+                <tr>
+                    <td style="padding:3%">
+                        <table style="border-collapse:collapse;border-spacing:0px;float:left" cellspacing="0"
+                            cellpadding="0" border="0" align="left">
+                            <tbody>
+                                <tr>
+                                    <td style="width:169.5pt;padding:0in 0in 0in 0in" width="226">
+                                        <table style="width:100.0%;border-collapse:collapse;border-spacing:0px"
+                                            width="100%" cellspacing="0" cellpadding="0" border="0">
+                                            <tbody>
+                                                <tr>
+                                                    <td>
+                                                        <img style="width:150px"
+                                                            src="https://res.cloudinary.com/creditville-ng/image/upload/v1678887310/email-template/cMoney-logo_gf2evx.png"
+                                                            class="logo">
+
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                    </td>
+                </tr>
+
+            </thead>
+
+
+            <thead width="100%">
+                <tr>
+                    <td style="">
+
+                        <table style="border-collapse:collapse;border-spacing:0px;float:left" cellspacing="0"
+                            cellpadding="0" border="0" align="left">
+                            <tbody>
+                                <tr>
+                                    <td style="" width="">
+                                        <table style="width:100.0%;border-collapse:collapse;border-spacing:0px"
+                                            width="100%" cellspacing="0" cellpadding="0" border="0">
+                                            <tbody>
+                                                <tr>
+                                                    <td style="width:100%">
+                                                        <div style="width:100%">
+                                                            <img width="100%"
+                                                                src="https://res.cloudinary.com/creditville-ng/image/upload/v1678892940/email-template/welcomeMail-header_gaojhp.png"
+                                                                alt="logo" />
+                                                        </div>
+
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+                <tr width="100%">
+                    <td border="0">
+                        <div style="
+                          padding: 5%;
+                          border-radius: 8px;
+                          margin-bottom: 38px;
+                        ">
+                            <div class="receipt-body-div">
+                                <p style="font-weight: 600; font-size: 24px;color: #072C50; text-align: center">A Letter
+                                    from the GMD</p>
+                                <p
+                                    style="padding-top: 10px;font-weight: 400;line-height: 24px;color: #383a47;font-size: 19px;color: #072C50;">
+<!--                                    Hello <span style="font-weight:600" th:text="${customerName}">,</span>a hearty welcome to you!-->
+                                    Hello <span style="font-weight:600"   th:text="${customerName}"></span>,a hearty welcome to you!
+                                </p>
+                                <p
+                                    style="padding-top: 10px;font-weight: 400;line-height: 24px;color: #383a47;font-size: 19px;color: #072C50;">
+                                    Here's your C Money Account number:
+<!--                                    <span style="font-weight:600" th:text="${accountNumber}">.</span>-->
+                                        <span   style="font-weight:600" th:text="${accountNumber}"></span>.
+                                    </p>
+                                <p
+                                    style="padding-top: 10px;font-weight: 400;line-height: 24px;color: #383a47;font-size: 19px;color: #072C50;">
+
+                                    We are excited to have you on board and we can’t wait to help take your finances to
+                                    the next level!.</p>
+                                <p
+                                    style="padding-top: 10px;font-weight: 400;line-height: 24px;color: #383a47;font-size: 19px;color: #072C50;">
+                                    While you're here, we hope you make the most of our wide variety of savings,
+                                    investment, and loan products, all tailored to suit your needs.</p>
+                                <p
+                                    style="padding-top: 10px;font-weight: 400;line-height: 24px;color: #383a47;font-size: 19px;color: #072C50;">
+                                    For more details about our products, services or offerings, you may contact us on
+                                    07000330330 or WhatsApp: 08055100010.</p>
+                                <p
+                                    style="padding-top: 10px;font-weight: 400;line-height: 24px;color: #383a47;font-size: 19px;color: #072C50;">
+                                    Cheers to the Goodlife!</p>
+                                <p
+                                    style="padding-top: 10px;font-weight: 400;line-height: 24px;color: #383a47;font-size: 19px;color: #072C50;">
+                                    Richard Rotoye,<br />
+                                    <span style="font-weight:600">GMD, Creditville Group</span>
+                                </p>
+                            </div>
+
+
+                        </div>
+                    </td>
+                </tr>
+
+            </tbody>
+        </table>
+
+
+        <tr>
+            <td style="width:100%">
+                <div style="width:100%">
+                    <img width="100%"
+                        src="https://res.cloudinary.com/creditville-ng/image/upload/v1678892938/email-template/line-color_wmt00x.png"
+                        alt="logo" />
+                </div>
+
+            </td>
+        </tr>
+
+
+        <div style="text-align: center; padding-top:10px">
+            <p style="text-align:center">
+                <a target="" href="https://www.facebook.com/Creditvilleng"><img
+                        style="width:26px; cursor: pointer;padding-right:10px"
+                        src="https://res.cloudinary.com/creditville-ng/image/upload/v1678893367/email-template/Facebook_-_Original_zygqik.png"
+                        class="fb"></a>
+                <a href="https://www.instagram.com/creditville/">
+                    <img style="width:26px; cursor: pointer;padding-right:10px"
+                        src="https://res.cloudinary.com/creditville-ng/image/upload/v1678893367/email-template/Instagram_-_Original_xx4yin.png"
+                        class="IG"></a>
+                <a href="https://www.linkedin.com/company/creditvilleltd/">
+                    <img style="width:26px; cursor: pointer;padding-right:10px"
+                        src="https://res.cloudinary.com/creditville-ng/image/upload/v1678893367/email-template/linkedin_2_zsksxy.png"
+                        class="lnk"></a>
+                <a href="https://twitter.com/creditville/">
+                    <img style="width:26px; cursor: pointer;padding-right:10px"
+                        src="https://res.cloudinary.com/creditville-ng/image/upload/v1678893367/email-template/Twitter_-_Original_jwnsss.png"
+                        class="twt"></a>
+                <a href="https://wa.me//+2348055100010">
+                    <img style="width:26px; cursor: pointer;padding-right:10px"
+                        src="https://res.cloudinary.com/creditville-ng/image/upload/v1678894348/email-template/whatsapp_1_avmrka.png"
+                        class="whsap"></a>
+            </p>
+        </div>
+
+
+
+
+
+        <div style="text-align: center; padding-bottom:20px">
+            <a target="" href=""><img style="width:125px; cursor: pointer"
+                    src="https://res.cloudinary.com/creditville-ng/image/upload/v1678714239/WhatsApp_Image_2023-03-13_at_2.20.26_PM_1_ehky9x.jpg"
+                    class="logo"></a>
+        </div>
+        <div style="text-align:center; font-size: 15px;font-weight: 400;line-height: 24px;color: #072C50;">
+            If you have reason to suspect any unauthorised activity on your account<br> please contact
+            us by
+            sending an email to customer@creditville.ng <br><br>For more information on our products
+            and
+            services,
+            please call our 24/7<br>
+            contact centre on 07000330330 or chat with us via
+            <br>Whatsapp on <a href="https://wa.me//+2348055100010">(+234) 08055100010</a>
+            <br>Alternatively send an email to <span style="font-weight: bold;">customer@creditville.ng</span>
+
+            <div style="text-align: center; padding-top:15px">
+                <p style="text-align:center">
+                    <a target="" href=""><img style="width:106px; cursor: pointer"
+                            src="https://res.cloudinary.com/creditville-ng/image/upload/v1678713221/WhatsApp_Image_2023-03-13_at_2.08.36_PM_mmizq0.jpg"
+                            class="appstore"></a>
+                    <a href="">
+                        <img style="width:106px; cursor: pointer;"
+                            src="https://res.cloudinary.com/creditville-ng/image/upload/v1678712442/googleplay_t8u514.png"
+                            class="googleplay"></a>
+                </p>
+            </div>
+
+
+            <div>
+                <div style="font-size: 15px;text-align:center;font-weight: 400;line-height: 24px;color: #072C50;">
+                    Download and enjoy our app today</div>
+            </div>
+
+            <div style="font-size: 15px;font-weight: 400;line-height: 24px;color: #072C50;">
+                <br>Copyright © 2023. Creditville
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous">
+        </script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+        integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous">
+        </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"
+        integrity="sha384-mQ93GR66B00ZXjt0YO5KlohRA5SY2XofN4zfuZxLkoj1gXtW8ANNCe9d5Y3eG5eD" crossorigin="anonymous">
+        </script>
+</body>
+
+
+</html>

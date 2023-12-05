@@ -36,5 +36,6 @@ public class RequestDisburseDto {
     @Lob
     private String emailMessage;
     private String emailTo;
+    private boolean tgValid;
 
 }

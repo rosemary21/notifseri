@@ -302,13 +302,16 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                                 var loanAmount = newChargedAmount.subtract(transactionFee);
                                 repayLoanReq.setAmount(loanAmount);
                                 String paymentMethod;
+                                String transactionBranchID;
                                 if(!gu.isClientTG(clientID)){
                                     paymentMethod = AppConstants.InstafinPaymentMethod.PAYSTACK_PAYMENT_METHOD;
+                                    transactionBranchID = AppConstants.InstafinBranch.TRANSACTION_BRANCH_ID;
                                 }else {
                                     paymentMethod = AppConstants.TG_InstafinPaymentMethod.TG_PAYSTACK_PAYMENT_METHOD;
+                                    transactionBranchID = AppConstants.InstafinBranch.CMFB_TRANSACTION_BRANCH_ID;
                                 }
                                 repayLoanReq.setPaymentMethodName(paymentMethod);
-                                repayLoanReq.setTransactionBranchID(AppConstants.InstafinBranch.TRANSACTION_BRANCH_ID);
+                                repayLoanReq.setTransactionBranchID(transactionBranchID);
                                 repayLoanReq.setRepaymentDate(currentDate.toString());
                                 repayLoanReq.setNotes("Card loan repayment"+" Loan ID : "+loanId+" Reference Id : "+ctDTO.getReference());
                                 var repaymentResp = loanRepaymentService.makeLoanRepayment(repayLoanReq);
@@ -344,6 +347,7 @@ public class CardDetailsServiceImpl implements CardDetailsService {
                                     ctService.addCardTransaction(savedCardTransaction);
                                     RetryLoanRepaymentDTO retryLoanRepaymentDTO=retryLoanRepaymentService.getLoanRepayment(savedCardTransaction,loanId,email,obligDate);
                                     retryLoanRepaymentDTO.setMethodOfRepayment("paystack");
+                                    retryLoanRepaymentDTO.setInstafinRepayAmt(loanAmount);
                                     retryLoanRepaymentService.saveRetryLoan(savedCardTransaction,retryLoanRepaymentDTO,loanId);
 
                                 }else {
@@ -383,25 +387,29 @@ public class CardDetailsServiceImpl implements CardDetailsService {
             }
         }
 
-        Map<String, String> notificationData = new HashMap<>();
-        notificationData.put("toName", tokenizationName);
-        notificationData.put("customerName", tokenizationName);
-        notificationData.put("toAddress", tokenizationEmail);
-//        notificationData.put("toAddress", email);
-        notificationData.put("loanId", loanId);
-        notificationData.put("todayDate", LocalDate.now().toString());
-        notificationData.put("failureMessage", errorMessage);
-        notificationData.put("paymentDate", currentDate.toString());
-        String mailSubject = repaymentStatus ? repaymentSuccessSubject : repaymentFailureSubject;
-        String templateLocation = repaymentStatus ? "email/repayment-success" : "email/repayment-failure";
-        if(!emailService.alreadySentOutEmailToday(email, tokenizationName, mailSubject, currentDate)) {
-            try {
-                notificationService.sendEmailNotification(mailSubject, notificationData, templateLocation);
-            } catch (CustomCheckedException cce) {
-                cce.printStackTrace();
-                log.info("An error occurred while trying to notify team of repayment status: Error message: " +  cce.getMessage());
-            }
-        }
+        //business do not require notification of failed transaction 13//05/2022
+
+//        Map<String, String> notificationData = new HashMap<>();
+//        notificationData.put("toName", tokenizationName);
+//        notificationData.put("customerName", tokenizationName);
+//        notificationData.put("toAddress", tokenizationEmail);
+////        notificationData.put("toAddress", email);
+//        notificationData.put("loanId", loanId);
+//        notificationData.put("todayDate", LocalDate.now().toString());
+//        notificationData.put("failureMessage", errorMessage);
+//        notificationData.put("paymentDate", currentDate.toString());
+//        String mailSubject = repaymentStatus ? repaymentSuccessSubject : repaymentFailureSubject;
+//        String templateLocation = repaymentStatus ? "email/repayment-success" : "email/repayment-failure";
+//        if(!emailService.alreadySentOutEmailToday(email, tokenizationName, mailSubject, currentDate)) {
+//            try {
+//                notificationService.sendEmailNotification(mailSubject, notificationData, templateLocation);
+//            } catch (CustomCheckedException cce) {
+//                cce.printStackTrace();
+//                log.info("An error occurred while trying to notify team of repayment status: Error message: " +  cce.getMessage());
+//            }
+//        }
+        // business do not require notification of failed transaction 13//05/2022
+        
     }
 
     @Override
@@ -499,15 +507,18 @@ public class CardDetailsServiceImpl implements CardDetailsService {
 
 //                          Make loan repayment...
                             String paymentMethod;
+                            String transactionBranch;
                             if(!gu.isClientTG(clientId)){
                                 paymentMethod = AppConstants.InstafinPaymentMethod.PAYSTACK_PAYMENT_METHOD;
+                                transactionBranch = AppConstants.InstafinBranch.TRANSACTION_BRANCH_ID;
                             }else {
                                 paymentMethod = AppConstants.TG_InstafinPaymentMethod.TG_PAYSTACK_PAYMENT_METHOD;
+                                transactionBranch = AppConstants.InstafinBranch.CMFB_TRANSACTION_BRANCH_ID;
                             }
                             repayLoanReq.setPaymentMethodName(paymentMethod);
                             repayLoanReq.setAccountID(loanId);
                             repayLoanReq.setAmount(newPdAmount);
-                            repayLoanReq.setTransactionBranchID(AppConstants.InstafinBranch.TRANSACTION_BRANCH_ID);
+                            repayLoanReq.setTransactionBranchID(transactionBranch);
                             repayLoanReq.setRepaymentDate(currentDate.toString());
                             repayLoanReq.setNotes("Paystack Card loan repayment "+" Loan Id: "+loanId+" Reference Id: "+ctDTO.getReference());
                             var repaymentResp = loanRepaymentService.makeLoanRepayment(repayLoanReq);

@@ -16,4 +16,12 @@ public interface RetryLoanRepaymentRepository extends JpaRepository<RetryLoanRep
     List<RetryLoanRepayment> findByProcessFlag(String flag);
 
     List<RetryLoanRepayment> findByProcessFlagAndManualStatus(String processFlag,String manualStatus);
-}
+
+    RetryLoanRepayment findByLoanIdAndManualStatus(String loanId,String status);
+
+    RetryLoanRepayment findByLoanIdAndManualStatusAndMethodOfRepayment(String loanId,String status,String method);
+
+
+    RetryLoanRepayment findByClientIdAndManualStatus(String clientId,String status);
+
+   }

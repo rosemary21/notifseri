@@ -51,6 +51,10 @@ public class DispatcherServiceImpl implements DispatcherService {
     @Value("${app.defaultToAddress}")
     private String defaultToAddress;
 
+
+    @Value("${finance.address}")
+    private String financeAddress;
+
     @Value("${app.defaultToName}")
     private String defaultToName;
 
@@ -85,6 +89,9 @@ public class DispatcherServiceImpl implements DispatcherService {
 
     @Value("${mail.postMaturitySubject}")
     private String postMaturitySubject;
+
+    @Value("${mail.uncompleted.notification}")
+    private String unCompletedNotificationSubject;
 
     @Value("${mail.chequeLodgementSubject}")
     private String chequeLodgementSubject;
@@ -121,6 +128,9 @@ public class DispatcherServiceImpl implements DispatcherService {
 
     @Value("${app.card.modeOfRepaymentKey}")
     private String cardModeOfRepaymentKey;
+
+    @Value("${notification.number}")
+    private String notificationNumber;
 
     @Value("${app.remitta.modeOfRepaymentKey}")
     private String remitaModeOfRepaymentKey;
@@ -214,10 +224,12 @@ public class DispatcherServiceImpl implements DispatcherService {
 //                            if (!modeOfRepayment.equalsIgnoreCase(chequeModeOfRepaymentKey)) {
                                 List<LookUpLoanInstalment> loanInstalments = lookUpLoanAccount.getLoanAccount().getInstalments();
                                 if (!loanInstalments.isEmpty()) {
+
                                     List<LookUpLoanInstalment> loanInstalmentsGtOrEqToday = loanInstalments
                                             .stream()
                                             .filter(lookUpLoanInstalment -> dateUtil.isPaymentDateGtOrEqToday(lookUpLoanInstalment.getObligatoryPaymentDate()))
                                             .collect(Collectors.toList());
+
                                     if (!loanInstalmentsGtOrEqToday.isEmpty()) {
 //                                        System.out.println(">= ");
                                         List<LookUpLoanInstalment> lookUpLoanInstalments = loanInstalmentsGtOrEqToday
@@ -282,12 +294,12 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                     notificationData.put("branchManagerEmail", brmE);
                                                     notificationData.put("companyName", companyName);
                                                     notificationData.put("loanId", clientLoan.getId());
-                                                    notificationData.put("accountName", accountName);
-                                                    notificationData.put("accountNumber", accountNumber);
-                                                    notificationData.put("bankName", bankName);
-//                                                    notificationData.put("accountName", branchManager.getAccountName());
-//                                                    notificationData.put("accountNumber", branchManager.getAccountNumber());
-//                                                    notificationData.put("bankName", branchManager.getBankName());
+//                                                    notificationData.put("accountName", accountName);
+//                                                    notificationData.put("accountNumber", accountNumber);
+//                                                    notificationData.put("bankName", bankName);
+                                                    notificationData.put("accountName", branchManager.getAccountName());
+                                                    notificationData.put("accountNumber", branchManager.getAccountNumber());
+                                                    notificationData.put("bankName", branchManager.getBankName());
                                                     totalSuccessfulCounter++;
                                                     try {
                                                         notificationService.sendEmailNotification(doRentalSubject, notificationData, "email/due_rental");
@@ -432,12 +444,12 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                     notificationData.put("branchManagerEmail", brmE);
                                                     notificationData.put("companyName", companyName);
                                                     notificationData.put("loanId", clientLoan.getId());
-                                                    notificationData.put("accountName", accountName);
-                                                    notificationData.put("accountNumber", accountNumber);
-                                                    notificationData.put("bankName", bankName);
-//                                                    notificationData.put("accountName", branchManager.getAccountName());
-//                                                    notificationData.put("accountNumber",  branchManager.getAccountNumber());
-//                                                    notificationData.put("bankName", branchManager.getBankName());
+//                                                    notificationData.put("accountName", accountName);
+//                                                    notificationData.put("accountNumber", accountNumber);
+//                                                    notificationData.put("bankName", bankName);
+                                                    notificationData.put("accountName", branchManager.getAccountName());
+                                                    notificationData.put("accountNumber",  branchManager.getAccountNumber());
+                                                    notificationData.put("bankName", branchManager.getBankName());
                                                     totalSuccessfulCounter++;
                                                     try {
                                                         notificationService.sendEmailNotification(doRentalSubject, notificationData, "email/due_rental");
@@ -473,6 +485,29 @@ public class DispatcherServiceImpl implements DispatcherService {
         }catch (CustomCheckedException cce) {
             cce.printStackTrace();
         }
+    }
+
+    private  boolean triggerNotification(RetryLoanRepayment retryLoanRepayment){
+
+        boolean response=  dateUtil.isPaymentDateLateWithinDaysNumber(retryLoanRepayment.getInstafinObliDate(),3);
+
+        if(response){
+            if(retryLoanRepayment.getNoNotificationSent()<=Integer.parseInt(notificationNumber)){
+                retryLoanRepayment.setNotificationSent(LocalDate.now());
+                int result=retryLoanRepayment.getNoNotificationSent()+1;
+                retryLoanRepayment.setNoNotificationSent(result);
+                retryLoanRepaymentService.updateNotificationSent(retryLoanRepayment);
+                return true;
+            }
+            int value=retryLoanRepayment.getNoNotificationSent();
+
+            if(value>Integer.parseInt(notificationNumber) && retryLoanRepayment.getNotificationSent().compareTo(LocalDate.now())<0){
+                retryLoanRepayment.setNoNotificationSent(0);
+                retryLoanRepaymentService.updateRetryLoan(retryLoanRepayment);
+                return true;
+            }
+        }
+         return false;
     }
 
 
@@ -590,12 +625,12 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                     notificationData.put("branchManagerEmail", brmE);
                                                     notificationData.put("companyName", companyName);
                                                     notificationData.put("loanId", clientLoan.getId());
-                                                    notificationData.put("accountName", accountName);
-                                                    notificationData.put("accountNumber", accountNumber);
-                                                    notificationData.put("bankName", bankName);
-//                                                    notificationData.put("accountName", branchManager.getAccountName());
-//                                                    notificationData.put("accountNumber", branchManager.getAccountNumber());
-//                                                    notificationData.put("bankName", branchManager.getBankName());
+//                                                    notificationData.put("accountName", accountName);
+//                                                    notificationData.put("accountNumber", accountNumber);
+//                                                    notificationData.put("bankName", bankName);
+                                                    notificationData.put("accountName", branchManager.getAccountName());
+                                                    notificationData.put("accountNumber", branchManager.getAccountNumber());
+                                                    notificationData.put("bankName", branchManager.getBankName());
                                                     totalSuccessfulCounter++;
                                                     try {
                                                         notificationService.sendEmailNotification(doRentalSubject, notificationData, "email/due_rental");
@@ -762,9 +797,9 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                     notificationData.put("branchManagerEmail", brmE);
                                                     notificationData.put("companyName", companyName);
                                                     notificationData.put("loanId", clientLoan.getId());
-                                                    notificationData.put("accountName", accountName);
-                                                    notificationData.put("accountNumber", accountNumber);
-                                                    notificationData.put("bankName", bankName);
+//                                                    notificationData.put("accountName", accountName);
+//                                                    notificationData.put("accountNumber", accountNumber);
+//                                                    notificationData.put("bankName", bankName);
                                                     notificationData.put("recoveryOfficer", coN);
                                                     notificationData.put("PhoneNo", coP);
                                                     notificationData.put("recoveryEmail", coE);
@@ -774,9 +809,9 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                     notificationData.put("financeEmail",finEm);
                                                     notificationData.put("financeName",finNam);
                                                     notificationData.put("financePhoneNo",finPh);
-//                                                    notificationData.put("accountName", branchManager.getAccountName());
-//                                                    notificationData.put("accountNumber", branchManager.getAccountNumber());
-//                                                    notificationData.put("bankName", branchManager.getBankName());
+                                                    notificationData.put("accountName", branchManager.getAccountName());
+                                                    notificationData.put("accountNumber", branchManager.getAccountNumber());
+                                                    notificationData.put("bankName", branchManager.getBankName());
 
 
                                                     totalSuccessfulCounter++;
@@ -953,12 +988,12 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                         notificationData.put("branchEmail", coE);
                                                         notificationData.put("companyName", companyName);
                                                         notificationData.put("loanId", clientLoan.getId());
-                                                        notificationData.put("accountName", accountName);
-                                                        notificationData.put("accountNumber", accountNumber);
-                                                        notificationData.put("bankName", bankName);
-//                                                        notificationData.put("accountName", branchManager.getAccountName());
-//                                                        notificationData.put("accountNumber", branchManager.getAccountNumber());
-//                                                        notificationData.put("bankName", branchManager.getBankName());
+//                                                        notificationData.put("accountName", accountName);
+//                                                        notificationData.put("accountNumber", accountNumber);
+//                                                        notificationData.put("bankName", bankName);
+                                                        notificationData.put("accountName", branchManager.getAccountName());
+                                                        notificationData.put("accountNumber", branchManager.getAccountNumber());
+                                                        notificationData.put("bankName", branchManager.getBankName());
                                                         totalSuccessfulCounter++;
                                                         try {
                                                             notificationService.sendEmailNotification(postMaturitySubject, notificationData, "email/post_maturity");
@@ -1088,13 +1123,13 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                         notificationData.put("collectionEmail", coE);
                                                         notificationData.put("companyName", companyName);
                                                         notificationData.put("loanId", clientLoan.getId());
-                                                        notificationData.put("accountName", accountName);
-                                                        notificationData.put("accountNumber", accountNumber);
-                                                        notificationData.put("bankName", bankName);
+//                                                        notificationData.put("accountName", accountName);
+//                                                        notificationData.put("accountNumber", accountNumber);
+//                                                        notificationData.put("bankName", bankName);
 
-//                                                        notificationData.put("accountName",branchManager.getAccountName() );
-//                                                        notificationData.put("accountNumber", branchManager.getAccountNumber());
-//                                                        notificationData.put("bankName", branchManager.getBankName());
+                                                        notificationData.put("accountName",branchManager.getAccountName() );
+                                                        notificationData.put("accountNumber", branchManager.getAccountNumber());
+                                                        notificationData.put("bankName", branchManager.getBankName());
                                                         totalSuccessfulCounter++;
                                                         try {
                                                             notificationService.sendEmailNotification(chequeLodgementSubject, notificationData, "email/cheque_lodgement");
@@ -1229,12 +1264,23 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                     .collect(Collectors.toList());
 
                                             if (!loanInstalmentsLtOrEqToday.isEmpty()) {
+
                                                 for (LookUpLoanInstalment dueDateInstalment : loanInstalmentsLtOrEqToday) {
                                                     Client customer = lookUpClient.getClient();
                                                     LocalDate obligatoryPaymentDate = dateUtil.convertDateToLocalDate(dueDateInstalment.getObligatoryPaymentDate());
                                                     String toAddress = customer.getEmail();
                                                     var principalDueAmount = dueDateInstalment.getCurrentState().getPrincipalDueAmount();
-                                                    if (principalDueAmount.compareTo(BigDecimal.ZERO) > 0) {
+
+                                                    log.info("ENTERING GETTING THE LOAN ID <><><??><<><><  {}",clientLoan.getId());
+                                                    //recent added to prevent multiple debit
+
+                                                    boolean response=  retryLoanRepaymentService.checkUntreatedManualIntervention(clientLoan.getId(),"Y","paystack");
+                                                    ////
+
+                                                    log.info("ENTERING GETTING THE RESPONSE :>?>?>?>? {}",response);
+
+                                                    if ((principalDueAmount.compareTo(BigDecimal.ZERO) > 0) && !(response)) {
+
                                                         BigDecimal totalDue = principalDueAmount
                                                                 .add(dueDateInstalment.getCurrentState().getInterestDueAmount());
 
@@ -1254,7 +1300,16 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                         BigDecimal newTotalDue = totalDue.multiply(new BigDecimal(100)); //multiple by 100 to remove decimal places
                                                         log.info("ENTRY -> performRecurringChargesOperation: newTotalDue: {} ",newTotalDue);
                                                         cardDetailsService.cardRecurringCharges(toAddress, newTotalDue, clientLoan.getId(), obligatoryPaymentDate, customer.getExternalID(),dueDateInstalment.getObligatoryPaymentDate(), paystackFee);
+                                                    }else{
+                                                        RetryLoanRepayment retryLoanRepayment=retryLoanRepaymentService.getUntreatedRepaymentLoan(clientLoan.getId(),"Y");
+                                                        boolean result = triggerNotification(retryLoanRepayment);
+                                                        if(result){
+                                                            sendFinanceNotification(clientLoan.getId(),"Y");
+
+                                                        }
                                                     }
+
+                                                    
                                                 }
 //                                                List<LookUpLoanInstalment> lookUpLoanInstalments = loanInstalmentsLtOrEqToday
 //                                                        .stream()
@@ -1297,6 +1352,27 @@ public class DispatcherServiceImpl implements DispatcherService {
     }
 
 
+    private boolean sendFinanceNotification(String loanid,String status){
+        try{
+             RetryLoanRepayment retryLoanRepayment=retryLoanRepaymentService.getUntreatedRepaymentLoan(loanid,status);
+            Map<String, String> notificationData = new HashMap<>();
+            notificationData.put("toAddress", financeAddress);
+            notificationData.put("clientId", retryLoanRepayment.getClientId());
+            notificationData.put("loanId", retryLoanRepayment.getLoanId());
+            notificationData.put("oblidate", retryLoanRepayment.getInstafinObliDate());
+            notificationData.put("reference", retryLoanRepayment.getReference());
+            notificationService.sendEmailNotification(unCompletedNotificationSubject, notificationData, "email/finance-notification");
+
+        }catch (Exception e){
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+
+    }
+
+
+
 
 
     @Override
@@ -1309,7 +1385,7 @@ public class DispatcherServiceImpl implements DispatcherService {
             CardTransactions savedCardTransaction=cardTransactionRepository.findByReference(loanRepayment.getReference());
             RepayLoanReq repayLoanReq = new RepayLoanReq();
             repayLoanReq.setAccountID(loanRepayment.getLoanId());
-            repayLoanReq.setAmount(loanRepayment.getAmount());
+            repayLoanReq.setAmount(loanRepayment.getInstafinRepayAmt());
 
             String paymentMethod = AppConstants.InstafinPaymentMethod.PAYSTACK_PAYMENT_METHOD;
             if(null != savedCardTransaction.getCardDetails()){
@@ -1416,7 +1492,12 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                     .filter(lookUpLoanInstalment -> dateUtil.isPaymentDateLtOrEqToday(lookUpLoanInstalment.getObligatoryPaymentDate()))
                                                     .collect(Collectors.toList());
                                             log.info("GETTING  LOAN INSTALLMENT LATE TO TODAY {}",loanInstalmentsLtOrEqToday);
-                                            if (!loanInstalmentsLtOrEqToday.isEmpty()) {
+
+                                            //recently added
+
+                                            boolean response=  retryLoanRepaymentService.checkUntreatedManualIntervention(clientLoan.getId(),"Y","remitta");
+
+                                            if (!loanInstalmentsLtOrEqToday.isEmpty() &&!response) {
                                                 for (LookUpLoanInstalment dueDateInstalment : loanInstalmentsLtOrEqToday) {
                                                     Client customer = lookUpClient.getClient();
                                                     LocalDate obligatoryPaymentDate = dateUtil.convertDateToLocalDate(dueDateInstalment.getObligatoryPaymentDate());
@@ -1429,7 +1510,16 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                         cardDetailsService.initiateRemitaRecurringCharges(totalDue, clientLoan.getId(), obligatoryPaymentDate, customer.getExternalID());
                                                     }
                                                 }
-                                            } else
+                                            } else{
+                                               // else{
+                                                    RetryLoanRepayment retryLoanRepayment=retryLoanRepaymentService.getUntreatedRepaymentLoan(clientLoan.getId(),"Y");
+                                                    boolean result = triggerNotification(retryLoanRepayment);
+                                                    if(result){
+                                                        sendFinanceNotification(clientLoan.getId(),"Y");
+
+                                                    }
+                                                //}
+                                            }
                                                 log.info("Loan installments gt or eq to today is empty...");
                                         } else log.info("Loan installments is empty...");
                                     } else log.info("Mode of repayment is not known..." + modeOfRepayment);
