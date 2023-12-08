@@ -564,6 +564,18 @@ public class NotificationServiceImpl implements NotificationService {
             case "savings-transfer":
                 return "email/savings-transfer";
 
+            case "bulk-initiated":
+                return "email/bulk-initiated";
+
+            case "bulk-transaction":
+                return "email/bulk-transaction";
+
+            case "approved":
+                return "email/approved";
+
+            case "rejected":
+                return "email/rejected";
+
             default:
                 throw new CustomCheckedException("Invalid template name provided");
         }

@@ -7,7 +7,7 @@
 
     <appender name="FILE_AUDIT"
               class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${DEV_HOME}/application.log</file>
+        <file>${PROD_HOME}/application.log</file>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <Pattern>
                 %d{yyyy-MM-dd HH:mm:ss} %d{ISO8601} %-5level [%thread] %logger{36}: %class{0}::%method:%line - %msg %n
@@ -16,7 +16,7 @@
 
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- rollover daily -->
-            <fileNamePattern>${DEV_HOME}/archived/backup.%d{yyyy-MM-dd}.%i.gz
+            <fileNamePattern>${PROD_HOME}/archived/backup.%d{yyyy-MM-dd}.%i.gz
             </fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy
                     class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
