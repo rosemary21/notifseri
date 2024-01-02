@@ -570,6 +570,9 @@ public class NotificationServiceImpl implements NotificationService {
             case "bulk-transaction":
                 return "email/bulk-transaction";
 
+            case "bulk-approval":
+                return "email/bulk-approval";
+
             case "approved":
                 return "email/approved";
 
