@@ -337,6 +337,29 @@
                             </tr>
 
 
+                            <tr>
+                                <td class="receipt-td">
+                                    <p class="receipt-info-para">Successful Transaction</p>
+                                </td>
+                                <td class="receipt-td">
+                                    <p class="receipt-info-para"  th:text="${successCsvUrl}"></p>
+                                    <!--                                            <p class="receipt-info-para">E-OPS - VERVE POS, PAYABLE(ROU)POS PURCHASE-->
+                                    <!--                                                FROM </p>-->
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td class="receipt-td">
+                                    <p class="receipt-info-para">Failed Transaction</p>
+                                </td>
+                                <td class="receipt-td">
+                                    <p class="receipt-info-para"  th:text="${failureCsvUrl}"></p>
+                                    <!--                                            <p class="receipt-info-para">E-OPS - VERVE POS, PAYABLE(ROU)POS PURCHASE-->
+                                    <!--                                                FROM </p>-->
+                                </td>
+                            </tr>
+
+
                         </table>
                     </div>
                 </div>
