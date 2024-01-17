@@ -3,11 +3,8 @@ package com.creditville.notifications.services;
 import com.creditville.notifications.exceptions.CustomCheckedException;
 import com.creditville.notifications.models.ExcludedEmail;
 import com.creditville.notifications.models.requests.SendEmailRequest;
-import com.creditville.notifications.models.requests.SendOnboardMailRequestDTO;
-import com.creditville.notifications.models.requests.SendTransactionMailRequestDTO;
 import com.creditville.notifications.redwood.model.EmailRequest;
 import com.creditville.notifications.services.impl.NotificationServiceImpl;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.util.List;
 import java.util.Map;

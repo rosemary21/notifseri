@@ -7,8 +7,6 @@ import com.creditville.notifications.models.EmailTemplate;
 import com.creditville.notifications.models.ExcludedEmail;
 import com.creditville.notifications.models.To;
 import com.creditville.notifications.models.requests.SendEmailRequest;
-import com.creditville.notifications.models.requests.SendOnboardMailRequestDTO;
-import com.creditville.notifications.models.requests.SendTransactionMailRequestDTO;
 import com.creditville.notifications.models.response.Client;
 import com.creditville.notifications.redwood.model.EmailRequest;
 import com.creditville.notifications.repositories.BroadCastRepository;
@@ -39,8 +37,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
-import org.thymeleaf.util.ObjectUtils;
-import org.thymeleaf.util.StringUtils;
 
 import javax.activation.FileDataSource;
 import javax.mail.Message;
@@ -240,12 +236,25 @@ public class NotificationServiceImpl implements NotificationService {
                 .bcc(null, bccAddressList)
                 .withSubject(sendEmailRequest.getMailSubject())
                 .withHTMLText(content);
-        Email email = mailTemplate.equals("investmentCertificate") ?
-                emailPopulatingBuilder
-                        .withAttachment("investment-certificate.pdf", new FileDataSource(sendEmailRequest.getMailData().get("attachmentLocation").textValue()))
-                        .buildEmail() :
-                emailPopulatingBuilder
-                        .buildEmail();
+        Email email =null;
+        if(mailTemplate.equals("investmentCertificate")){
+             email = emailPopulatingBuilder
+                    .withAttachment("investment-certificate.pdf", new FileDataSource(sendEmailRequest.getMailData().get("attachmentLocation").textValue()))
+                    .buildEmail() ;
+        }else if(mailTemplate.equals("accountStatement")){
+            email = emailPopulatingBuilder
+                    .withAttachment("accountStatement.pdf", new FileDataSource(sendEmailRequest.getMailData().get("file").textValue()))
+                    .buildEmail();
+        }else{
+            email = emailPopulatingBuilder
+                    .buildEmail();
+        }
+//        Email email = mailTemplate.equals("investmentCertificate") ?
+//                emailPopulatingBuilder
+//                        .withAttachment("investment-certificate.pdf", new FileDataSource(sendEmailRequest.getMailData().get("attachmentLocation").textValue()))
+//                        .buildEmail() :
+//                emailPopulatingBuilder
+//                        .buildEmail();
 
         if(notificationsEnabled) {
             try {
@@ -578,6 +587,8 @@ public class NotificationServiceImpl implements NotificationService {
 
             case "rejected":
                 return "email/rejected";
+            case "accountStatement":
+                return "email/accountStatement";
 
             default:
                 throw new CustomCheckedException("Invalid template name provided");
