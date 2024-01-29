@@ -1,5 +1,8 @@
 package com.creditville.notifications.pushnotifications.controller;
 
+import com.creditville.notifications.exceptions.CustomCheckedException;
+import com.creditville.notifications.models.response.SuccessResponse;
+import com.creditville.notifications.pushnotifications.dto.EmailSmsReq;
 import com.creditville.notifications.pushnotifications.dto.PushNotificationRequest;
 import com.creditville.notifications.pushnotifications.dto.PushNotificationResponse;
 import com.creditville.notifications.pushnotifications.service.PushNotificationService;
@@ -27,5 +30,10 @@ public class PushNotificationController {
         return resp;
     }
 
+    @PostMapping("/send/emailOrSmsOrBoth")
+    public ResponseEntity<?> sendEmailOrSmsOrBoth(@RequestBody EmailSmsReq request) throws CustomCheckedException {
+        service.sendEmailOrSmsOrBothNotification(request);
+        return new ResponseEntity<>(new SuccessResponse("Notification sent successfully", null), HttpStatus.OK);
+    }
 
 }
