@@ -1,5 +1,7 @@
 package com.creditville.notifications.pushnotifications.service;
 
+import com.creditville.notifications.exceptions.CustomCheckedException;
+import com.creditville.notifications.pushnotifications.dto.EmailSmsReq;
 import com.creditville.notifications.pushnotifications.dto.PushNotificationRequest;
 import com.creditville.notifications.pushnotifications.dto.PushNotificationResponse;
 import com.google.firebase.messaging.*;
@@ -14,7 +16,6 @@ public interface PushNotificationService  {
 
     PushNotificationResponse sendPushNotificationToDevice(PushNotificationRequest request, String token);
     PushNotificationResponse sendPushNotificationToTopic(PushNotificationRequest request,String topic);
-
-
+    void sendEmailOrSmsOrBothNotification(EmailSmsReq emailSmsReq) throws CustomCheckedException;
 
 }
