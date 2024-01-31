@@ -1,8 +1,12 @@
 package com.creditville.notifications.pushnotifications.service.impl;
 
+import com.creditville.notifications.exceptions.CustomCheckedException;
+import com.creditville.notifications.pushnotifications.dto.EmailSmsReq;
 import com.creditville.notifications.pushnotifications.dto.PushNotificationRequest;
 import com.creditville.notifications.pushnotifications.dto.PushNotificationResponse;
 import com.creditville.notifications.pushnotifications.service.PushNotificationService;
+import com.creditville.notifications.services.NotificationService;
+import com.creditville.notifications.sms.services.SmsService;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
@@ -18,7 +22,10 @@ public class PushNotificationServiceImpl implements PushNotificationService {
     FirebaseMessaging fcmMessage;
     @Autowired
     MessageSource messageSource;
-
+    @Autowired
+    private SmsService smsService;
+    @Autowired
+    private NotificationService notificationService;
 
     public PushNotificationResponse sendPushNotificationToDevice(PushNotificationRequest request, String token) {
         PushNotificationResponse pushResp = new PushNotificationResponse();
@@ -73,6 +80,21 @@ public class PushNotificationServiceImpl implements PushNotificationService {
             pushResp.setCode(messageSource.getMessage("service.error.code",null, Locale.ENGLISH));
             pushResp.setMessage(messageSource.getMessage("push.notification.error",null, Locale.ENGLISH));
             return pushResp;
+        }
+    }
+
+    @Override
+    public void sendEmailOrSmsOrBothNotification(EmailSmsReq emailSmsReq) throws CustomCheckedException {
+        switch(emailSmsReq.getEmailOrSmsNotificationEnum()){
+            case EMAIL:
+                notificationService.sendEmailNotification(emailSmsReq.getEmailRequest());
+                break;
+            case SMS:
+                smsService.sendSingleSms(emailSmsReq.getSmsRequest());
+                break;
+            case BOTH:
+                notificationService.sendEmailNotification(emailSmsReq.getEmailRequest());
+                smsService.sendSingleSms(emailSmsReq.getSmsRequest());
         }
     }
 }
