@@ -90,6 +90,13 @@ public class DispatcherServiceImpl implements DispatcherService {
     @Value("${mail.postMaturitySubject}")
     private String postMaturitySubject;
 
+    @Value("${mail.creditville}")
+    private String creditvilleEmail;
+
+    @Value("${creditville.hotline}")
+    private String creditvilleHotline;
+
+
     @Value("${mail.uncompleted.notification}")
     private String unCompletedNotificationSubject;
 
@@ -290,6 +297,8 @@ public class DispatcherServiceImpl implements DispatcherService {
                                                     notificationData.put("collectionEmail", coE);
                                                     notificationData.put("hasBranchManager", hasBranchManager.toString());
                                                     notificationData.put("branchManagerName", brmN);
+                                                    notificationData.put("collectionEmail",collectionEmail);
+                                                    notificationData.put("collectionPhoneNumber",collectionPhoneNumber);
                                                     notificationData.put("branchManagerPhoneNumber", brmPh);
                                                     notificationData.put("branchManagerEmail", brmE);
                                                     notificationData.put("companyName", companyName);
