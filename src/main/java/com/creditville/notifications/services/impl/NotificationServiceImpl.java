@@ -573,6 +573,9 @@ public class NotificationServiceImpl implements NotificationService {
             case "nibbs-settlement-transaction":
                 return "email/nibbs-settlement";
 
+            case "flutterwave-settlement-transaction":
+                return "email/flutterwave-settlement";
+
             case "savings-transfer":
                 return "email/savings-transfer";
 
