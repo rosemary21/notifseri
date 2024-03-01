@@ -596,6 +596,8 @@ public class NotificationServiceImpl implements NotificationService {
                 return "email/rejected";
             case "accountStatement":
                 return "email/accountStatement";
+            case "LoginNotification":
+                return "email/loginEmail";
 
             default:
                 throw new CustomCheckedException("Invalid template name provided");
