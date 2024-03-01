@@ -570,8 +570,12 @@ public class NotificationServiceImpl implements NotificationService {
             case "withdrawal-request":
                 return "email/withdrawal";
 
+            case "nibbs-settlement-transaction":
+                return "email/nibbs-settlement";
+
             case "savings-transfer":
                 return "email/savings-transfer";
+
 
             case "bulk-initiated":
                 return "email/bulk-initiated";
@@ -581,6 +585,9 @@ public class NotificationServiceImpl implements NotificationService {
 
             case "bulk-approval":
                 return "email/bulk-approval";
+
+            case "website-contact-us":
+                return "email/contact-us-email";
 
             case "approved":
                 return "email/approved";

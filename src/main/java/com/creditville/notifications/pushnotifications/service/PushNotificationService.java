@@ -1,5 +1,7 @@
 package com.creditville.notifications.pushnotifications.service;
 
+import com.creditville.notifications.exceptions.CustomCheckedException;
+import com.creditville.notifications.pushnotifications.dto.EmailSmsReq;
 import com.creditville.notifications.pushnotifications.dto.PushNotificationRequest;
 import com.creditville.notifications.pushnotifications.dto.PushNotificationResponse;
 import com.creditville.notifications.pushnotifications.dto.SubscribeTopicDto;
@@ -19,6 +21,7 @@ public interface PushNotificationService  {
     PushNotificationResponse subscribeToTopic(SubscribeTopicDto dto);
     PushNotificationResponse unSubscribeToTopic(SubscribeTopicDto dto);
 
+    void sendEmailOrSmsOrBothNotification(EmailSmsReq emailSmsReq) throws CustomCheckedException;
 
 
 }

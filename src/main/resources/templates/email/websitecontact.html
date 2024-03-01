@@ -7,7 +7,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>Kyc Rejected Template</title>
+    <title>Kyc Approval Template</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="x-apple-disable-message-reformatting" />
     <meta
@@ -269,7 +269,7 @@
       <table width="100%">
         <thead width="100%">
           <tr>
-            <td style="padding: 3%">
+            <td style="padding: 0 3%">
               <table
                 style="
                   border-collapse: collapse;
@@ -348,7 +348,7 @@
                               <div style="width: 100%">
                                 <img
                                   width="100%"
-                                  src="https://res.cloudinary.com/creditville-ng/image/upload/v1703151866/Email_Header_fct2b9.png"
+                                  src="https://res.cloudinary.com/creditville-ng/image/upload/v1678798234/email-template/EmailHeader_cvzedb.png"
                                   alt="logo"
                                 />
                               </div>
@@ -367,7 +367,9 @@
         <tbody>
           <tr width="100%">
             <td border="0">
-              <div style="padding: 5%; border-radius: 8px; margin-bottom: 38px">
+              <div
+                style="padding: 0 5%; border-radius: 8px; margin-bottom: 8px"
+              >
                 <div class="receipt-body-div">
                   <p
                     style="
@@ -379,7 +381,7 @@
                     "
                   >
                     Dear
-                    <span style="font-weight: 600"  th:text="${customerName}"></span>
+                    <span style="font-weight: 600">{{customerName}}</span>
                   </p>
                   <span
                     style="
@@ -390,22 +392,11 @@
                       font-size: 15px;
                       color: #072c50;
                     "
-                    >We are sorry to inform you that your
-                    <span style="font-weight: 600"th:text="${documentType}"></span> has
-                    been rejected.</span
+                    >We are pleased to inform you that your
+                    <span style="font-weight: 600">{{DocumentType}}</span> has
+                    been approved.</span
                   >
-                  <p
-                    style="
-                      padding-top: 12px;
-                      font-weight: 400;
-                      line-height: 24px;
-                      color: #16161c;
-                      font-size: 15px;
-                      font-weight: 600;
-                    "
-                    th:text="${reason}">
 
-                  </p>
                   <p
                     style="
                       padding-top: 12px;
@@ -418,7 +409,6 @@
                     Thank you for providing the necessary documentation and
                     information promptly.
                   </p>
-
                   <p
                     style="
                       padding-top: 10px;
@@ -430,18 +420,6 @@
                   >
                     Please be informed that you are required to update your next
                     of kin before being upgraded to Tier 2.
-                  </p>
-                  <p
-                    style="
-                      padding-top: 10px;
-                      font-weight: 400;
-                      line-height: 24px;
-                      color: #16161c;
-                      font-size: 14px;
-                    "
-                  >
-                    This verification ensures a secure and compliant environment
-                    for all our users.
                   </p>
                 </div>
               </div>
