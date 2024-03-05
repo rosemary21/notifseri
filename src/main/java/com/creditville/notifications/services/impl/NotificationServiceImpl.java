@@ -245,6 +245,7 @@ public class NotificationServiceImpl implements NotificationService {
             email = emailPopulatingBuilder
                     .withAttachment("accountStatement.pdf", new FileDataSource(sendEmailRequest.getMailData().get("file").textValue()))
                     .buildEmail();
+
         }else{
             email = emailPopulatingBuilder
                     .buildEmail();
@@ -260,13 +261,15 @@ public class NotificationServiceImpl implements NotificationService {
             try {
                  if(!(sendEmailRequest.getMailTemplate().equalsIgnoreCase("broadcastredwood"))) {
                      if (!emailService.isEmailExcluded(mailData.get("toAddress").textValue())) {
-                         log.info("Getting the creditville information details");
+                         log.info("Getting the creditville information details {} ",email);
                          Mailer mailer = MailerBuilder.withSMTPServerHost(mailUrl)
                                  .withSMTPServerPort(mailPort)
                                  .withSMTPServerUsername(mailUser)
                                  .withSMTPServerPassword(mailPass)
                                  .withTransportStrategy(TransportStrategy.SMTP_TLS).buildMailer();
                          mailer.sendMail(email, async);
+                         log.info("THE EMAIL BROADCAST HAS BEEN SUCCESSFULLY SENT TO CUSTOMER"+toAddresses);
+
 
                          emailService.auditSuccessfulEmail(mailData, sendEmailRequest.getMailSubject());
                      }
