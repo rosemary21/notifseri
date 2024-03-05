@@ -8,6 +8,7 @@ import com.creditville.notifications.models.*;
 import com.creditville.notifications.models.requests.MandateReq;
 import com.creditville.notifications.models.response.*;
 import com.creditville.notifications.repositories.CardTransactionRepository;
+import com.creditville.notifications.repositories.ExcludeCustomerRepository;
 import com.creditville.notifications.repositories.MandateRepository;
 import com.creditville.notifications.repositories.RetryLoanRepaymentRepository;
 import com.creditville.notifications.services.*;
@@ -187,6 +188,8 @@ public class DispatcherServiceImpl implements DispatcherService {
     private FeeUtil feeUtil;
     @Autowired
     private GeneralUtil gu;
+    @Autowired
+    private ExcludeCustomerRepository excludeCustomerRepo;
 
     @Override
     public void performDueRentalOperation() {
@@ -1262,7 +1265,8 @@ public class DispatcherServiceImpl implements DispatcherService {
                                             "" :
                                             lookUpLoanAccount.getLoanAccount().getOptionalFields().getModeOfRepayment();
                                     log.info("modeOfRepayment: "+modeOfRepayment);
-                                    if (modeOfRepayment.equalsIgnoreCase(cardModeOfRepaymentKey)) {
+                                    var excludeCustResp = excludeCustomerRepo.findByLoanId(clientLoan.getId());
+                                    if (modeOfRepayment.equalsIgnoreCase(cardModeOfRepaymentKey) && !excludeCustResp.isExcludedFromDebit()) {
 //                                    if (modeOfRepayment.equalsIgnoreCase("1007")) {
                                         List<LookUpLoanInstalment> loanInstalments = lookUpLoanAccount.getLoanAccount().getInstalments();
                                         if (!loanInstalments.isEmpty()) {
