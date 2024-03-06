@@ -34,12 +34,16 @@ import org.simplejavamail.mailer.MailerBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.InputStreamSource;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import javax.activation.FileDataSource;
 import javax.mail.Message;
+import javax.mail.util.ByteArrayDataSource;
+import java.io.FileOutputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -242,9 +246,12 @@ public class NotificationServiceImpl implements NotificationService {
                     .withAttachment("investment-certificate.pdf", new FileDataSource(sendEmailRequest.getMailData().get("attachmentLocation").textValue()))
                     .buildEmail() ;
         }else if(mailTemplate.equals("accountStatement")){
+            byte[] decoded = java.util.Base64.getDecoder().decode(sendEmailRequest.getMailData().get("file").textValue());
+
             email = emailPopulatingBuilder
-                    .withAttachment("accountStatement.pdf", new FileDataSource(sendEmailRequest.getMailData().get("file").textValue()))
+                    .withAttachment("accountStatement.pdf",new ByteArrayDataSource(decoded,"application/pdf"))
                     .buildEmail();
+
         }else{
             email = emailPopulatingBuilder
                     .buildEmail();
@@ -260,13 +267,16 @@ public class NotificationServiceImpl implements NotificationService {
             try {
                  if(!(sendEmailRequest.getMailTemplate().equalsIgnoreCase("broadcastredwood"))) {
                      if (!emailService.isEmailExcluded(mailData.get("toAddress").textValue())) {
-                         log.info("Getting the creditville information details");
+                         log.info("Getting the creditville information details {} ",email);
+
                          Mailer mailer = MailerBuilder.withSMTPServerHost(mailUrl)
                                  .withSMTPServerPort(mailPort)
                                  .withSMTPServerUsername(mailUser)
                                  .withSMTPServerPassword(mailPass)
                                  .withTransportStrategy(TransportStrategy.SMTP_TLS).buildMailer();
                          mailer.sendMail(email, async);
+                         log.info("THE EMAIL BROADCAST HAS BEEN SUCCESSFULLY SENT TO CUSTOMER"+toAddresses);
+
 
                          emailService.auditSuccessfulEmail(mailData, sendEmailRequest.getMailSubject());
                      }
