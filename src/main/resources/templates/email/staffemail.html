@@ -1,143 +1,562 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" style="height: 100%">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!--[if gte mso 9]>
-    <style type="text/css">
-        @media only screen and (min-device-width : 375px) and (max-device-width : 667px) {
-            table{
-                width: 90% !important;
-            }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+            href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+            rel="stylesheet"
+    />
+    <title>Welcome Email For Staff</title>
+    <style>
+        *,
+        *::before,
+        *::after {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(37, 63, 101, 0.3) transparent;
+            border: none !important;
         }
-    </style>
-    <![endif]-->
 
-    <!--[if !mso]><!-->
-    <style type="text/css">
-        @media only screen and (min-device-width : 375px) and (max-device-width : 667px) {
-            font{
-                -webkit-text-size-adjust: none;
-                /*font-size: 9px !important;*/
-                font-size: 11px !important;
+        *::-webkit-scrollbar {
+            width: 9px;
+            background: transparent;
+            margin-right: 10px;
+            padding-right: 10px;
+            margin-top: 12px;
+            margin-bottom: 12px;
+        }
+
+        *::-webkit-scrollbar-thumb {
+            padding: 0 4px;
+            border-right: 4px solid transparent;
+            border-left: 4px solid transparent;
+            border-top: 4px solid transparent;
+            border-bottom: 4px solid transparent;
+            background: #c4c4c4;
+            margin-top: 12px;
+            margin-bottom: 12px;
+            background-clip: padding-box;
+            border-radius: 50px;
+        }
+
+        html {
+            height: 100%;
+            line-height: 1.15;
+            -webkit-text-size-adjust: 100%;
+            -webkit-tap-highlight-color: transparent;
+            scroll-behavior: smooth;
+            font-family: "Poppins", sans-serif;
+            font-size: 14px;
+        }
+
+        body {
+            background-color: #f9fafb;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+        }
+
+        .bold {
+            font-weight: 600 !important;
+        }
+
+        .mt-4 {
+            margin-top: 16px !important;
+        }
+
+        .px-10 {
+            padding: 0 10px !important;
+        }
+
+        .py-20 {
+            padding: 20px 0 !important;
+        }
+
+        .container {
+            max-width: 800px;
+            background-color: #fff;
+            color: #383a47;
+            margin: 20px auto;
+            border-radius: 4px;
+        }
+
+        .container table {
+            width: 100% !important;
+        }
+
+        table tbody,
+        table thead {
+            width: 100% !important;
+        }
+
+        thead tr,
+        thead tr {
+            width: 100% !important;
+        }
+
+        .logo {
+            width: 250px;
+        }
+
+        .main_img {
+            width: 100%;
+            height: auto;
+        }
+
+        .message_container {
+            padding: 20px 10px;
+        }
+
+        .footer {
+            width: 100% !important;
+            background-color: #072c50 !important;
+            color: white;
+        }
+
+        .footer .footer_row1,
+        .footer .footer_row2 {
+            width: 100% !important;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .contact_us_description .contact_link {
+            width: 100%;
+            height: 46px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .contact_link span {
+            height: 25px;
+            width: 25px;
+            background-color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .contact_link p {
+            color: white;
+            font-size: 12px;
+        }
+
+        .contact_us_text {
+            width: 100%;
+        }
+
+        .contact_us_text p {
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+        }
+
+        .contact_us_links {
+            width: 100%;
+            height: 100%;
+        }
+
+        .contact_us_links span {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .social_link_text {
+            width: 100%;
+        }
+
+        .social_link_text p {
+            display: flex;
+            align-items: center;
+            justify-content: end;
+            font-size: 17px;
+        }
+
+        .social_links_description {
+            width: 100%;
+            height: 100%;
+        }
+
+        .social_links_icons {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 6px;
+        }
+
+        .footer_small {
+            display: none;
+        }
+
+        .appstore,
+        .googleplay {
+            width: 66px;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+
+        .s-icon {
+            width: 22px;
+        }
+
+        .contact_svg {
+            width: 16px;
+        }
+
+        .list {
+            list-style-image: url("https://res.cloudinary.com/creditville-ng/image/upload/v1709741739/tick-circle_lvvjbt.png");
+        }
+
+        .underline {
+            text-decoration: underline !important;
+        }
+
+        .pointer {
+            cursor: pointer !important;
+        }
+
+        .mt-2 {
+            margin-top: 8px !important;
+        }
+
+        @media only screen and (max-width: 576px) {
+            html {
+                font-size: 12px;
             }
-            img{
-                width: 95px !important;
-                /*height: 64px !important;*/
-                float: right; !important;
-                margin-bottom: 5%; !important;
+
+            .contact_us_description .contact_link {
+                height: 30px;
+                gap: 4px;
             }
-            .customHeaderFont{
-                font-size: 12px !important;
+
+            .logo {
+                width: 180px;
+            }
+
+            .contact_link span {
+                height: 20px;
+                width: 20px;
+            }
+
+            .contact_svg {
+                width: 14px;
+            }
+
+            .contact_link p {
+                font-size: 9px;
+            }
+
+            .contact_us_text p {
+                font-size: 13px;
+            }
+
+            .social_link_text p {
+                font-size: 13px;
+            }
+
+            .contact_us_links span {
+                gap: 4px;
+            }
+
+            .social_links_icons {
+                gap: 4px;
+            }
+
+            .appstore,
+            .googleplay {
+                width: 40px;
+                cursor: pointer;
+                border-radius: 4px;
+            }
+
+            .s-icon {
+                width: 16px;
             }
         }
     </style>
-    <!--<![endif]-->
 </head>
-<body style="padding: 30px 0 30px 0 !important;">
-
-<!--Microsoft Outlook template begins below....-->
-
-<!--[if (gte mso 9)|(IE)]>
-<center>
-    <table width="70%" style="border-collapse: collapse !important;" cellspacing="2">
-        <tbody>
-        <tr>
-            <td align="left" width="80%" height="20">
-                <font face="Arial,sans-serif" color="#fff" size="4"><b></b></font>
-            </td>
-        </tr>
-        <tr>
-            <td bgcolor="#003057" align="left" width="80%" height="60">
-                <font face="Arial,sans-serif" color="#fff" size="4"><b>Successful Staff Creation</b></font>
-            </td>
-        </tr>
-        </tbody>
-    </table>
-    <p></p>
-
-    <table width="70%" style="border-collapse: collapse !important;" cellspacing="2">
+<body>
+<div class="container">
+    <table>
         <thead>
         <tr>
-            <th width="40%"></th>
-            <th width="60%"></th>
+            <td>
+                <table>
+                    <tbody>
+                    <tr>
+                        <td>
+                            <table>
+                                <tbody>
+                                <tr>
+                                    <td>
+                                        <img
+                                                src="https://res.cloudinary.com/creditville-ng/image/upload/v1678714239/WhatsApp_Image_2023-03-13_at_2.20.26_PM_1_ehky9x.jpg"
+                                                class="logo"
+                                        />
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </td>
         </tr>
         </thead>
+
+        <thead>
+        <tr>
+            <td>
+                <table>
+                    <tbody>
+                    <tr>
+                        <td>
+                            <table>
+                                <tbody>
+                                <tr>
+                                    <td>
+                                        <img
+                                                src="https://res.cloudinary.com/creditville-ng/image/upload/v1709740779/welcome-to-creditville-email-template-image_lvm3oz.png"
+                                                alt="main-image"
+                                                class="main_img"
+                                        />
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        </thead>
+
         <tbody>
         <tr>
+            <td>
+                <table>
+                    <tbody>
+                    <tr>
+                        <td>
+                            <table>
+                                <tbody>
+                                <tr>
+                                    <td>
+                                        <div class="message_container">
+                                            <p>
+                                                Dear
+                                                <span class="bold" th:text="${name}"></span>
+                                            </p>
 
-            <td width="60%" height="42">
-                <font face="Arial,sans-serif" color="#000000" size="3"></font>
+                                            <p class="mt-4">
+                                                Welcome to the Creditville Admin Portal!
+                                            </p>
+
+                                            <p class="mt-4">
+                                                You have successfully been profiled on the
+                                                Creditville Admin Portal
+                                            </p>
+
+                                            <p class="mt-4">
+                                                As a new team member, you now have access to a
+                                                wealth of resources and tools that will
+                                                empower you to carry out your Administrative
+                                                duties on the Admin Portal.
+                                            </p>
+
+                                            <p class="mt-4 bold">
+                                                Please be informed that you are required to
+                                                update your next of kin before being upgraded
+                                                to Tier 2.
+                                            </p>
+
+                                            <p class="mt-4">
+                                                Login Credentials: Use the following
+                                                credentials to log in to the Admin Portal:
+                                            </p>
+                                            <p class="mt-4">
+                                                This verification ensures a secure and
+                                                compliant environment for all our users.
+                                            </p>
+
+                                            <ul class="list">
+                                                <li class="mt-2" th:text="${userName}">
+                                                    Username:
+                                                    <span class="bold"></span>
+                                                </li>
+                                                <li class="mt-2">
+                                                    Password:
+                                                    <span class="bold"
+                                                          th:text="${password}" ></span
+                                                    >
+                                                </li>
+                                                <li class="mt-2">
+                                                    To sign in, click link
+                                                    <span class="bold underline pointer"
+                                                    >here.</span
+                                                    >
+                                                </li>
+                                                <li class="mt-2">
+                                                    To reset your password, click link
+                                                    <span class="bold pointer">here.</span>
+                                                </li>
+                                            </ul>
+
+                                            <p class="mt-4">Best regards.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+
+        <tr class="footer">
+            <td>
+                <table>
+                    <thead>
+                    <tr>
+                        <td>
+                            <table>
+                                <tbody>
+                                <tr class="footer_row1">
+                                    <td class="contact_us_description">
+                                        <a href="tel:+2347000330330" class="contact_link">
+                                <span>
+                                  <img
+                                          src="https://res.cloudinary.com/creditville-ng/image/upload/v1705983370/phone-outgoing-svgrepo-com_p0kbzf.svg"
+                                          class="contact_svg"
+                                  />
+                                </span>
+                                            <p>07000330330</p>
+                                        </a>
+                                    </td>
+                                    <td class="contact_us_text">
+                                        <p class="bold">Contact Us</p>
+                                    </td>
+                                    <td class="social_link_text">
+                                        <p class="bold">Social Links</p>
+                                    </td>
+                                </tr>
+                                <tr class="footer_row2">
+                                    <td class="contact_us_description">
+                                        <a
+                                                href="mailto:Customer@creditville.ng"
+                                                class="contact_link"
+                                        >
+                                <span>
+                                  <img
+                                          src="https://res.cloudinary.com/creditville-ng/image/upload/v1705983639/envelope-closed-svgrepo-com_wue3hj.svg"
+                                          class="contact_svg"
+                                  />
+                                </span>
+                                            <p>customer@creditville.ng</p>
+                                        </a>
+                                    </td>
+                                    <td class="contact_us_links">
+                              <span>
+                                <a
+                                        target="_blank"
+                                        href="https://apps.apple.com/ng/app/c-money-savings-investment/id1547983942"
+                                ><img
+                                        src="https://res.cloudinary.com/creditville-ng/image/upload/v1678713221/WhatsApp_Image_2023-03-13_at_2.08.36_PM_mmizq0.jpg"
+                                        class="appstore"
+                                /></a>
+                                <a
+                                        target="_blank"
+                                        href="https://play.google.com/store/search?q=cmoney+app&c=apps"
+                                >
+                                  <img
+                                          src="https://res.cloudinary.com/creditville-ng/image/upload/v1678712442/googleplay_t8u514.png"
+                                          class="googleplay"
+                                  /></a>
+                              </span>
+                                    </td>
+                                    <td class="social_links_description">
+                              <span class="social_links_icons">
+                                <a
+                                        target="_blank"
+                                        href="https://api.whatsapp.com/send?phone=23407055554900"
+                                >
+                                  <img
+                                          class="s-icon"
+                                          src="https://res.cloudinary.com/creditville-ng/image/upload/v1701363278/whatsapp-white_n0erf7.png"
+                                          alt="whatsApp icon"
+                                  />
+                                </a>
+                                <a
+                                        target="_blank"
+                                        href="https://www.facebook.com/Creditvilleng"
+                                >
+                                  <img
+                                          class="s-icon"
+                                          src="https://res.cloudinary.com/creditville-ng/image/upload/v1701363164/facebook-white_iwu8dp.png"
+                                          alt="facebook icon"
+                                  />
+                                </a>
+                                <a
+                                        target="_blank"
+                                        href="https://twitter.com/creditville"
+                                >
+                                  <img
+                                          class="s-icon"
+                                          src="https://res.cloudinary.com/creditville-ng/image/upload/v1681304690/email-template/Twitter_-white_vddem1.png"
+                                          alt="twitter icon"
+                                  />
+                                </a>
+                                <a
+                                        target="_blank"
+                                        href="https://www.linkedin.com/company/creditvilleltd/"
+                                >
+                                  <img
+                                          class="s-icon"
+                                          src="https://res.cloudinary.com/creditville-ng/image/upload/v1701363038/linkedin-white_mitbro.png"
+                                          alt="linkedin icon"
+                                  />
+                                </a>
+                                <a
+                                        target="_blank"
+                                        href="https://www.instagram.com/creditville/"
+                                >
+                                  <img
+                                          class="s-icon"
+                                          src="https://res.cloudinary.com/creditville-ng/image/upload/v1681304690/email-template/Instagram_-white_expeqd.png"
+                                          alt="instagram icon"
+                                  />
+                                </a>
+                              </span>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                    </thead>
+                </table>
             </td>
         </tr>
         </tbody>
     </table>
-
-    <table width="70%" style="border-collapse: collapse !important;">
-        <tbody>
-        <tr>
-            <td width="70%" height="12"></td>
-        </tr>
-        <tr>
-            <td width="70%" height="33"><font face="Arial,sans-serif" color="#000000" size="3">Below are the Credentails</font></td>
-        </tr>
-        <tr>
-            <td width="70%" height="16"></td>
-        </tr>
-        <tr>
-            <td width="70%" height="36">
-                <font face="Arial,sans-serif" color="#000000" size="3">
-                    <u><b>Login Details:</b></u> <br>
-                    UserName:<b th:text="${userName}">user name</b> <br>
-                    Password:<b th:text="${password}">password</b> <br>
-                </font>
-            </td>
-        </tr>
-        <tr>
-            <td width="70%" height="8"></td>
-        </tr>
-        <tr>
-            <td width="70%" height="36">
-                <font face="Arial,sans-serif" color="#000000" size="3">Warm Regards.</font>
-            </td>
-        </tr>
-        </tbody>
-    </table>
-</center>
-<![endif]-->
-
-<!--Non-Microsoft Outlook template begins below....-->
-
-<!--[if !mso]><!-->
-<center>
-    <!--<div style="width: 86%; display: inline-block">-->
-    <div style="width: 75%; display: inline-block">
-        <!--<div align="left" style="width: 70%; float: left; display: table; padding-top: 2%">-->
-        <div align="left" style="width: 90%; float: left; display: table; padding-top: 2%">
-            <div style="text-align: left; height: auto; width: 100%; padding-top: 4%; background-color: #003057; padding-left: 16px; padding-right: 4px; padding-bottom: 20px;float: left; display: inline-block">
-                <font style="font-size: 15px" face="Arial,sans-serif" color="#fff">
-                    <b>Successful Staff Creation</b>
-                </font>
-            </div>
-<!--            <div style="text-align: left; height: 50px; width: auto; float: left; display: inline-block; margin: 3% 0; background-color: #c2cbda; min-width: 35%">-->
-<!--                <font style="font-size: 14px; line-height: 50px" face="Arial,sans-serif" color="#000">Hi <b>Team</b></font>-->
-<!--            </div>-->
-            <div style="text-align: left; height: auto; width: 100%; padding-bottom: 1%; padding-top: 1%; float: left; display: inline-block">
-                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">Below are the Credentails</font>
-            </div>
-            <div style="text-align: left; height: auto; width: 100%; padding-bottom: 1%; padding-top: 1%; float: left; display: inline-block">
-                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">
-                    <u><b>Login Details:</b></u> <br>
-                    UserName:     <b th:text="${userName}">account name</b> <br>
-                    Password:   <b th:text="${password}">account number</b> <br>
-                </font>
-            </div>
-            <div style="text-align: left; height: auto; width: 100%; padding-bottom: 1%; padding-top: 3%; float: left; display: inline-block">
-                <font style="font-size: 14px" face="Arial,sans-serif" color="#000000">Warm Regards.</font>
-            </div>
-        </div>
-    </div>
-</center>
-<!--<![endif]-->
+</div>
 </body>
 </html>
