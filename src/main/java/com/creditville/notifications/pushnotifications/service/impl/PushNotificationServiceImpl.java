@@ -4,7 +4,10 @@ import com.creditville.notifications.exceptions.CustomCheckedException;
 import com.creditville.notifications.pushnotifications.dto.EmailSmsReq;
 import com.creditville.notifications.pushnotifications.dto.PushNotificationRequest;
 import com.creditville.notifications.pushnotifications.dto.PushNotificationResponse;
+import com.creditville.notifications.pushnotifications.dto.SubscribeTopicDto;
 import com.creditville.notifications.pushnotifications.service.PushNotificationService;
+import com.google.firebase.messaging.*;
+
 import com.creditville.notifications.services.NotificationService;
 import com.creditville.notifications.sms.services.SmsService;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -15,6 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 @Service
 public class PushNotificationServiceImpl implements PushNotificationService {
@@ -83,6 +88,49 @@ public class PushNotificationServiceImpl implements PushNotificationService {
         }
     }
 
+    public PushNotificationResponse subscribeToTopic(SubscribeTopicDto dto){
+        PushNotificationResponse resp = new PushNotificationResponse();
+
+        List<String> registrationTokens = Arrays.asList(
+                dto.getFcmToken()        );
+        try {
+            TopicManagementResponse response = FirebaseMessaging.getInstance().subscribeToTopic(
+                    registrationTokens, dto.getTopic());
+
+            resp.setCode(messageSource.getMessage("service.success.code",null, Locale.ENGLISH));
+            resp.setMessage(response.getSuccessCount() + " token(s) have been subscribed to topic "+ dto.getTopic());
+            return resp;
+
+
+        } catch (FirebaseMessagingException e) {
+            resp.setCode(messageSource.getMessage("service.error.code",null, Locale.ENGLISH));
+            resp.setMessage("An error occurred while subscribing to topic " + e.getMessage());
+            return resp;
+        }
+
+    }
+
+    public PushNotificationResponse unSubscribeToTopic(SubscribeTopicDto dto){
+        PushNotificationResponse resp = new PushNotificationResponse();
+
+
+        List<String> registrationTokens = Arrays.asList(
+                dto.getFcmToken()
+        );
+        try {
+            TopicManagementResponse response = FirebaseMessaging.getInstance().unsubscribeFromTopic(
+                    registrationTokens, dto.getTopic());
+            resp.setCode(messageSource.getMessage("service.success.code",null, Locale.ENGLISH));
+            resp.setMessage(response.getSuccessCount() + " token(s) have been unsubscribed from topic "+ dto.getTopic());
+            return resp;
+        } catch (FirebaseMessagingException e) {
+            resp.setCode(messageSource.getMessage("service.error.code",null, Locale.ENGLISH));
+            resp.setMessage("An error occurred while unsubscribing to topic " + e.getMessage());
+            return resp;
+        }
+
+    }
+
     @Override
     public void sendEmailOrSmsOrBothNotification(EmailSmsReq emailSmsReq) throws CustomCheckedException {
         switch(emailSmsReq.getEmailOrSmsNotificationEnum()){
@@ -97,4 +145,5 @@ public class PushNotificationServiceImpl implements PushNotificationService {
                 smsService.sendSingleSms(emailSmsReq.getSmsRequest());
         }
     }
+
 }

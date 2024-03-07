@@ -5,6 +5,7 @@ import com.creditville.notifications.models.response.SuccessResponse;
 import com.creditville.notifications.pushnotifications.dto.EmailSmsReq;
 import com.creditville.notifications.pushnotifications.dto.PushNotificationRequest;
 import com.creditville.notifications.pushnotifications.dto.PushNotificationResponse;
+import com.creditville.notifications.pushnotifications.dto.SubscribeTopicDto;
 import com.creditville.notifications.pushnotifications.service.PushNotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,6 +28,16 @@ public class PushNotificationController {
     @PostMapping("/topic/{topic}")
     public PushNotificationResponse sendTopicNotification(@RequestBody PushNotificationRequest request,@PathVariable("topic") String topic){
         var resp = service.sendPushNotificationToTopic(request, topic);
+        return resp;
+    }
+    @PostMapping("/subscribe")
+    public PushNotificationResponse subscribeToTopic(@RequestBody SubscribeTopicDto dto){
+        var resp = service.subscribeToTopic(dto);
+        return resp;
+    }
+    @PostMapping("/unsubscribe")
+    public PushNotificationResponse unSubscribeToTopic(@RequestBody SubscribeTopicDto dto){
+        var resp = service.unSubscribeToTopic(dto);
         return resp;
     }
 
