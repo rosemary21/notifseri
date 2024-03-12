@@ -321,16 +321,17 @@ public class NotificationServiceImpl implements NotificationService {
 //        List<Client> clientsList=new ArrayList<>();
 //        clientsList.add(newclient);
 //        clientsList.add(oldclient);
-     //   List<Client> clients= clientService.fetchClients();
+  //      List<Client> clients= clientService.fetchClients();
 //        List<Client> clients=clientsList;
         if(emailTemplate.getEnableBroadcast().equalsIgnoreCase("Y")){
             log.info("getting the braodcast {}");
             String emailAddress="";
-          //  for(Client client:clients){
-              //  emailAddress=client.getEmail();
-             //   log.info("getting the email address <><>< {}",emailAddress);
+          // for(Client client:clients){
+             //   emailAddress=client.getEmail();
+                log.info("getting the email address <><>< {}",emailAddress);
               //  String toAddresses = emailAddress;
                 List<String> toAddressList = new ArrayList<>();
+                toAddressList.add("omotayo.owolabi@creditville.ng");
                 toAddressList.add("chioma.chukelu@creditville.ng");
 //                if(toAddresses.contains(",")) {
 //                    String[] parts = toAddresses.split(",");
@@ -366,7 +367,7 @@ public class NotificationServiceImpl implements NotificationService {
                     }
                 }
 
-          //  }
+        //    }
             String jsonStr = JSONArray.toJSONString(arrayList);
             EmailTemplate emailTemplate1=broadCastRepository.findBySender("Creditville");
             emailTemplate1.setFailedEmail(jsonStr);
