@@ -28,10 +28,7 @@
       rel="stylesheet"
     />
 
-
-
     <style>
-
       * {
         scrollbar-width: thin;
         scrollbar-color: rgba(37, 63, 101, 0.3) transparent;
@@ -272,7 +269,7 @@
       <table width="100%">
         <thead width="100%">
           <tr>
-            <td style="padding: 3%">
+            <td style="padding: 0 3%">
               <table
                 style="
                   border-collapse: collapse;
@@ -351,7 +348,7 @@
                               <div style="width: 100%">
                                 <img
                                   width="100%"
-                                  src="https://res.cloudinary.com/creditville-ng/image/upload/v1703151866/Email_Header_fct2b9.png"
+                                  src="https://res.cloudinary.com/creditville-ng/image/upload/v1678798234/email-template/EmailHeader_cvzedb.png"
                                   alt="logo"
                                 />
                               </div>
@@ -370,7 +367,9 @@
         <tbody>
           <tr width="100%">
             <td border="0">
-              <div style="padding: 5%; border-radius: 8px; margin-bottom: 38px">
+              <div
+                style="padding: 0 5%; border-radius: 8px; margin-bottom: 8px"
+              >
                 <div class="receipt-body-div">
                   <p
                     style="
@@ -381,58 +380,56 @@
                       color: #072c50;
                     "
                   >
-                    Dear
-                    <span style="font-weight: 600" th:text="${customerName}"></span>
+                    First Name:
+                    <span style="font-weight: 600" th:text="${firstName}"></span>
                   </p>
-                  <span
+                  <p
                     style="
-                      padding-top: 10px;
                       font-weight: 400;
                       line-height: 24px;
                       color: #383a47;
                       font-size: 15px;
                       color: #072c50;
                     "
-                    >We are pleased to inform you that your
-                    <span style="font-weight: 600" th:text="${documentType}"></span> has
-                    been approved.</span
                   >
-                  
-                  <p
-                    style="
-                      padding-top: 12px;
-                      font-weight: 400;
-                      line-height: 24px;
-                      color: #16161c;
-                      font-size: 15px;
-                    "
-                  >
-                    Thank you for providing the necessary documentation and
-                    information promptly.
+                    Last Name:
+                    <span style="font-weight: 600"th:text="${LastName}"></span>
                   </p>
                   <p
                     style="
-                      padding-top: 10px;
-                      font-weight: 600;
+                      font-weight: 400;
                       line-height: 24px;
-                      color: #16161c;
+                      color: #383a47;
                       font-size: 15px;
+                      color: #072c50;
                     "
                   >
-                    Please be informed that you are required to update your next
-                    of kin before being upgraded to Tier 2.
+                    Email:
+                    <span style="font-weight: 600"th:text="${email}"></span>
                   </p>
                   <p
                     style="
-                      padding-top: 10px;
                       font-weight: 400;
                       line-height: 24px;
-                      color: #16161c;
-                      font-size: 14px;
+                      color: #383a47;
+                      font-size: 15px;
+                      color: #072c50;
                     "
                   >
-                    This verification ensures a secure and compliant environment
-                    for all our users.
+                    Phone Number:
+                    <span style="font-weight: 600" th:text="${phoneNumber}"></span>
+                  </p>
+                  <p
+                    style="
+                      font-weight: 400;
+                      line-height: 24px;
+                      color: #383a47;
+                      font-size: 15px;
+                      color: #072c50;
+                    "
+                  >
+                    Message:
+                    <span style="font-weight: 600"th:text="${message}"></span>
                   </p>
                 </div>
               </div>
@@ -441,10 +438,10 @@
           <tr>
             <td width="100%" bgcolor="white">
               <thead width="100%">
-                <tr style="background: #072c50;">
+                <tr style="background: #072c50">
                   <td>
                     <table
-                      style="border-collapse: collapse; border: 1px solid #fff;"
+                      style="border-collapse: collapse; border: 1px solid #fff"
                       cellspacing="2px"
                       cellpadding="2px"
                       border="0"
@@ -459,10 +456,10 @@
                                 border-collapse: collapse;
                                 border-spacing: 0px;
                               "
-                                width="100%"
-                                cellspacing="2px"
-                                cellpadding="2px"
-                                border="0"
+                              width="100%"
+                              cellspacing="2px"
+                              cellpadding="2px"
+                              border="0"
                             >
                               <tbody>
                                 <tr>
@@ -472,7 +469,10 @@
                                       class="contact-link"
                                     >
                                       <span>
-                                        <img src="https://res.cloudinary.com/creditville-ng/image/upload/v1705983370/phone-outgoing-svgrepo-com_p0kbzf.svg" width="16" />
+                                        <img
+                                          src="https://res.cloudinary.com/creditville-ng/image/upload/v1705983370/phone-outgoing-svgrepo-com_p0kbzf.svg"
+                                          width="16"
+                                        />
                                       </span>
                                       <p>07000330330</p>
                                     </a>
@@ -504,17 +504,20 @@
                                     </p>
                                   </td>
                                 </tr>
-                                
+
                                 <tr>
                                   <td style="padding: 5px 25px">
                                     <a
                                       href="mailto:Customer@creditville.ng"
                                       class="contact-link"
                                     >
-                                        <span>
-                                            <img src="https://res.cloudinary.com/creditville-ng/image/upload/v1705983639/envelope-closed-svgrepo-com_wue3hj.svg" width="17" />
-                                        </span>
-                                        <p>Customer@creditville.ng</p>
+                                      <span>
+                                        <img
+                                          src="https://res.cloudinary.com/creditville-ng/image/upload/v1705983639/envelope-closed-svgrepo-com_wue3hj.svg"
+                                          width="17"
+                                        />
+                                      </span>
+                                      <p>Customer@creditville.ng</p>
                                     </a>
                                   </td>
                                   <td style="padding: 5px 0">
@@ -527,13 +530,18 @@
                                         text-align: center;
                                       "
                                     >
-                                      <a target="_blank" href=""
+                                      <a
+                                        target="_blank"
+                                        href="https://apps.apple.com/us/app/c-money-savings-investment/id1547983942"
                                         ><img
                                           style="width: 66px; cursor: pointer"
                                           src="https://res.cloudinary.com/creditville-ng/image/upload/v1678713221/WhatsApp_Image_2023-03-13_at_2.08.36_PM_mmizq0.jpg"
                                           class="appstore"
                                       /></a>
-                                      <a target="_blank" href="">
+                                      <a
+                                        target="_blank"
+                                        href="https://play.google.com/store/search?q=cmoney+app&c=apps"
+                                      >
                                         <img
                                           style="width: 66px; cursor: pointer"
                                           src="https://res.cloudinary.com/creditville-ng/image/upload/v1678712442/googleplay_t8u514.png"

@@ -28,10 +28,7 @@
       rel="stylesheet"
     />
 
-
-
     <style>
-
       * {
         scrollbar-width: thin;
         scrollbar-color: rgba(37, 63, 101, 0.3) transparent;
@@ -272,7 +269,7 @@
       <table width="100%">
         <thead width="100%">
           <tr>
-            <td style="padding: 3%">
+            <td style="padding: 0 3%">
               <table
                 style="
                   border-collapse: collapse;
@@ -351,7 +348,7 @@
                               <div style="width: 100%">
                                 <img
                                   width="100%"
-                                  src="https://res.cloudinary.com/creditville-ng/image/upload/v1703151866/Email_Header_fct2b9.png"
+                                  src="https://res.cloudinary.com/creditville-ng/image/upload/v1678798234/email-template/EmailHeader_cvzedb.png"
                                   alt="logo"
                                 />
                               </div>
@@ -370,7 +367,9 @@
         <tbody>
           <tr width="100%">
             <td border="0">
-              <div style="padding: 5%; border-radius: 8px; margin-bottom: 38px">
+              <div
+                style="padding: 0 5%; border-radius: 8px; margin-bottom: 8px"
+              >
                 <div class="receipt-body-div">
                   <p
                     style="
@@ -382,7 +381,7 @@
                     "
                   >
                     Dear
-                    <span style="font-weight: 600" th:text="${customerName}"></span>
+                    <span style="font-weight: 600">{{customerName}}</span>
                   </p>
                   <span
                     style="
@@ -394,10 +393,10 @@
                       color: #072c50;
                     "
                     >We are pleased to inform you that your
-                    <span style="font-weight: 600" th:text="${documentType}"></span> has
+                    <span style="font-weight: 600">{{DocumentType}}</span> has
                     been approved.</span
                   >
-                  
+
                   <p
                     style="
                       padding-top: 12px;
@@ -422,18 +421,6 @@
                     Please be informed that you are required to update your next
                     of kin before being upgraded to Tier 2.
                   </p>
-                  <p
-                    style="
-                      padding-top: 10px;
-                      font-weight: 400;
-                      line-height: 24px;
-                      color: #16161c;
-                      font-size: 14px;
-                    "
-                  >
-                    This verification ensures a secure and compliant environment
-                    for all our users.
-                  </p>
                 </div>
               </div>
             </td>
@@ -441,10 +428,10 @@
           <tr>
             <td width="100%" bgcolor="white">
               <thead width="100%">
-                <tr style="background: #072c50;">
+                <tr style="background: #072c50">
                   <td>
                     <table
-                      style="border-collapse: collapse; border: 1px solid #fff;"
+                      style="border-collapse: collapse; border: 1px solid #fff"
                       cellspacing="2px"
                       cellpadding="2px"
                       border="0"
@@ -459,10 +446,10 @@
                                 border-collapse: collapse;
                                 border-spacing: 0px;
                               "
-                                width="100%"
-                                cellspacing="2px"
-                                cellpadding="2px"
-                                border="0"
+                              width="100%"
+                              cellspacing="2px"
+                              cellpadding="2px"
+                              border="0"
                             >
                               <tbody>
                                 <tr>
@@ -472,7 +459,10 @@
                                       class="contact-link"
                                     >
                                       <span>
-                                        <img src="https://res.cloudinary.com/creditville-ng/image/upload/v1705983370/phone-outgoing-svgrepo-com_p0kbzf.svg" width="16" />
+                                        <img
+                                          src="https://res.cloudinary.com/creditville-ng/image/upload/v1705983370/phone-outgoing-svgrepo-com_p0kbzf.svg"
+                                          width="16"
+                                        />
                                       </span>
                                       <p>07000330330</p>
                                     </a>
@@ -504,17 +494,20 @@
                                     </p>
                                   </td>
                                 </tr>
-                                
+
                                 <tr>
                                   <td style="padding: 5px 25px">
                                     <a
                                       href="mailto:Customer@creditville.ng"
                                       class="contact-link"
                                     >
-                                        <span>
-                                            <img src="https://res.cloudinary.com/creditville-ng/image/upload/v1705983639/envelope-closed-svgrepo-com_wue3hj.svg" width="17" />
-                                        </span>
-                                        <p>Customer@creditville.ng</p>
+                                      <span>
+                                        <img
+                                          src="https://res.cloudinary.com/creditville-ng/image/upload/v1705983639/envelope-closed-svgrepo-com_wue3hj.svg"
+                                          width="17"
+                                        />
+                                      </span>
+                                      <p>Customer@creditville.ng</p>
                                     </a>
                                   </td>
                                   <td style="padding: 5px 0">
