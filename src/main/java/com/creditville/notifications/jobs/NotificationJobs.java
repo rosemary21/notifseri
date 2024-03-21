@@ -73,8 +73,9 @@ public class NotificationJobs {
             log.info(cce.getMessage());
         }
     }
-//
-////      //  @Async("schedulePool2")
+
+
+//      //  @Async("schedulePool2")
 //    @Scheduled(cron = "${app.schedule.dueRentalTwo}")
 ////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
 //    public void dueRentalNotification2() {

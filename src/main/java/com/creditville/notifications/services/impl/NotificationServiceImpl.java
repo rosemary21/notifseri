@@ -244,6 +244,7 @@ public class NotificationServiceImpl implements NotificationService {
                 .bcc(null, bccAddressList)
                 .withSubject(sendEmailRequest.getMailSubject())
                 .withHTMLText(content);
+
         Email email =null;
         if(mailTemplate.equals("investmentCertificate")){
              email = emailPopulatingBuilder
@@ -315,6 +316,7 @@ public class NotificationServiceImpl implements NotificationService {
         EmailTemplate emailTemplate= broadCastRepository.findBySender("CreditVille");
 
         EmailTemplate redwoodTemplate= broadCastRepository.findBySender("RedWood");
+
         List<String> arrayList=new ArrayList<>();
         context.setVariable("emailBody",emailTemplate.getTemplateMessage());
         String templateLocation = this.getTemplateLocation("broadcastredwood");
@@ -333,6 +335,7 @@ public class NotificationServiceImpl implements NotificationService {
             List<String> toAddressList = new ArrayList<>();
             toAddressList.add("omotayo.owolabi@creditville.ng");
             toAddressList.add("chioma.chukelu@creditville.ng");
+
 //                if(toAddresses.contains(",")) {
 //                    String[] parts = toAddresses.split(",");
 //                    toAddressList = Arrays.stream(parts).collect(Collectors.toList());
@@ -359,6 +362,7 @@ public class NotificationServiceImpl implements NotificationService {
 
                     log.info("THE EMAIL BROADCAST HAS BEEN SUCCESSFULLY SENT TO CUSTOMER");
 
+
                 }
                 catch (Exception e){
                     e.printStackTrace();
@@ -370,6 +374,7 @@ public class NotificationServiceImpl implements NotificationService {
             //    }
             String jsonStr = JSONArray.toJSONString(arrayList);
             EmailTemplate emailTemplate1=broadCastRepository.findBySender("CreditVille");
+
             emailTemplate1.setFailedEmail(jsonStr);
             emailTemplate1.setEnableBroadcast("N");
             broadCastRepository.save(emailTemplate1);
@@ -645,8 +650,12 @@ public class NotificationServiceImpl implements NotificationService {
             case "withdrawal-request":
                 return "email/withdrawal";
 
+            case "nibbs-settlement-transaction":
+                return "email/nibbs-settlement";
+
             case "savings-transfer":
                 return "email/savings-transfer";
+
 
             case "bulk-initiated":
                 return "email/bulk-initiated";
@@ -657,6 +666,9 @@ public class NotificationServiceImpl implements NotificationService {
             case "bulk-approval":
                 return "email/bulk-approval";
 
+            case "website-contact-us":
+                return "email/contact-us-email";
+
             case "approved":
                 return "email/approved";
 
@@ -664,6 +676,8 @@ public class NotificationServiceImpl implements NotificationService {
                 return "email/rejected";
             case "accountStatement":
                 return "email/accountStatement";
+            case "LoginNotification":
+                return "email/loginEmail";
 
             default:
                 throw new CustomCheckedException("Invalid template name provided");
