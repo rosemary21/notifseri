@@ -382,8 +382,9 @@ public class NotificationServiceImpl implements NotificationService {
                 InputStream targetStream =u.openStream();
                 byte[] bytes = IOUtils.toByteArray(targetStream);
                 String contents = new String(bytes, StandardCharsets.UTF_8);
-                String[] recipients = content.split(System.lineSeparator());
+                String[] recipients = contents.split(System.lineSeparator());
                 for (String recipient : recipients) {
+                    log.info("getting the recipient {}",recipient);
                     String toAddresses = recipient;
                     List<String> toAddressList = new ArrayList<>();
                     if(toAddresses.contains(",")) {
