@@ -312,7 +312,9 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void sendAllCientEmail() throws CustomCheckedException {
         Context context = new Context();
-        EmailTemplate emailTemplate= broadCastRepository.findBySender("Creditville");
+        EmailTemplate emailTemplate= broadCastRepository.findBySender("CreditVille");
+
+        EmailTemplate redwoodTemplate= broadCastRepository.findBySender("RedWood");
         List<String> arrayList=new ArrayList<>();
         context.setVariable("emailBody",emailTemplate.getTemplateMessage());
         String templateLocation = this.getTemplateLocation("broadcastredwood");
@@ -367,7 +369,7 @@ public class NotificationServiceImpl implements NotificationService {
 
             //    }
             String jsonStr = JSONArray.toJSONString(arrayList);
-            EmailTemplate emailTemplate1=broadCastRepository.findBySender("Creditville");
+            EmailTemplate emailTemplate1=broadCastRepository.findBySender("CreditVille");
             emailTemplate1.setFailedEmail(jsonStr);
             emailTemplate1.setEnableBroadcast("N");
             broadCastRepository.save(emailTemplate1);
@@ -421,7 +423,7 @@ public class NotificationServiceImpl implements NotificationService {
                 }
 
                 String jsonStr = JSONArray.toJSONString(arrayList);
-                EmailTemplate emailTemplate1=broadCastRepository.findBySender("Creditville");
+                EmailTemplate emailTemplate1=broadCastRepository.findBySender("CreditVille");
                 emailTemplate1.setFailedEmail(jsonStr);
                 emailTemplate1.setEnableUnregistered("N");
                 broadCastRepository.save(emailTemplate1);
