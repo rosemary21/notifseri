@@ -22,6 +22,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.util.IOUtils;
 import org.json.simple.JSONArray;
 import org.simplejavamail.api.email.Email;
 import org.simplejavamail.api.email.EmailPopulatingBuilder;
@@ -44,6 +45,9 @@ import javax.activation.FileDataSource;
 import javax.mail.Message;
 import javax.mail.util.ByteArrayDataSource;
 import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -371,6 +375,31 @@ public class NotificationServiceImpl implements NotificationService {
             broadCastRepository.save(emailTemplate1);
         }
 
+        if(emailTemplate.getEnableUnregistered().equalsIgnoreCase("Y")){
+
+            try{
+                URL u = new URL(emailTemplate.getUnregisteredTemplate());
+                InputStream targetStream =u.openStream();
+                byte[] bytes = IOUtils.toByteArray(targetStream);
+                String contents = new String(bytes, StandardCharsets.UTF_8);
+                String[] recipients = content.split(System.lineSeparator());
+                for (String recipient : recipients) {
+                    String toAddresses = recipient;
+                    List<String> toAddressList = new ArrayList<>();
+                    if(toAddresses.contains(",")) {
+                        String[] parts = toAddresses.split(",");
+                        toAddressList = Arrays.stream(parts).collect(Collectors.toList());
+                    }else toAddressList.add(toAddresses);
+
+                }
+
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
+
+
+        }
     }
 
 
