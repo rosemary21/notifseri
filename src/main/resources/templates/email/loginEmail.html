@@ -449,7 +449,7 @@
                                     <span
                                             class="tinyMce-placeholder"
                                             style="box-sizing: border-box"
-                                            th:text=" 'Dear ' +${firstName}"
+                                            th:text=" 'Dear ' +${firstName} + ' ' + ${lastName}"
 
                                     >Dear </span
                                     >
@@ -507,10 +507,10 @@
                             Please be informed that your C Money
                             Application was accessed on
                             <strong style="box-sizing: border-box"
-                                    th:text="${time}"
+                                    th:text="${date}"
 
                             >{{24/01/2024}}</strong
-                            >
+                            > at <strong th:text="${time}">{{12:26 pm}}</strong>
 
                           </p>
                           <p
