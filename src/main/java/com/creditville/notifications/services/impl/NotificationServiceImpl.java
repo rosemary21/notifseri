@@ -240,6 +240,7 @@ public class NotificationServiceImpl implements NotificationService {
                 .bcc(null, bccAddressList)
                 .withSubject(sendEmailRequest.getMailSubject())
                 .withHTMLText(content);
+
         Email email =null;
         if(mailTemplate.equals("investmentCertificate")){
              email = emailPopulatingBuilder
@@ -308,7 +309,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void sendAllCientEmail() throws CustomCheckedException {
         Context context = new Context();
-        EmailTemplate emailTemplate= broadCastRepository.findBySender("RedWood");
+        EmailTemplate emailTemplate= broadCastRepository.findBySender("Creditville");
         List<String> arrayList=new ArrayList<>();
         context.setVariable("emailBody",emailTemplate.getTemplateMessage());
         String templateLocation = this.getTemplateLocation("broadcastredwood");
@@ -320,22 +321,24 @@ public class NotificationServiceImpl implements NotificationService {
 //        List<Client> clientsList=new ArrayList<>();
 //        clientsList.add(newclient);
 //        clientsList.add(oldclient);
-        List<Client> clients= clientService.fetchClients();
+  //      List<Client> clients= clientService.fetchClients();
 //        List<Client> clients=clientsList;
         if(emailTemplate.getEnableBroadcast().equalsIgnoreCase("Y")){
             log.info("getting the braodcast {}");
             String emailAddress="";
-            for(Client client:clients){
-                emailAddress=client.getEmail();
+          // for(Client client:clients){
+             //   emailAddress=client.getEmail();
                 log.info("getting the email address <><>< {}",emailAddress);
-                String toAddresses = emailAddress;
+              //  String toAddresses = emailAddress;
                 List<String> toAddressList = new ArrayList<>();
-                if(toAddresses.contains(",")) {
-                    String[] parts = toAddresses.split(",");
-                    toAddressList = Arrays.stream(parts).collect(Collectors.toList());
-                }else toAddressList.add(toAddresses);
-                String   senderNameValue=redWoodSenderName;
-                String  SenderEmailValue=redWoodSenderEmail;
+                toAddressList.add("omotayo.owolabi@creditville.ng");
+                toAddressList.add("chioma.chukelu@creditville.ng");
+//                if(toAddresses.contains(",")) {
+//                    String[] parts = toAddresses.split(",");
+//                    toAddressList = Arrays.stream(parts).collect(Collectors.toList());
+//                }else toAddressList.add(toAddresses);
+                String   senderNameValue=senderName;
+                String  SenderEmailValue=senderEmail;
                 EmailPopulatingBuilder emailPopulatingBuilder = EmailBuilder.startingBlank()
                         .from(senderNameValue, SenderEmailValue)
                         .to(null, toAddressList)
@@ -347,25 +350,26 @@ public class NotificationServiceImpl implements NotificationService {
                 if(notificationsEnabled) {
                     try{
                         log.info("Getting the redwood information details");
-                        Mailer mailer = MailerBuilder.withSMTPServerHost(redwoodmailUrl)
-                                .withSMTPServerPort(redwoodmailPort)
-                                .withSMTPServerUsername(redwoodmailUser)
-                                .withSMTPServerPassword(redwoodmailPass)
+                        Mailer mailer = MailerBuilder.withSMTPServerHost(mailUrl)
+                                .withSMTPServerPort(mailPort)
+                                .withSMTPServerUsername(mailUser)
+                                .withSMTPServerPassword(mailPass)
                                 .withTransportStrategy(TransportStrategy.SMTP_TLS).buildMailer();
                         mailer.sendMail(email, async);
 
-                        log.info("THE EMAIL BROADCAST HAS BEEN SUCCESSFULLY SENT TO CUSTOMER"+toAddresses);
+                        log.info("THE EMAIL BROADCAST HAS BEEN SUCCESSFULLY SENT TO CUSTOMER");
 
                     }
                     catch (Exception e){
+                        e.printStackTrace();
                         arrayList.add(emailAddress);
 
                     }
                 }
 
-            }
+        //    }
             String jsonStr = JSONArray.toJSONString(arrayList);
-            EmailTemplate emailTemplate1=broadCastRepository.findBySender("RedWood");
+            EmailTemplate emailTemplate1=broadCastRepository.findBySender("Creditville");
             emailTemplate1.setFailedEmail(jsonStr);
             emailTemplate1.setEnableBroadcast("N");
             broadCastRepository.save(emailTemplate1);
@@ -580,8 +584,12 @@ public class NotificationServiceImpl implements NotificationService {
             case "withdrawal-request":
                 return "email/withdrawal";
 
+            case "nibbs-settlement-transaction":
+                return "email/nibbs-settlement";
+
             case "savings-transfer":
                 return "email/savings-transfer";
+
 
             case "bulk-initiated":
                 return "email/bulk-initiated";
@@ -602,6 +610,8 @@ public class NotificationServiceImpl implements NotificationService {
                 return "email/rejected";
             case "accountStatement":
                 return "email/accountStatement";
+            case "LoginNotification":
+                return "email/loginEmail";
 
             default:
                 throw new CustomCheckedException("Invalid template name provided");
