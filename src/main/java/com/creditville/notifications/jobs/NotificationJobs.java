@@ -74,6 +74,7 @@ public class NotificationJobs {
         }
     }
 
+
 //      //  @Async("schedulePool2")
 //    @Scheduled(cron = "${app.schedule.dueRentalTwo}")
 ////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")

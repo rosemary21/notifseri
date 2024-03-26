@@ -23,4 +23,8 @@ public class EmailTemplate {
     @Lob
     private String failedEmail;
 
+    private String unregisteredTemplate;
+
+    private String enableUnregistered="N";
+
 }

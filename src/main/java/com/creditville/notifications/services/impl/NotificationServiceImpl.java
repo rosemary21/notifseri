@@ -22,6 +22,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.util.IOUtils;
 import org.json.simple.JSONArray;
 import org.simplejavamail.api.email.Email;
 import org.simplejavamail.api.email.EmailPopulatingBuilder;
@@ -44,6 +45,9 @@ import javax.activation.FileDataSource;
 import javax.mail.Message;
 import javax.mail.util.ByteArrayDataSource;
 import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -309,72 +313,134 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void sendAllCientEmail() throws CustomCheckedException {
         Context context = new Context();
-        EmailTemplate emailTemplate= broadCastRepository.findBySender("Creditville");
+        EmailTemplate emailTemplate= broadCastRepository.findBySender("CreditVille");
+
+        EmailTemplate redwoodTemplate= broadCastRepository.findBySender("RedWood");
+
         List<String> arrayList=new ArrayList<>();
         context.setVariable("emailBody",emailTemplate.getTemplateMessage());
         String templateLocation = this.getTemplateLocation("broadcastredwood");
         String content = templateEngine.process(templateLocation, context);
-//        Client newclient=new Client();
-//        newclient.setEmail("chioma.chukelu@creditville.ng");
-//        Client oldclient=new Client();
-//        oldclient.setEmail("chioma.chukelu@creditville.ngs");
-//        List<Client> clientsList=new ArrayList<>();
-//        clientsList.add(newclient);
-//        clientsList.add(oldclient);
-  //      List<Client> clients= clientService.fetchClients();
-//        List<Client> clients=clientsList;
+
+
         if(emailTemplate.getEnableBroadcast().equalsIgnoreCase("Y")){
+            List<Client> clients= clientService.fetchClients();
+
             log.info("getting the braodcast {}");
             String emailAddress="";
-          // for(Client client:clients){
-             //   emailAddress=client.getEmail();
-                log.info("getting the email address <><>< {}",emailAddress);
-              //  String toAddresses = emailAddress;
-                List<String> toAddressList = new ArrayList<>();
-                toAddressList.add("omotayo.owolabi@creditville.ng");
-                toAddressList.add("chioma.chukelu@creditville.ng");
+            // for(Client client:clients){
+            //   emailAddress=client.getEmail();
+            log.info("getting the email address <><>< {}",emailAddress);
+            //  String toAddresses = emailAddress;
+            List<String> toAddressList = new ArrayList<>();
+            toAddressList.add("omotayo.owolabi@creditville.ng");
+            toAddressList.add("chioma.chukelu@creditville.ng");
+
 //                if(toAddresses.contains(",")) {
 //                    String[] parts = toAddresses.split(",");
 //                    toAddressList = Arrays.stream(parts).collect(Collectors.toList());
 //                }else toAddressList.add(toAddresses);
-                String   senderNameValue=senderName;
-                String  SenderEmailValue=senderEmail;
-                EmailPopulatingBuilder emailPopulatingBuilder = EmailBuilder.startingBlank()
-                        .from(senderNameValue, SenderEmailValue)
-                        .to(null, toAddressList)
-                        .withSubject(emailTemplate.getEmailSubject())
-                        .withHTMLText(content);
-                Email email =  emailPopulatingBuilder
-                        .buildEmail();
+            String   senderNameValue=senderName;
+            String  SenderEmailValue=senderEmail;
+            EmailPopulatingBuilder emailPopulatingBuilder = EmailBuilder.startingBlank()
+                    .from(senderNameValue, SenderEmailValue)
+                    .to(null, toAddressList)
+                    .withSubject(emailTemplate.getEmailSubject())
+                    .withHTMLText(content);
+            Email email =  emailPopulatingBuilder
+                    .buildEmail();
 
-                if(notificationsEnabled) {
-                    try{
-                        log.info("Getting the redwood information details");
-                        Mailer mailer = MailerBuilder.withSMTPServerHost(mailUrl)
-                                .withSMTPServerPort(mailPort)
-                                .withSMTPServerUsername(mailUser)
-                                .withSMTPServerPassword(mailPass)
-                                .withTransportStrategy(TransportStrategy.SMTP_TLS).buildMailer();
-                        mailer.sendMail(email, async);
+            if(notificationsEnabled) {
+                try{
+                    log.info("Getting the redwood information details");
+                    Mailer mailer = MailerBuilder.withSMTPServerHost(mailUrl)
+                            .withSMTPServerPort(mailPort)
+                            .withSMTPServerUsername(mailUser)
+                            .withSMTPServerPassword(mailPass)
+                            .withTransportStrategy(TransportStrategy.SMTP_TLS).buildMailer();
+                    mailer.sendMail(email, async);
 
-                        log.info("THE EMAIL BROADCAST HAS BEEN SUCCESSFULLY SENT TO CUSTOMER");
+                    log.info("THE EMAIL BROADCAST HAS BEEN SUCCESSFULLY SENT TO CUSTOMER");
 
-                    }
-                    catch (Exception e){
-                        e.printStackTrace();
-                        arrayList.add(emailAddress);
 
-                    }
                 }
+                catch (Exception e){
+                    e.printStackTrace();
+                    arrayList.add(emailAddress);
 
-        //    }
+                }
+            }
+
+            //    }
             String jsonStr = JSONArray.toJSONString(arrayList);
-            EmailTemplate emailTemplate1=broadCastRepository.findBySender("Creditville");
+            EmailTemplate emailTemplate1=broadCastRepository.findBySender("CreditVille");
+
             emailTemplate1.setFailedEmail(jsonStr);
             emailTemplate1.setEnableBroadcast("N");
             broadCastRepository.save(emailTemplate1);
         }
 
+        if(emailTemplate.getEnableUnregistered().equalsIgnoreCase("Y")){
+
+            try{
+                URL u = new URL(emailTemplate.getUnregisteredTemplate());
+                InputStream targetStream =u.openStream();
+                byte[] bytes = IOUtils.toByteArray(targetStream);
+                String contents = new String(bytes, StandardCharsets.UTF_8);
+                String[] recipients = contents.split(System.lineSeparator());
+                for (String recipient : recipients) {
+                    log.info("getting the recipient {}",recipient);
+                    String toAddresses = recipient;
+                    List<String> toAddressList = new ArrayList<>();
+                    if(toAddresses.contains(",")) {
+                        String[] parts = toAddresses.split(",");
+                        toAddressList = Arrays.stream(parts).collect(Collectors.toList());
+                    }else toAddressList.add(toAddresses);
+
+                    String   senderNameValue=senderName;
+                    String  SenderEmailValue=senderEmail;
+                    EmailPopulatingBuilder emailPopulatingBuilder = EmailBuilder.startingBlank()
+                            .from(senderNameValue, SenderEmailValue)
+                            .to(null, toAddressList)
+                            .withSubject(emailTemplate.getEmailSubject())
+                            .withHTMLText(content);
+                    Email email =  emailPopulatingBuilder
+                            .buildEmail();
+
+                    if(notificationsEnabled) {
+                        try{
+                            log.info("Getting the redwood information details");
+                            Mailer mailer = MailerBuilder.withSMTPServerHost(mailUrl)
+                                    .withSMTPServerPort(mailPort)
+                                    .withSMTPServerUsername(mailUser)
+                                    .withSMTPServerPassword(mailPass)
+                                    .withTransportStrategy(TransportStrategy.SMTP_TLS).buildMailer();
+                            mailer.sendMail(email, async);
+
+                            log.info("THE EMAIL BROADCAST HAS BEEN SUCCESSFULLY SENT TO CUSTOMER");
+
+                        }
+                        catch (Exception e){
+                            e.printStackTrace();
+                            arrayList.add(toAddresses);
+
+                        }
+                    }
+                }
+
+                String jsonStr = JSONArray.toJSONString(arrayList);
+                EmailTemplate emailTemplate1=broadCastRepository.findBySender("CreditVille");
+                emailTemplate1.setFailedEmail(jsonStr);
+                emailTemplate1.setEnableUnregistered("N");
+                broadCastRepository.save(emailTemplate1);
+
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
+
+
+        }
     }
 
 
