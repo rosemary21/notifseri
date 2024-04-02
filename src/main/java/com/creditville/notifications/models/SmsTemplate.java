@@ -5,10 +5,12 @@ import lombok.Setter;
 
 import javax.persistence.*;
 
+
 @Entity
 @Getter
 @Setter
-public class EmailTemplate {
+public class SmsTemplate {
+
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Id
     private Long id;
@@ -26,5 +28,4 @@ public class EmailTemplate {
     private String unregisteredTemplate;
 
     private String enableUnregistered="N";
-
 }
