@@ -2,7 +2,6 @@
 <html
         xmlns="http://www.w3.org/1999/xhtml"
         xmlns:th="http://www.thymeleaf.org"
-
         xmlns:v="urn:schemas-microsoft-com:vml"
         xmlns:o="urn:schemas-microsoft-com:office:office"
         lang="en"
@@ -157,6 +156,7 @@
                         width="100%"
                         style="
                               box-sizing: border-box;
+
                               font-weight: 400;
                               text-align: left;
                               padding-bottom: 5px;
@@ -207,7 +207,7 @@
                                       "
                           >
                             <a
-                                    href="https://creditville.ng/"
+                                    href="https://www.example.com/"
                                     target="_blank"
                                     style="
                                           box-sizing: border-box;
@@ -326,7 +326,7 @@
                                       "
                           >
                             <img
-                                    src="https://res.cloudinary.com/creditville-ng/image/upload/v1703151866/Email_Header_fct2b9.png"
+                                    src="https://res.cloudinary.com/creditville-ng/image/upload/v1709078055/loginNotification_x39qcy.png"
                                     style="
                                           box-sizing: border-box;
                                           display: block;
@@ -449,9 +449,9 @@
                                     <span
                                             class="tinyMce-placeholder"
                                             style="box-sizing: border-box"
-                                            th:text=" 'Dear '+${customerName}"
+                                            th:text=" 'Dear ' +${firstName} + ' ' + ${lastName}"
 
-                                    >Dear {{CustomerName}}</span
+                                    >Dear </span
                                     >
                         </h3>
                       </td>
@@ -504,17 +504,14 @@
                                         margin-bottom: 16px;
                                       "
                           >
-                            We are pleased to inform you that your
-                            <span
-                                    style="
-                                          margin: 0;
-                                          font-weight: 800;
-                                        "
-                                    th:text="${documentType}"
+                            Please be informed that your C Money
+                            Application was accessed on
+                            <strong style="box-sizing: border-box"
+                                    th:text="${date}"
 
-                            >{{DocumentType}}</span
-                            >
-                            has been approved.
+                            >{{24/01/2024}}</strong
+                            > at <strong th:text="${time}">{{12:26 pm}}</strong>
+
                           </p>
                           <p
                                   style="
@@ -524,28 +521,28 @@
                                         margin-bottom: 16px;
                                       "
                           >
-                            Thank you for providing the necessary
-                            documentation and information promptly.
+                            If you did not log into your C Money
+                            Banking Application at the time detailed
+                            above, please call
+                            <strong style="box-sizing: border-box"
+                            >07000330330</strong
+                            >
+                            or send an email to
+                            <strong style="box-sizing: border-box"
+                            >customer@creditville.ng</strong
+                            >
+                            immediately.
                           </p>
                           <p
                                   style="
                                         box-sizing: border-box;
                                         line-height: inherit;
-                                        margin-bottom: 16px;
-                                        font-weight: 800;
+                                        margin: 0;
                                       "
                           >
-                            Please be informed that you are required to update your next of kin before being upgraded to Tier 2.
-                          </p>
-                          <p
-                                  style="
-                                        box-sizing: border-box;
-                                        line-height: inherit;
-                                        margin-bottom: 8px;
-                                      "
-                          >
-                            This verification ensures a secure and
-                            compliant environment for all our users.
+                            <strong style="box-sizing: border-box"
+                            >CMFB.</strong
+                            >
                           </p>
                         </div>
                       </td>

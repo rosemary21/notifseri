@@ -1,272 +1,1221 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en-GB" style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; height: 100%; line-height: 1.15; -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; scroll-behavior: smooth; padding: 0; margin: 0; box-sizing: border-box; border: none;">
-  <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Kyc Rejection Template</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="x-apple-disable-message-reformatting">
-    <meta name="format-detection" content="telephone=no, date=no, address=no, email=no, url=no">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+<!DOCTYPE html>
+<html
+        xmlns="http://www.w3.org/1999/xhtml"
+        xmlns:th="http://www.w3.org/1999/xhtml"
+        xmlns:v="urn:schemas-microsoft-com:vml"
+        xmlns:o="urn:schemas-microsoft-com:office:office"
+        lang="en"
+        style="box-sizing: border-box"
+>
+<head>
+  <title></title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link
+          href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900"
+          rel="stylesheet"
+          type="text/css"
+  />
+  <style>
+      @media (max-width: 700px) {
+        .desktop_hide table.icons-inner,
+        .social_block.desktop_hide .social-table {
+          display: inline-block !important;
+        }
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Open+Sans:ital,wght@0,500;0,600;1,400&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+        .icons-inner {
+          text-align: center;
+        }
 
-    <style>
-.contact-link {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  text-decoration: none;
-}
-.contact-link span {
-  height: 25px;
-  width: 25px;
-  background-color: white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.contact-link p {
-  color: white;
-  font-size: 11px;
-  margin: 0;
-}
-.social_links {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-@media only screen and (max-width: 750px) {
-  .general-padding {
-    padding: 4% 6%;
-  }
+        .icons-inner td {
+          margin: 0 auto;
+        }
 
-  table[class="body"] h1 {
-    font-size: 28px !important;
-    margin-bottom: 10px !important;
-  }
+        .image_block div.fullWidth {
+          max-width: 100% !important;
+        }
 
-  table[class="body"] p,
-table[class="body"] ul,
-table[class="body"] ol,
-table[class="body"] td,
-table[class="body"] span,
-table[class="body"] a {
-    font-size: 17px !important;
-  }
+        .mobile_hide {
+          display: none;
+        }
 
-  table[class="body"] .wrapper,
-table[class="body"] .article {
-    padding: 10px !important;
-  }
+        .row-content {
+          width: 100% !important;
+        }
 
-  table[class="body"] .content {
-    padding: 0 !important;
-  }
+        .stack .column {
+          width: 100%;
+          display: block;
+        }
 
-  table[class="body"] .container {
-    padding: 0 !important;
-    width: 100% !important;
-  }
+        .mobile_hide {
+          min-height: 0;
+          max-height: 0;
+          max-width: 0;
+          overflow: hidden;
+          font-size: 0px;
+        }
 
-  table[class="body"] .main {
-    border-left-width: 0 !important;
-    border-radius: 0 !important;
-    border-right-width: 0 !important;
-  }
+        .desktop_hide,
+        .desktop_hide table {
+          display: table !important;
+          max-height: none !important;
+        }
 
-  table[class="body"] .btn table {
-    width: 100% !important;
-  }
+        .row-3 .column-1 .block-1.heading_block h3,
+        .row-3 .column-1 .block-2.paragraph_block td.pad > div {
+          text-align: center !important;
+        }
 
-  table[class="body"] .btn a {
-    width: 100% !important;
-  }
+        .row-3 .column-1 .block-1.heading_block h3 {
+          font-size: 24px !important;
+        }
 
-  table[class="body"] .img-responsive {
-    height: auto !important;
-    max-width: 100% !important;
-    width: auto !important;
-  }
-}
-</style>
-  </head>
+        .row-4 .column-1 .block-1.image_block td.pad {
+          padding: 3px 0 !important;
+        }
 
-  <body class="general-padding" style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; margin: 0; font-family: 'Poppins', sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; padding: 4% 15%; background: #f9fafb; border: none;">
-    <div bgcolor="white" style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; font-weight: 400; letter-spacing: 0.2px; color: #383a47; background: #fff; margin: 20px auto; border: none;">
-      <table width="100%" style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; border: none; width: 100%;">
-        <thead width="100%" style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; border: none;">
-          <tr style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; border: none;">
-            <td style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; padding: 3%; border: none;">
-              <table style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; border-collapse: collapse; border-spacing: 0px; float: left; border: none; width: 100%;" cellspacing="0" cellpadding="0" border="0" align="left" width="100%">
-                <tbody style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; border: none;">
-                  <tr style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; border: none;">
-                    <td style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; width: 169.5pt; padding: 0in 0in 0in 0in; border: none;" width="226">
-                      <table style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; border-collapse: collapse; border-spacing: 0px; border: none; width: 100%;" width="100%" cellspacing="0" cellpadding="0" border="0">
-                        <tbody style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; border: none;">
-                          <tr style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; border: none;">
-                            <td style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; border: none;">
-                              <img style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; width: 200px; border: none;" src="https://res.cloudinary.com/creditville-ng/image/upload/v1678714239/WhatsApp_Image_2023-03-13_at_2.20.26_PM_1_ehky9x.jpg" class="logo" width="200">
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </td>
-          </tr>
-        </thead>
+        .row-4 .column-1 .block-2.image_block td.pad {
+          padding: 0 0 0 10px !important;
+        }
 
-        <thead width="100%" style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; border: none;">
-          <tr style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; width: 100%; border: none;">
-            <td style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; width: 100%; border: none;" width="100%">
-              <table style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; border-collapse: collapse; border-spacing: 0px; float: left; border: none; width: 100%;" cellspacing="0" cellpadding="0" border="0" align="left" width="100%">
-                <tbody style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; border: none;">
-                  <tr style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; border: none;">
-                    <td width style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; border: none;">
-                      <table style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; border-collapse: collapse; border-spacing: 0px; border: none; width: 100%;" width="100%" cellspacing="0" cellpadding="0" border="0">
-                        <tbody style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; width: 100%; border: none;">
-                          <tr style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; width: 100%; border: none;">
-                            <td style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; width: 100%; border: none;" width="100%">
-                              <div style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; width: 100%; border: none;">
-                                <img width="100%" src="https://res.cloudinary.com/creditville-ng/image/upload/v1703151866/Email_Header_fct2b9.png" alt="logo" style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; border: none;">
-                              </div>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </td>
-          </tr>
-        </thead>
+        .row-4 .column-2 .block-1.text_block td.pad {
+          padding: 0 10px 10px 20px !important;
+        }
 
-        <tbody style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; border: none;">
-          <tr width="100%" style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; border: none;">
-            <td border="0" style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; border: none;">
-              <div style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; padding: 5%; border-radius: 8px; margin-bottom: 38px; border: none;">
-                <div class="receipt-body-div" style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; padding-top: 30px; padding-bottom: 25px; padding-left: 14px; padding-right: 28px; border: none;">
-                  <p style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; font-weight: 400; line-height: 24px; color: #383a47; font-size: 15px; color: #072c50; border: none;">
-                    Dear
-                    <span style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; font-weight: 600; border: none;" th:text="${customerName}"></span>
-                  </p>
-                  <span style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; padding-top: 10px; font-weight: 400; line-height: 24px; color: #383a47; font-size: 15px; color: #072c50; border: none;">We are sorry to inform you that your
-                    <span style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; font-weight: 600; border: none;"  th:text="${documentType}"></span> has
-                    been declined.</span>
-                  <p style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; padding-top: 17px; font-weight: 600; line-height: 24px; color: #383a47; font-size: 15px; color: #072c50; border: none;" th:text="${reason}">
+        .row-4 .column-3 .block-1.text_block td.pad {
+          padding: 0 5px 15px 20px !important;
+        }
+      }
+    </style>
+</head>
 
-                  </p>
-                  <p style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; padding-top: 12px; font-weight: 400; line-height: 24px; color: #16161c; font-size: 15px; border: none;">
-                    Thank you for providing the necessary documentation and
-                    information promptly.
-                  </p>
-                  <p style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; padding-top: 10px; font-weight: 600; line-height: 24px; color: #16161c; font-size: 15px; border: none;">
-                    Please be informed that you are required to update your next
-                    of kin before being upgraded to Tier 2.
-                  </p>
-                  <p style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; padding-top: 10px; font-weight: 400; line-height: 24px; color: #16161c; font-size: 15px; border: none;">
-                    This verification ensures a secure and compliant environment
-                    for all our users.
-                  </p>
-                </div>
-              </div>
-            </td>
-          </tr>
-          <tr style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; border: none;">
-            <td width="100%" bgcolor="white" style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; border: none;">
-              <thead width="100%" style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; border: none;">
-                <tr style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; background: #072c50; padding: 10px 22px; border: none;">
-                  <td style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; border: none;">
-                    <table style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; border-collapse: collapse; border-spacing: 0px; border: none; width: 100%;" cellspacing="0" cellpadding="0" border="0" align="center" width="100%">
-                      <tbody style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; border: none;">
-                        <tr style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; border: none;">
-                          <td style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; border: none;">
-                            <table style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; border-collapse: collapse; border-spacing: 0px; padding: 12px 23px; border: none; width: 100%;" width="100%" cellspacing="0" cellpadding="0" border="0">
-                              <tbody style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; border: none;">
-                                <tr style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; border: none;">
-                                  <td style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; padding-top: 20px; padding-left: 20px; border: none;">
-                                    <a href="tel:+2347000330330" class="contact-link" style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; display: flex; align-items: center; gap: 8px; text-decoration: none; border: none;">
-                                      <span style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; height: 25px; width: 25px; background-color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: none;">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; fill: rgba(0, 0, 0, 1); border: none;">
-                                          <path d="M16.57 22a2 2 0 0 0 1.43-.59l2.71-2.71a1 1 0 0 0 0-1.41l-4-4a1 1 0 0 0-1.41 0l-1.6 1.59a7.55 7.55 0 0 1-3-1.59 7.62 7.62 0 0 1-1.59-3l1.59-1.6a1 1 0 0 0 0-1.41l-4-4a1 1 0 0 0-1.41 0L2.59 6A2 2 0 0 0 2 7.43 15.28 15.28 0 0 0 6.3 17.7 15.28 15.28 0 0 0 16.57 22zM6 5.41 8.59 8 7.3 9.29a1 1 0 0 0-.3.91 10.12 10.12 0 0 0 2.3 4.5 10.08 10.08 0 0 0 4.5 2.3 1 1 0 0 0 .91-.27L16 15.41 18.59 18l-2 2a13.28 13.28 0 0 1-8.87-3.71A13.28 13.28 0 0 1 4 7.41zM20 11h2a8.81 8.81 0 0 0-9-9v2a6.77 6.77 0 0 1 7 7z" style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; border: none;"/>
-                                          <path d="M13 8c2.1 0 3 .9 3 3h2c0-3.22-1.78-5-5-5z" style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; border: none;"/>
-                                        </svg>
-                                      </span>
-                                      <p style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; color: white; font-size: 11px; margin: 0; border: none;">07000330330</p>
-                                    </a>
-                                  </td>
-                                  <td style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; padding-top: 20px; border: none;">
-                                    <p style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; font-weight: 600; font-size: 16px; line-height: 25px; color: #ffffff; text-align: center; border: none;">
-                                      Contact Us
-                                    </p>
-                                  </td>
-                                  <td style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; padding-top: 20px; border: none;">
-                                    <p style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; font-weight: 600; font-size: 16px; line-height: 25px; color: #ffffff; text-align: center; border: none;">
-                                      Social Links
-                                    </p>
-                                  </td>
-                                </tr>
-                                <tr style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; border: none;">
-                                  <td style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; padding-bottom: 20px; padding-left: 20px; border: none;">
-                                    <a href="mailto:Customer@creditville.ng" class="contact-link" style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; display: flex; align-items: center; gap: 8px; text-decoration: none; border: none;">
-                                      <span style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; height: 25px; width: 25px; background-color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: none;">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; fill: rgba(0, 0, 0, 1); border: none;">
-                                          <path d="M20 4H4c-1.103 0-2 .897-2 2v12c0 1.103.897 2 2 2h16c1.103 0 2-.897 2-2V6c0-1.103-.897-2-2-2zm0 2v.511l-8 6.223-8-6.222V6h16zM4 18V9.044l7.386 5.745a.994.994 0 0 0 1.228 0L20 9.044 20.002 18H4z" style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; border: none;"/>
-                                        </svg>
-                                      </span>
-                                      <p style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; color: white; font-size: 11px; margin: 0; border: none;">Customer@creditville.ng</p>
-                                    </a>
-                                  </td>
-                                  <td style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; padding-bottom: 20px; border: none;">
-                                    <p style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; font-weight: 400; font-size: 16px; line-height: 25px; color: #ffffff; text-align: center; border: none;">
-                                      <a target="_blank" href style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; border: none;"><img style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; width: 66px; cursor: pointer; border: none;" src="https://res.cloudinary.com/creditville-ng/image/upload/v1678713221/WhatsApp_Image_2023-03-13_at_2.08.36_PM_mmizq0.jpg" class="appstore" width="66"></a>
-                                      <a target="_blank" href style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; border: none;">
-                                        <img style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; width: 66px; cursor: pointer; border: none;" src="https://res.cloudinary.com/creditville-ng/image/upload/v1678712442/googleplay_t8u514.png" class="googleplay" width="66"></a>
-                                    </p>
-                                  </td>
-                                  <td style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; padding-bottom: 20px; border: none;">
-                                    <span class="social_links" style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; display: flex; align-items: center; gap: 6px; border: none;">
-                                      <a target="_blank" href="https://api.whatsapp.com/send?phone=23407055554900" style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; border: none;">
-                                        <img width="25" src="https://res.cloudinary.com/creditville-ng/image/upload/v1701363278/whatsapp-white_n0erf7.png" alt="whatsApp icon" style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; border: none;">
-                                      </a>
-                                      <a target="_blank" href="https://www.facebook.com/Creditvilleng" style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; border: none;">
-                                        <img width="25" src="https://res.cloudinary.com/creditville-ng/image/upload/v1701363164/facebook-white_iwu8dp.png" alt="facebook icon" style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; border: none;">
-                                      </a>
-                                      <a target="_blank" href="https://twitter.com/creditville" style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; border: none;">
-                                        <img width="25" src="https://res.cloudinary.com/creditville-ng/image/upload/v1681304690/email-template/Twitter_-white_vddem1.png" alt="twitter icon" style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; border: none;">
-                                      </a>
-                                      <a target="_blank" href="https://www.linkedin.com/company/creditvilleltd/" style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; border: none;">
-                                        <img width="25" src="https://res.cloudinary.com/creditville-ng/image/upload/v1701363038/linkedin-white_mitbro.png" alt="linkedin icon" style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; border: none;">
-                                      </a>
-                                      <a target="_blank" href="https://www.instagram.com/creditville/" style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; border: none;">
-                                        <img width="25" src="https://res.cloudinary.com/creditville-ng/image/upload/v1681304690/email-template/Instagram_-white_expeqd.png" alt="instagram icon" style="scrollbar-width: thin; scrollbar-color: rgba(37, 63, 101, 0.3) transparent; border: none;">
-                                      </a>
-                                    </span>
-                                  </td>
-                                </tr>
-                              </tbody>
-                            </table>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </td>
-                </tr>
-              </thead>
-            </td>
-          </tr>
+<body
+        style="
+      box-sizing: border-box;
+      background-color: #fff;
+      margin: 0;
+      padding: 0;
+      -webkit-text-size-adjust: none;
+      text-size-adjust: none;
+    "
+>
+<table
+        class="nl-container"
+        width="100%"
+        border="0"
+        cellpadding="0"
+        cellspacing="0"
+        role="presentation"
+        style="
+        box-sizing: border-box;
+
+        background-color: #fff;
+      "
+        bgcolor="#fff"
+>
+  <tbody style="box-sizing: border-box">
+  <tr style="box-sizing: border-box">
+    <td style="box-sizing: border-box">
+      <table
+              class="row row-1"
+              align="center"
+              width="100%"
+              border="0"
+              cellpadding="0"
+              cellspacing="0"
+              role="presentation"
+              style="box-sizing: border-box"
+      >
+        <tbody style="box-sizing: border-box">
+        <tr style="box-sizing: border-box">
+          <td style="box-sizing: border-box">
+            <table
+                    class="row-content stack"
+                    align="center"
+                    border="0"
+                    cellpadding="0"
+                    cellspacing="0"
+                    role="presentation"
+                    style="
+                        box-sizing: border-box;
+
+                        border-radius: 0;
+                        color: #000000;
+                        background-color: #ffffff;
+                        width: 680px;
+                        margin: 0 auto;
+                      "
+                    width="680"
+                    bgcolor="#ffffff"
+            >
+              <tbody style="box-sizing: border-box">
+              <tr style="box-sizing: border-box">
+                <td
+                        class="column column-1"
+                        width="100%"
+                        style="
+                              box-sizing: border-box;
+                              font-weight: 400;
+                              text-align: left;
+                              padding-bottom: 5px;
+                              padding-left: 10px;
+                              padding-right: 5px;
+                              padding-top: 10px;
+                              vertical-align: top;
+                              border-top: 0px;
+                              border-right: 0px;
+                              border-bottom: 0px;
+                              border-left: 0px;
+                            "
+                        align="left"
+                        valign="top"
+                >
+                  <table
+                          class="image_block block-1"
+                          width="100%"
+                          border="0"
+                          cellpadding="0"
+                          cellspacing="0"
+                          role="presentation"
+                          style="box-sizing: border-box"
+                  >
+                    <tr style="box-sizing: border-box">
+                      <td
+                              class="pad"
+                              style="
+                                    box-sizing: border-box;
+                                    width: 100%;
+                                    padding-right: 0px;
+                                    padding-left: 0px;
+                                  "
+                              width="100%"
+                      >
+                        <div
+                                class="alignment"
+                                align="left"
+                                style="
+                                      box-sizing: border-box;
+                                      line-height: 10px;
+                                    "
+                        >
+                          <div
+                                  style="
+                                        box-sizing: border-box;
+                                        max-width: 166.25px;
+                                      "
+                          >
+                            <a
+                                    href="https://creditville.ng/"
+                                    target="_blank"
+                                    style="
+                                          box-sizing: border-box;
+                                          outline: none;
+                                        "
+                                    tabindex="-1"
+                            ><img
+                                    src="https://res.cloudinary.com/creditville-ng/image/upload/v1678714239/WhatsApp_Image_2023-03-13_at_2.20.26_PM_1_ehky9x.jpg"
+                                    style="
+                                            box-sizing: border-box;
+                                            display: block;
+                                            height: auto;
+                                            border: 0;
+                                            width: 100%;
+                                          "
+                                    width="166.25"
+                                    alt="Placeholder logo"
+                                    title="Placeholder logo"
+                                    height="auto"
+                            /></a>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
         </tbody>
       </table>
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js" integrity="sha384-mQ93GR66B00ZXjt0YO5KlohRA5SY2XofN4zfuZxLkoj1gXtW8ANNCe9d5Y3eG5eD" crossorigin="anonymous"></script>
-  </body>
+      <table
+              class="row row-2"
+              align="center"
+              width="100%"
+              border="0"
+              cellpadding="0"
+              cellspacing="0"
+              role="presentation"
+              style="box-sizing: border-box"
+      >
+        <tbody style="box-sizing: border-box">
+        <tr style="box-sizing: border-box">
+          <td style="box-sizing: border-box">
+            <table
+                    class="row-content stack"
+                    align="center"
+                    border="0"
+                    cellpadding="0"
+                    cellspacing="0"
+                    role="presentation"
+                    style="
+                        box-sizing: border-box;
+
+                        border-radius: 0;
+                        color: #000000;
+                        width: 680px;
+                        margin: 0 auto;
+                      "
+                    width="680"
+            >
+              <tbody style="box-sizing: border-box">
+              <tr style="box-sizing: border-box">
+                <td
+                        class="column column-1"
+                        width="100%"
+                        style="
+                              box-sizing: border-box;
+
+                              font-weight: 400;
+                              text-align: left;
+                              vertical-align: middle;
+                              border-top: 0px;
+                              border-right: 0px;
+                              border-bottom: 0px;
+                              border-left: 0px;
+                            "
+                        align="left"
+                        valign="middle"
+                >
+                  <table
+                          class="image_block block-1"
+                          width="100%"
+                          border="0"
+                          cellpadding="0"
+                          cellspacing="0"
+                          role="presentation"
+                          style="box-sizing: border-box"
+                  >
+                    <tr style="box-sizing: border-box">
+                      <td
+                              class="pad"
+                              style="
+                                    box-sizing: border-box;
+                                    width: 100%;
+                                    padding-right: 0px;
+                                    padding-left: 0px;
+                                  "
+                              width="100%"
+                      >
+                        <div
+                                class="alignment"
+                                align="center"
+                                style="
+                                      box-sizing: border-box;
+                                      line-height: 10px;
+                                    "
+                        >
+                          <div
+                                  class="fullWidth"
+                                  style="
+                                        box-sizing: border-box;
+                                        max-width: 680px;
+                                      "
+                          >
+                            <img
+                                    src="https://res.cloudinary.com/creditville-ng/image/upload/v1703151866/Email_Header_fct2b9.png"
+                                    style="
+                                          box-sizing: border-box;
+                                          display: block;
+                                          height: auto;
+                                          border: 0;
+                                          width: 100%;
+                                        "
+                                    width="680"
+                                    height="auto"
+                            />
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+      <table
+              class="row row-3"
+              align="center"
+              width="100%"
+              border="0"
+              cellpadding="0"
+              cellspacing="0"
+              role="presentation"
+              style="box-sizing: border-box"
+      >
+        <tbody style="box-sizing: border-box">
+        <tr style="box-sizing: border-box">
+          <td style="box-sizing: border-box">
+            <table
+                    class="row-content stack"
+                    align="center"
+                    border="0"
+                    cellpadding="0"
+                    cellspacing="0"
+                    role="presentation"
+                    style="
+                        box-sizing: border-box;
+
+                        border-radius: 0;
+                        color: #000000;
+                        background-color: #fff;
+                        width: 680px;
+                        margin: 0 auto;
+                      "
+                    width="680"
+                    bgcolor="#fff"
+            >
+              <tbody style="box-sizing: border-box">
+              <tr style="box-sizing: border-box">
+                <td
+                        class="column column-1"
+                        width="100%"
+                        style="
+                              box-sizing: border-box;
+
+                              font-weight: 400;
+                              text-align: left;
+                              border-bottom: 2px solid transparent;
+                              border-left: 2px solid transparent;
+                              border-right: 2px solid transparent;
+                              border-top: 2px solid transparent;
+                              padding-bottom: 5px;
+                              padding-left: 10px;
+                              padding-top: 5px;
+                              vertical-align: middle;
+                            "
+                        align="left"
+                        valign="middle"
+                >
+                  <table
+                          class="heading_block block-1"
+                          width="100%"
+                          border="0"
+                          cellpadding="0"
+                          cellspacing="0"
+                          role="presentation"
+                          style="box-sizing: border-box"
+                  >
+                    <tr style="box-sizing: border-box">
+                      <td
+                              class="pad"
+                              style="
+                                    box-sizing: border-box;
+                                    padding-bottom: 5px;
+                                    padding-left: 15px;
+                                    padding-right: 15px;
+                                    padding-top: 5px;
+                                    text-align: center;
+                                    width: 100%;
+                                  "
+                              width="100%"
+                              align="center"
+                      >
+                        <h3
+                                style="
+                                      box-sizing: border-box;
+                                      margin: 0;
+                                      color: #000;
+                                      direction: ltr;
+                                      font-family: 'Trebuchet MS',
+                                        'Lucida Grande', 'Lucida Sans Unicode',
+                                        'Lucida Sans', Tahoma, sans-serif;
+                                      font-size: 20px;
+                                      font-weight: 700;
+                                      letter-spacing: normal;
+                                      line-height: 120%;
+                                      text-align: left;
+                                      margin-top: 0;
+                                      margin-bottom: 0;
+                                    "
+                        >
+                                    <span
+                                            class="tinyMce-placeholder"
+                                            style="box-sizing: border-box"
+                                            th:text=" 'Dear ' + ${customerName}"
+
+                                    >Dear {{CustomerName}}</span
+                                    >
+                        </h3>
+                      </td>
+                    </tr>
+                  </table>
+                  <table
+                          class="paragraph_block block-2"
+                          width="100%"
+                          border="0"
+                          cellpadding="0"
+                          cellspacing="0"
+                          role="presentation"
+                          style="
+                                box-sizing: border-box;
+
+                                word-break: break-word;
+                              "
+                  >
+                    <tr style="box-sizing: border-box">
+                      <td
+                              class="pad"
+                              style="
+                                    box-sizing: border-box;
+                                    padding-bottom: 15px;
+                                    padding-left: 15px;
+                                    padding-right: 15px;
+                                    padding-top: 5px;
+                                  "
+                      >
+                        <div
+                                style="
+                                      box-sizing: border-box;
+                                      color: #2b2b2b;
+                                      direction: ltr;
+                                      font-family: 'Trebuchet MS',
+                                        'Lucida Grande', 'Lucida Sans Unicode',
+                                        'Lucida Sans', Tahoma, sans-serif;
+                                      font-size: 15px;
+                                      font-weight: 400;
+                                      letter-spacing: 0px;
+                                      line-height: 150%;
+                                      text-align: left;
+                                    "
+                        >
+                          <p
+                                  style="
+                                        box-sizing: border-box;
+                                        line-height: inherit;
+                                        margin: 0;
+                                        margin-bottom: 16px;
+                                      "
+                          >
+                            We are sorry to inform you that your
+                            <span
+                                    style="
+                                          margin: 0;
+                                          font-weight: 800;
+                                        "
+                                    th:text="${documentType}"
+                            >{{DocumentType}}</span
+                            >
+                            has been rejected.
+                          </p>
+                          <p
+                                  style="
+                                        box-sizing: border-box;
+                                        line-height: inherit;
+                                        font-weight: 900;
+                                        margin-bottom: 16px;
+                                      "
+                                  th:text="${reason}"
+                          >
+                            {{ReasonForRejection}}
+                          </p>
+                          <p
+                                  style="
+                                        box-sizing: border-box;
+                                        line-height: inherit;
+                                        margin: 0;
+                                        margin-bottom: 16px;
+                                      "
+                          >
+                            Thank you for providing the necessary
+                            documentation and information promptly.
+                          </p>
+
+                          <p
+                                  style="
+                                        box-sizing: border-box;
+                                        line-height: inherit;
+                                        margin-bottom: 16px;
+                                        font-weight: 800;
+                                      "
+                          >
+                            Please be informed that you are required to update your next of kin before being upgraded to Tier 2.
+                          </p>
+                          <p
+                                  style="
+                                        box-sizing: border-box;
+                                        line-height: inherit;
+                                        margin-bottom: 8px;
+                                      "
+                          >
+                            This verification ensures a secure and
+                            compliant environment for all our users.
+                          </p>
+                        </div>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+      <table
+              class="row row-4"
+              align="center"
+              width="100%"
+              border="0"
+              cellpadding="0"
+              cellspacing="0"
+              role="presentation"
+              style="
+                box-sizing: border-box;
+
+                background-size: auto;
+              "
+      >
+        <tbody style="box-sizing: border-box">
+        <tr style="box-sizing: border-box">
+          <td style="box-sizing: border-box">
+            <table
+                    class="row-content stack"
+                    align="center"
+                    border="0"
+                    cellpadding="0"
+                    cellspacing="0"
+                    role="presentation"
+                    style="
+                        box-sizing: border-box;
+
+                        background-size: auto;
+                        background-color: #072c50;
+                        color: #000000;
+                        width: 680px;
+                        margin: 0 auto;
+                      "
+                    width="680"
+                    bgcolor="#072c50"
+            >
+              <tbody style="box-sizing: border-box">
+              <tr style="box-sizing: border-box">
+                <td
+                        class="column column-1"
+                        width="33.333333333333336%"
+                        style="
+                              box-sizing: border-box;
+
+                              font-weight: 400;
+                              text-align: left;
+                              padding-bottom: 10px;
+                              vertical-align: top;
+                              border-top: 0px;
+                              border-right: 0px;
+                              border-bottom: 0px;
+                              border-left: 0px;
+                            "
+                        align="left"
+                        valign="top"
+                >
+                  <table
+                          class="image_block block-1"
+                          width="100%"
+                          border="0"
+                          cellpadding="0"
+                          cellspacing="0"
+                          role="presentation"
+                          style="box-sizing: border-box"
+                  >
+                    <tr style="box-sizing: border-box">
+                      <td
+                              class="pad"
+                              style="
+                                    box-sizing: border-box;
+                                    padding-top: 15px;
+                                    width: 100%;
+                                    padding-right: 0px;
+                                    padding-left: 0px;
+                                  "
+                              width="100%"
+                      >
+                        <div
+                                class="alignment"
+                                align="left"
+                                style="
+                                      box-sizing: border-box;
+                                      line-height: 10px;
+                                    "
+                        >
+                          <div
+                                  style="
+                                        box-sizing: border-box;
+                                        max-width: 136px;
+                                      "
+                          >
+                            <img
+                                    src="https://29a38f9110.imgdist.com/pub/bfra/haoi8z3q/hhm/q0r/byf/phone-num_cfi36j.jpg"
+                                    style="
+                                          box-sizing: border-box;
+                                          display: block;
+                                          height: auto;
+                                          border: 0;
+                                          width: 100%;
+                                        "
+                                    width="136"
+                                    height="auto"
+                            />
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  </table>
+                  <table
+                          class="image_block block-2"
+                          width="100%"
+                          border="0"
+                          cellpadding="0"
+                          cellspacing="0"
+                          role="presentation"
+                          style="box-sizing: border-box"
+                  >
+                    <tr style="box-sizing: border-box">
+                      <td
+                              class="pad"
+                              style="
+                                    box-sizing: border-box;
+                                    padding-left: 10px;
+                                    width: 100%;
+                                    padding-right: 0px;
+                                  "
+                              width="100%"
+                      >
+                        <div
+                                class="alignment"
+                                align="left"
+                                style="
+                                      box-sizing: border-box;
+                                      line-height: 10px;
+                                    "
+                        >
+                          <div
+                                  style="
+                                        box-sizing: border-box;
+                                        max-width: 181.333px;
+                                      "
+                          >
+                            <img
+                                    src="https://29a38f9110.imgdist.com/pub/bfra/haoi8z3q/1t1/cd7/jaf/email-add_colacr.jpg"
+                                    style="
+                                          box-sizing: border-box;
+                                          display: block;
+                                          height: auto;
+                                          border: 0;
+                                          width: 100%;
+                                        "
+                                    width="181.333"
+                                    height="auto"
+                            />
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+                <td
+                        class="column column-2"
+                        width="33.333333333333336%"
+                        style="
+                              box-sizing: border-box;
+
+                              font-weight: 400;
+                              text-align: left;
+                              padding-bottom: 5px;
+                              padding-top: 5px;
+                              vertical-align: top;
+                              border-top: 0px;
+                              border-right: 0px;
+                              border-bottom: 0px;
+                              border-left: 0px;
+                            "
+                        align="left"
+                        valign="top"
+                >
+                  <table
+                          class="text_block block-1"
+                          width="100%"
+                          border="0"
+                          cellpadding="0"
+                          cellspacing="0"
+                          role="presentation"
+                          style="
+                                box-sizing: border-box;
+
+                                word-break: break-word;
+                              "
+                  >
+                    <tr style="box-sizing: border-box">
+                      <td
+                              class="pad"
+                              style="
+                                    box-sizing: border-box;
+                                    padding-bottom: 10px;
+                                    padding-left: 35px;
+                                    padding-right: 10px;
+                                    padding-top: 15px;
+                                  "
+                      >
+                        <div
+                                style="
+                                      box-sizing: border-box;
+                                      font-family: sans-serif;
+                                    "
+                        >
+                          <div
+                                  class
+                                  style="
+                                        box-sizing: border-box;
+                                        font-size: 12px;
+                                        font-family: Montserrat, Trebuchet MS,
+                                          Lucida Grande, Lucida Sans Unicode,
+                                          Lucida Sans, Tahoma, sans-serif;
+                                        color: #ffffff;
+                                        line-height: 2;
+                                      "
+                          >
+                            <p
+                                    style="
+                                          box-sizing: border-box;
+                                          line-height: inherit;
+                                          margin: 0;
+                                          font-size: 12px;
+                                          text-align: left;
+                                        "
+                            >
+                              <strong style="box-sizing: border-box"
+                              ><span style="box-sizing: border-box"
+                              >Links</span
+                              ></strong
+                              >
+                            </p>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  </table>
+                  <table
+                          class="social_block block-2"
+                          width="100%"
+                          border="0"
+                          cellpadding="0"
+                          cellspacing="0"
+                          role="presentation"
+                          style="box-sizing: border-box"
+                  >
+                    <tr style="box-sizing: border-box">
+                      <td
+                              class="pad"
+                              style="
+                                    box-sizing: border-box;
+                                    padding-left: 15px;
+                                    text-align: left;
+                                    padding-right: 0px;
+                                  "
+                              align="left"
+                      >
+                        <div
+                                class="alignment"
+                                align="left"
+                                style="box-sizing: border-box"
+                        >
+                          <table
+                                  class="social-table"
+                                  width="202.34514285714286px"
+                                  border="0"
+                                  cellpadding="0"
+                                  cellspacing="0"
+                                  role="presentation"
+                                  style="
+                                        box-sizing: border-box;
+
+                                        display: inline-block;
+                                      "
+                          >
+                            <tr style="box-sizing: border-box">
+                              <td
+                                      style="
+                                            box-sizing: border-box;
+                                            padding: 0 10px 0 0;
+                                          "
+                              >
+                                <a
+                                        href="https://play.google.com/store/search?q=cmoney+app&c=apps"
+                                        target="_blank"
+                                        style="box-sizing: border-box"
+                                ><img
+                                        src="https://29a38f9110.imgdist.com/pub/bfra/haoi8z3q/22g/qfm/0j8/google-play-badge_c4760z-Sharpened.png"
+                                        style="
+                                                box-sizing: border-box;
+                                                width: 90px;
+                                                height: 40px;
+                                                object-fit: cover;
+                                              "
+                                        alt="Play store"
+                                        title="Play store"
+                                        width="90"
+                                        height="40"
+                                /></a>
+                              </td>
+                              <td
+                                      style="
+                                            box-sizing: border-box;
+                                            padding: 0 10px 0 0;
+                                          "
+                              >
+                                <a
+                                        href="https://apps.apple.com/ng/app/c-money-savings-investment/id1547983942"
+                                        target="_blank"
+                                        style="box-sizing: border-box"
+                                ><img
+                                        src="https://29a38f9110.imgdist.com/pub/bfra/haoi8z3q/sk4/jxp/wpv/App_Store_ijfu23.png"
+                                        style="
+                                                box-sizing: border-box;
+                                                width: 90px;
+                                                height: 28px;
+                                                object-fit: cover;
+                                              "
+                                        alt="App Store"
+                                        title="App Store"
+                                        width="90"
+                                        height="28"
+                                /></a>
+                              </td>
+                            </tr>
+                          </table>
+                        </div>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+                <td
+                        class="column column-3"
+                        width="33.333333333333336%"
+                        style="
+                              box-sizing: border-box;
+
+                              font-weight: 400;
+                              text-align: left;
+                              padding-bottom: 5px;
+                              padding-right: 10px;
+                              padding-top: 5px;
+                              vertical-align: top;
+                              border-top: 0px;
+                              border-right: 0px;
+                              border-bottom: 0px;
+                              border-left: 0px;
+                            "
+                        align="left"
+                        valign="top"
+                >
+                  <table
+                          class="text_block block-1"
+                          width="100%"
+                          border="0"
+                          cellpadding="0"
+                          cellspacing="0"
+                          role="presentation"
+                          style="
+                                box-sizing: border-box;
+
+                                word-break: break-word;
+                              "
+                  >
+                    <tr style="box-sizing: border-box">
+                      <td
+                              class="pad"
+                              style="
+                                    box-sizing: border-box;
+                                    padding-bottom: 10px;
+                                    padding-left: 20px;
+                                    padding-right: 5px;
+                                    padding-top: 15px;
+                                  "
+                      >
+                        <div
+                                style="
+                                      box-sizing: border-box;
+                                      font-family: sans-serif;
+                                    "
+                        >
+                          <div
+                                  class
+                                  style="
+                                        box-sizing: border-box;
+                                        font-size: 12px;
+                                        font-family: Montserrat, Trebuchet MS,
+                                          Lucida Grande, Lucida Sans Unicode,
+                                          Lucida Sans, Tahoma, sans-serif;
+                                        color: #ffffff;
+                                        line-height: 1.8;
+                                      "
+                          >
+                            <p
+                                    style="
+                                          box-sizing: border-box;
+                                          line-height: inherit;
+                                          margin: 0;
+                                          font-size: 12px;
+                                        "
+                            >
+                              <strong style="box-sizing: border-box"
+                              >Contact</strong
+                              >
+                            </p>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  </table>
+                  <table
+                          class="social_block block-2"
+                          width="100%"
+                          border="0"
+                          cellpadding="0"
+                          cellspacing="0"
+                          role="presentation"
+                          style="box-sizing: border-box"
+                  >
+                    <tr style="box-sizing: border-box">
+                      <td
+                              class="pad"
+                              style="
+                                    box-sizing: border-box;
+                                    padding-left: 15px;
+                                    text-align: left;
+                                    padding-right: 0px;
+                                  "
+                              align="left"
+                      >
+                        <div
+                                class="alignment"
+                                align="left"
+                                style="box-sizing: border-box"
+                        >
+                          <table
+                                  class="social-table"
+                                  width="180px"
+                                  border="0"
+                                  cellpadding="0"
+                                  cellspacing="0"
+                                  role="presentation"
+                                  style="
+                                        box-sizing: border-box;
+
+                                        display: inline-block;
+                                      "
+                          >
+                            <tr style="box-sizing: border-box">
+                              <td
+                                      style="
+                                            box-sizing: border-box;
+                                            padding: 0 4px 0 0;
+                                          "
+                              >
+                                <a
+                                        href="https://api.whatsapp.com/send?phone=23407055554900"
+                                        target="_blank"
+                                        style="box-sizing: border-box"
+                                ><img
+                                        src="https://app-rsrc.getbee.io/public/resources/social-networks-icon-sets/t-only-logo-white/whatsapp@2x.png"
+                                        width="32"
+                                        height="auto"
+                                        alt="Instagram"
+                                        title="Instagram"
+                                        style="
+                                                box-sizing: border-box;
+                                                display: block;
+                                                height: auto;
+                                                border: 0;
+                                              "
+                                /></a>
+                              </td>
+                              <td
+                                      style="
+                                            box-sizing: border-box;
+                                            padding: 0 4px 0 0;
+                                          "
+                              >
+                                <a
+                                        href="https://www.facebook.com/Creditvilleng"
+                                        target="_blank"
+                                        style="box-sizing: border-box"
+                                ><img
+                                        src="https://app-rsrc.getbee.io/public/resources/social-networks-icon-sets/t-only-logo-white/facebook@2x.png"
+                                        width="32"
+                                        height="auto"
+                                        alt="Facebook"
+                                        title="Facebook"
+                                        style="
+                                                box-sizing: border-box;
+                                                display: block;
+                                                height: auto;
+                                                border: 0;
+                                              "
+                                /></a>
+                              </td>
+                              <td
+                                      style="
+                                            box-sizing: border-box;
+                                            padding: 0 4px 0 0;
+                                          "
+                              >
+                                <a
+                                        href="https://twitter.com/creditville"
+                                        target="_blank"
+                                        style="box-sizing: border-box"
+                                ><img
+                                        src="https://app-rsrc.getbee.io/public/resources/social-networks-icon-sets/t-only-logo-white/twitter@2x.png"
+                                        width="32"
+                                        height="auto"
+                                        alt="Pinterest"
+                                        title="Pinterest"
+                                        style="
+                                                box-sizing: border-box;
+                                                display: block;
+                                                height: auto;
+                                                border: 0;
+                                              "
+                                /></a>
+                              </td>
+                              <td
+                                      style="
+                                            box-sizing: border-box;
+                                            padding: 0 4px 0 0;
+                                          "
+                              >
+                                <a
+                                        href="https://www.linkedin.com/company/creditvilleltd/"
+                                        target="_blank"
+                                        style="box-sizing: border-box"
+                                ><img
+                                        src="https://app-rsrc.getbee.io/public/resources/social-networks-icon-sets/t-only-logo-white/linkedin@2x.png"
+                                        width="32"
+                                        height="auto"
+                                        alt="YouTube"
+                                        title="YouTube"
+                                        style="
+                                                box-sizing: border-box;
+                                                display: block;
+                                                height: auto;
+                                                border: 0;
+                                              "
+                                /></a>
+                              </td>
+                              <td
+                                      style="
+                                            box-sizing: border-box;
+                                            padding: 0 4px 0 0;
+                                          "
+                              >
+                                <a
+                                        href="https://www.instagram.com/creditville/"
+                                        target="_blank"
+                                        style="box-sizing: border-box"
+                                ><img
+                                        src="https://app-rsrc.getbee.io/public/resources/social-networks-icon-sets/t-only-logo-white/instagram@2x.png"
+                                        width="32"
+                                        height="auto"
+                                        alt="TikTok"
+                                        title="TikTok"
+                                        style="
+                                                box-sizing: border-box;
+                                                display: block;
+                                                height: auto;
+                                                border: 0;
+                                              "
+                                /></a>
+                              </td>
+                            </tr>
+                          </table>
+                        </div>
+                      </td>
+                    </tr>
+                  </table>
+                  <table
+                          class="text_block block-3"
+                          width="100%"
+                          border="0"
+                          cellpadding="0"
+                          cellspacing="0"
+                          role="presentation"
+                          style="
+                                box-sizing: border-box;
+
+                                word-break: break-word;
+                              "
+                  >
+                    <tr style="box-sizing: border-box">
+                      <td
+                              class="pad"
+                              style="
+                                    box-sizing: border-box;
+                                    padding-bottom: 10px;
+                                    padding-left: 20px;
+                                    padding-right: 5px;
+                                    padding-top: 15px;
+                                  "
+                      >
+                        <div
+                                style="
+                                      box-sizing: border-box;
+                                      font-family: sans-serif;
+                                    "
+                        >
+                          <div
+                                  class
+                                  style="
+                                        box-sizing: border-box;
+                                        font-size: 12px;
+                                        font-family: Montserrat, Trebuchet MS,
+                                          Lucida Grande, Lucida Sans Unicode,
+                                          Lucida Sans, Tahoma, sans-serif;
+                                        color: #ffffff;
+                                        line-height: 1.2;
+                                      "
+                          >
+                            <p
+                                    style="
+                                          box-sizing: border-box;
+                                          line-height: inherit;
+                                          margin: 0;
+                                          font-size: 12px;
+                                        "
+                            >
+                              &nbsp;
+                            </p>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </td>
+  </tr>
+  </tbody>
+</table>
+</body>
 </html>
