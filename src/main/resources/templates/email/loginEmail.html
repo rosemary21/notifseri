@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html
         xmlns="http://www.w3.org/1999/xhtml"
-        xmlns:th="http://www.w3.org/1999/xhtml"
-
+        xmlns:th="http://www.thymeleaf.org"
         xmlns:v="urn:schemas-microsoft-com:vml"
         xmlns:o="urn:schemas-microsoft-com:office:office"
         lang="en"
@@ -208,7 +207,7 @@
                                       "
                           >
                             <a
-                                    href="https://creditville.ng/"
+                                    href="https://www.example.com/"
                                     target="_blank"
                                     style="
                                           box-sizing: border-box;
@@ -327,7 +326,7 @@
                                       "
                           >
                             <img
-                                    src="https://res.cloudinary.com/creditville-ng/image/upload/v1678798234/email-template/EmailHeader_cvzedb.png"
+                                    src="https://res.cloudinary.com/creditville-ng/image/upload/v1709078055/loginNotification_x39qcy.png"
                                     style="
                                           box-sizing: border-box;
                                           display: block;
@@ -450,9 +449,9 @@
                                     <span
                                             class="tinyMce-placeholder"
                                             style="box-sizing: border-box"
-                                            th:text=" 'Dear ' + ${fullName}"
+                                            th:text=" 'Dear ' +${firstName} + ' ' + ${lastName}"
 
-                                    > {{CustomerName}}</span
+                                    >Dear </span
                                     >
                         </h3>
                       </td>
@@ -505,7 +504,13 @@
                                         margin-bottom: 16px;
                                       "
                           >
-                            We hope this email finds you well. As part of our commitment to providing you with transparent and convenient financial services, we are pleased to send you the statement of your account as requested.
+                            Please be informed that your C Money
+                            Application was accessed on
+                            <strong style="box-sizing: border-box"
+                                    th:text="${date}"
+
+                            >{{24/01/2024}}</strong
+                            > at <strong th:text="${time}">{{12:26 pm}}</strong>
 
                           </p>
                           <p
@@ -516,7 +521,28 @@
                                         margin-bottom: 16px;
                                       "
                           >
-                            Attached to this email, you will find a detailed overview of your account activity.
+                            If you did not log into your C Money
+                            Banking Application at the time detailed
+                            above, please call
+                            <strong style="box-sizing: border-box"
+                            >07000330330</strong
+                            >
+                            or send an email to
+                            <strong style="box-sizing: border-box"
+                            >customer@creditville.ng</strong
+                            >
+                            immediately.
+                          </p>
+                          <p
+                                  style="
+                                        box-sizing: border-box;
+                                        line-height: inherit;
+                                        margin: 0;
+                                      "
+                          >
+                            <strong style="box-sizing: border-box"
+                            >CMFB.</strong
+                            >
                           </p>
                         </div>
                       </td>

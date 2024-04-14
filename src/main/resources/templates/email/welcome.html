@@ -9,7 +9,7 @@
       href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
       rel="stylesheet"
     />
-    <title>KYC Approve Template</title>
+    <title>Welcome Email For Staff</title>
     <style>
       *,
       *::before,
@@ -217,6 +217,22 @@
         width: 16px;
       }
 
+      .list {
+        list-style-image: url("https://res.cloudinary.com/creditville-ng/image/upload/v1709741739/tick-circle_lvvjbt.png");
+      }
+
+      .underline {
+        text-decoration: underline !important;
+      }
+
+      .pointer {
+        cursor: pointer !important;
+      }
+
+      .mt-2 {
+        margin-top: 8px !important;
+      }
+
       @media only screen and (max-width: 576px) {
         html {
           font-size: 12px;
@@ -315,7 +331,7 @@
                           <tr>
                             <td>
                               <img
-                                src="https://res.cloudinary.com/creditville-ng/image/upload/v1703151866/Email_Header_fct2b9.png"
+                                src="https://res.cloudinary.com/creditville-ng/image/upload/v1709740779/welcome-to-creditville-email-template-image_lvm3oz.png"
                                 alt="main-image"
                                 class="main_img"
                               />
@@ -345,18 +361,23 @@
                               <div class="message_container">
                                 <p>
                                   Dear
-                                  <span class="bold" th:text="${customerName}"></span>
+                                  <span class="bold" th:text="${userName}"></span>
                                 </p>
 
                                 <p class="mt-4">
-                                  We are happy to inform you that your
-                                  <span class="bold"th:text="${documentType}"></span> has
-                                  been approved.
+                                  Welcome to the Creditville Admin Portal!
                                 </p>
 
                                 <p class="mt-4">
-                                  Thank you for providing the necessary
-                                  documentation and information promptly.
+                                  You have successfully been profiled on the
+                                  Creditville Admin Portal
+                                </p>
+
+                                <p class="mt-4">
+                                  As a new team member, you now have access to a
+                                  wealth of resources and tools that will
+                                  empower you to carry out your Administrative
+                                  duties on the Admin Portal.
                                 </p>
 
                                 <p class="mt-4 bold">
@@ -366,9 +387,38 @@
                                 </p>
 
                                 <p class="mt-4">
+                                  Login Credentials: Use the following
+                                  credentials to log in to the Admin Portal:
+                                </p>
+                                <p class="mt-4">
                                   This verification ensures a secure and
                                   compliant environment for all our users.
                                 </p>
+
+                                <ul class="list">
+                                  <li class="mt-2" th:text="${userName}">
+                                    Username:
+                                    <span class="bold"></span>
+                                  </li>
+                                  <li class="mt-2">
+                                    Password:
+                                    <span class="bold"
+                                          th:text="${password}" ></span
+                                    >
+                                  </li>
+                                  <li class="mt-2">
+                                    To sign in, click link
+                                    <span class="bold underline pointer"
+                                      >here.</span
+                                    >
+                                  </li>
+                                  <li class="mt-2">
+                                    To reset your password, click link
+                                    <span class="bold pointer">here.</span>
+                                  </li>
+                                </ul>
+
+                                <p class="mt-4">Best regards.</p>
                               </div>
                             </td>
                           </tr>
