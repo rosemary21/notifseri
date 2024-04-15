@@ -330,7 +330,6 @@ public class NotificationServiceImpl implements NotificationService {
         SmsTemplate smsTemplate=broadCastSmsRepository.findBySender("Creditville");
 
         EmailTemplate redwoodTemplate= broadCastRepository.findBySender("RedWood");
-
         List<String> arrayList=new ArrayList<>();
         context.setVariable("emailBody",emailTemplate.getTemplateMessage());
         String templateLocation = this.getTemplateLocation("broadcastredwood");
@@ -349,7 +348,6 @@ public class NotificationServiceImpl implements NotificationService {
             List<String> toAddressList = new ArrayList<>();
             toAddressList.add("omotayo.owolabi@creditville.ng");
             toAddressList.add("chioma.chukelu@creditville.ng");
-
 //                if(toAddresses.contains(",")) {
 //                    String[] parts = toAddresses.split(",");
 //                    toAddressList = Arrays.stream(parts).collect(Collectors.toList());
@@ -463,7 +461,7 @@ public class NotificationServiceImpl implements NotificationService {
                 Map<String ,Integer> keyValue=new HashMap<>();
 
                 for (String recipient : recipients) {
-                     String values[]= recipient.split(",");
+                    String values[]= recipient.split(",");
                     for(int i=2;i<values.length;i++){
                         if(values[1].equalsIgnoreCase("message")){
                             keyValue.put(values[i],i);
@@ -497,10 +495,10 @@ public class NotificationServiceImpl implements NotificationService {
                             Integer value=keyValue.get(m.group(i));
                             log.info("getting the index value {}",value);
                             log.info("value to be replaced {}",values[value]);
-                             messase= new StringBuilder(formattedString.replace("{"+m.group(i)+"}",values[value]));
+                            messase= new StringBuilder(formattedString.replace("{"+m.group(i)+"}",values[value]));
                             formattedString=messase.toString();
-                             log.info("getting the message value {}",formattedString);
-                           // result.add(m.group(i));
+                            log.info("getting the message value {}",formattedString);
+                            // result.add(m.group(i));
 
                         }
 
@@ -515,11 +513,7 @@ public class NotificationServiceImpl implements NotificationService {
 
                     }
 
-
                 }
-                catch (Exception e){
-                    e.printStackTrace();
-                    arrayList.add(emailAddress);
 
                 String jsonStr = JSONArray.toJSONString(arrayList);
                 SmsTemplate emailTemplate1=broadCastSmsRepository.findBySender("CreditVille");
@@ -562,73 +556,11 @@ public class NotificationServiceImpl implements NotificationService {
             smsService.sendSingleSms(smsdto);
             String jsonStr = JSONArray.toJSONString(arrayList);
             SmsTemplate emailTemplate1=broadCastSmsRepository.findBySender("CreditVille");
-
             emailTemplate1.setFailedEmail(jsonStr);
             emailTemplate1.setEnableBroadcast("N");
             broadCastSmsRepository.save(emailTemplate1);
         }
 
-        if(emailTemplate.getEnableUnregistered().equalsIgnoreCase("Y")){
-
-            try{
-                URL u = new URL(emailTemplate.getUnregisteredTemplate());
-                InputStream targetStream =u.openStream();
-                byte[] bytes = IOUtils.toByteArray(targetStream);
-                String contents = new String(bytes, StandardCharsets.UTF_8);
-                String[] recipients = contents.split(System.lineSeparator());
-                for (String recipient : recipients) {
-                    log.info("getting the recipient {}",recipient);
-                    String toAddresses = recipient;
-                    List<String> toAddressList = new ArrayList<>();
-                    if(toAddresses.contains(",")) {
-                        String[] parts = toAddresses.split(",");
-                        toAddressList = Arrays.stream(parts).collect(Collectors.toList());
-                    }else toAddressList.add(toAddresses);
-
-                    String   senderNameValue=senderName;
-                    String  SenderEmailValue=senderEmail;
-                    EmailPopulatingBuilder emailPopulatingBuilder = EmailBuilder.startingBlank()
-                            .from(senderNameValue, SenderEmailValue)
-                            .to(null, toAddressList)
-                            .withSubject(emailTemplate.getEmailSubject())
-                            .withHTMLText(content);
-                    Email email =  emailPopulatingBuilder
-                            .buildEmail();
-
-                    if(notificationsEnabled) {
-                        try{
-                            log.info("Getting the redwood information details");
-                            Mailer mailer = MailerBuilder.withSMTPServerHost(mailUrl)
-                                    .withSMTPServerPort(mailPort)
-                                    .withSMTPServerUsername(mailUser)
-                                    .withSMTPServerPassword(mailPass)
-                                    .withTransportStrategy(TransportStrategy.SMTP_TLS).buildMailer();
-                            mailer.sendMail(email, async);
-
-                            log.info("THE EMAIL BROADCAST HAS BEEN SUCCESSFULLY SENT TO CUSTOMER");
-
-                        }
-                        catch (Exception e){
-                            e.printStackTrace();
-                            arrayList.add(toAddresses);
-
-                        }
-                    }
-                }
-
-                String jsonStr = JSONArray.toJSONString(arrayList);
-                EmailTemplate emailTemplate1=broadCastRepository.findBySender("CreditVille");
-                emailTemplate1.setFailedEmail(jsonStr);
-                emailTemplate1.setEnableUnregistered("N");
-                broadCastRepository.save(emailTemplate1);
-
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-
-
-
-        }
     }
 
 
