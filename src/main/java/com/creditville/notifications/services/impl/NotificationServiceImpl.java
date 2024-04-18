@@ -5,23 +5,25 @@ package com.creditville.notifications.services.impl;
 import com.creditville.notifications.exceptions.CustomCheckedException;
 import com.creditville.notifications.models.EmailTemplate;
 import com.creditville.notifications.models.ExcludedEmail;
+import com.creditville.notifications.models.SmsTemplate;
 import com.creditville.notifications.models.To;
 import com.creditville.notifications.models.requests.SendEmailRequest;
 import com.creditville.notifications.models.response.Client;
 import com.creditville.notifications.redwood.model.EmailRequest;
-import com.creditville.notifications.repositories.BroadCastRepository;
-import com.creditville.notifications.repositories.EmailAuditRepository;
-import com.creditville.notifications.repositories.ExcludedEmailRepository;
-import com.creditville.notifications.repositories.FailedEmailRepository;
+import com.creditville.notifications.repositories.*;
 import com.creditville.notifications.services.ClientService;
 import com.creditville.notifications.services.EmailService;
 import com.creditville.notifications.services.NotificationService;
+import com.creditville.notifications.sms.dto.RequestDTO;
+import com.creditville.notifications.sms.dto.SMSDTO;
+import com.creditville.notifications.sms.services.SmsService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.util.IOUtils;
 import org.json.simple.JSONArray;
 import org.simplejavamail.api.email.Email;
 import org.simplejavamail.api.email.EmailPopulatingBuilder;
@@ -44,7 +46,12 @@ import javax.activation.FileDataSource;
 import javax.mail.Message;
 import javax.mail.util.ByteArrayDataSource;
 import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -58,6 +65,12 @@ public class NotificationServiceImpl implements NotificationService {
     @Autowired
     private TemplateEngine templateEngine;
 
+    @Autowired
+    SmsService smsService;
+
+
+    @Value("${app.sms.source}")
+    private String smssource;
 //    @Autowired
 //    private Mailer mailer;
 
@@ -114,6 +127,10 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Autowired
     BroadCastRepository broadCastRepository;
+
+
+    @Autowired
+    BroadCastSmsRepository broadCastSmsRepository;
 
 
 
@@ -309,70 +326,239 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void sendAllCientEmail() throws CustomCheckedException {
         Context context = new Context();
-        EmailTemplate emailTemplate= broadCastRepository.findBySender("Creditville");
+        EmailTemplate emailTemplate= broadCastRepository.findBySender("CreditVille");
+        SmsTemplate smsTemplate=broadCastSmsRepository.findBySender("Creditville");
+
+        EmailTemplate redwoodTemplate= broadCastRepository.findBySender("RedWood");
         List<String> arrayList=new ArrayList<>();
         context.setVariable("emailBody",emailTemplate.getTemplateMessage());
         String templateLocation = this.getTemplateLocation("broadcastredwood");
         String content = templateEngine.process(templateLocation, context);
-//        Client newclient=new Client();
-//        newclient.setEmail("chioma.chukelu@creditville.ng");
-//        Client oldclient=new Client();
-//        oldclient.setEmail("chioma.chukelu@creditville.ngs");
-//        List<Client> clientsList=new ArrayList<>();
-//        clientsList.add(newclient);
-//        clientsList.add(oldclient);
-  //      List<Client> clients= clientService.fetchClients();
-//        List<Client> clients=clientsList;
+
+
         if(emailTemplate.getEnableBroadcast().equalsIgnoreCase("Y")){
+            List<Client> clients= clientService.fetchClients();
+
             log.info("getting the braodcast {}");
             String emailAddress="";
-          // for(Client client:clients){
-             //   emailAddress=client.getEmail();
-                log.info("getting the email address <><>< {}",emailAddress);
-              //  String toAddresses = emailAddress;
-                List<String> toAddressList = new ArrayList<>();
-                toAddressList.add("omotayo.owolabi@creditville.ng");
-                toAddressList.add("chioma.chukelu@creditville.ng");
+            // for(Client client:clients){
+            //   emailAddress=client.getEmail();
+            log.info("getting the email address <><>< {}",emailAddress);
+            //  String toAddresses = emailAddress;
+            List<String> toAddressList = new ArrayList<>();
+            toAddressList.add("omotayo.owolabi@creditville.ng");
+            toAddressList.add("chioma.chukelu@creditville.ng");
 //                if(toAddresses.contains(",")) {
 //                    String[] parts = toAddresses.split(",");
 //                    toAddressList = Arrays.stream(parts).collect(Collectors.toList());
 //                }else toAddressList.add(toAddresses);
-                String   senderNameValue=senderName;
-                String  SenderEmailValue=senderEmail;
-                EmailPopulatingBuilder emailPopulatingBuilder = EmailBuilder.startingBlank()
-                        .from(senderNameValue, SenderEmailValue)
-                        .to(null, toAddressList)
-                        .withSubject(emailTemplate.getEmailSubject())
-                        .withHTMLText(content);
-                Email email =  emailPopulatingBuilder
-                        .buildEmail();
+            String   senderNameValue=senderName;
+            String  SenderEmailValue=senderEmail;
+            EmailPopulatingBuilder emailPopulatingBuilder = EmailBuilder.startingBlank()
+                    .from(senderNameValue, SenderEmailValue)
+                    .to(null, toAddressList)
+                    .withSubject(emailTemplate.getEmailSubject())
+                    .withHTMLText(content);
+            Email email =  emailPopulatingBuilder
+                    .buildEmail();
 
-                if(notificationsEnabled) {
-                    try{
-                        log.info("Getting the redwood information details");
-                        Mailer mailer = MailerBuilder.withSMTPServerHost(mailUrl)
-                                .withSMTPServerPort(mailPort)
-                                .withSMTPServerUsername(mailUser)
-                                .withSMTPServerPassword(mailPass)
-                                .withTransportStrategy(TransportStrategy.SMTP_TLS).buildMailer();
-                        mailer.sendMail(email, async);
+            if(notificationsEnabled) {
+                try{
+                    log.info("Getting the redwood information details");
+                    Mailer mailer = MailerBuilder.withSMTPServerHost(mailUrl)
+                            .withSMTPServerPort(mailPort)
+                            .withSMTPServerUsername(mailUser)
+                            .withSMTPServerPassword(mailPass)
+                            .withTransportStrategy(TransportStrategy.SMTP_TLS).buildMailer();
+                    mailer.sendMail(email, async);
 
-                        log.info("THE EMAIL BROADCAST HAS BEEN SUCCESSFULLY SENT TO CUSTOMER");
+                    log.info("THE EMAIL BROADCAST HAS BEEN SUCCESSFULLY SENT TO CUSTOMER");
 
-                    }
-                    catch (Exception e){
-                        e.printStackTrace();
-                        arrayList.add(emailAddress);
-
-                    }
                 }
+                catch (Exception e){
+                    e.printStackTrace();
+                    arrayList.add(emailAddress);
 
-        //    }
+                }
+            }
+
+            //    }
             String jsonStr = JSONArray.toJSONString(arrayList);
-            EmailTemplate emailTemplate1=broadCastRepository.findBySender("Creditville");
+            EmailTemplate emailTemplate1=broadCastRepository.findBySender("CreditVille");
             emailTemplate1.setFailedEmail(jsonStr);
             emailTemplate1.setEnableBroadcast("N");
             broadCastRepository.save(emailTemplate1);
+        }
+
+        if(emailTemplate.getEnableUnregistered().equalsIgnoreCase("Y")){
+
+            try{
+                URL u = new URL(emailTemplate.getUnregisteredTemplate());
+                InputStream targetStream =u.openStream();
+                byte[] bytes = IOUtils.toByteArray(targetStream);
+                String contents = new String(bytes, StandardCharsets.UTF_8);
+                String[] recipients = contents.split(System.lineSeparator());
+                for (String recipient : recipients) {
+                    log.info("getting the recipient {}",recipient);
+                    String toAddresses = recipient;
+                    List<String> toAddressList = new ArrayList<>();
+                    if(toAddresses.contains(",")) {
+                        String[] parts = toAddresses.split(",");
+                        toAddressList = Arrays.stream(parts).collect(Collectors.toList());
+                    }else toAddressList.add(toAddresses);
+
+                    String   senderNameValue=senderName;
+                    String  SenderEmailValue=senderEmail;
+                    EmailPopulatingBuilder emailPopulatingBuilder = EmailBuilder.startingBlank()
+                            .from(senderNameValue, SenderEmailValue)
+                            .to(null, toAddressList)
+                            .withSubject(emailTemplate.getEmailSubject())
+                            .withHTMLText(content);
+                    Email email =  emailPopulatingBuilder
+                            .buildEmail();
+
+                    if(notificationsEnabled) {
+                        try{
+                            log.info("Getting the redwood information details");
+                            Mailer mailer = MailerBuilder.withSMTPServerHost(mailUrl)
+                                    .withSMTPServerPort(mailPort)
+                                    .withSMTPServerUsername(mailUser)
+                                    .withSMTPServerPassword(mailPass)
+                                    .withTransportStrategy(TransportStrategy.SMTP_TLS).buildMailer();
+                            mailer.sendMail(email, async);
+
+                            log.info("THE EMAIL BROADCAST HAS BEEN SUCCESSFULLY SENT TO CUSTOMER");
+
+                        }
+                        catch (Exception e){
+                            e.printStackTrace();
+                            arrayList.add(toAddresses);
+
+                        }
+                    }
+                }
+
+                String jsonStr = JSONArray.toJSONString(arrayList);
+                EmailTemplate emailTemplate1=broadCastRepository.findBySender("CreditVille");
+                emailTemplate1.setFailedEmail(jsonStr);
+                emailTemplate1.setEnableUnregistered("N");
+                broadCastRepository.save(emailTemplate1);
+
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+
+
+        if(smsTemplate.getEnableUnregistered().equalsIgnoreCase("Y")){
+
+            try{
+                URL u = new URL(smsTemplate.getUnregisteredTemplate());
+                InputStream targetStream =u.openStream();
+                byte[] bytes = IOUtils.toByteArray(targetStream);
+                String contents = new String(bytes, StandardCharsets.UTF_8);
+                String[] recipients = contents.split(System.lineSeparator());
+                Map<String ,Integer> keyValue=new HashMap<>();
+
+                for (String recipient : recipients) {
+                    String values[]= recipient.split(",");
+                    for(int i=2;i<values.length;i++){
+                        if(values[1].equalsIgnoreCase("message")){
+                            keyValue.put(values[i],i);
+                        }
+                    }
+
+                    String toAddresses = values[0];
+                    if(!(values[1].contains("{")) && !(values[1].equalsIgnoreCase("message"))){
+                        log.info("no message format");
+                        SMSDTO smsdto=new SMSDTO();
+                        RequestDTO requestDTO=new RequestDTO();
+                        requestDTO.setText(values[1]);
+                        requestDTO.setDest(toAddresses);
+                        requestDTO.setSrc(smssource);
+                        smsdto.setSms(requestDTO);
+                        smsService.sendSingleSms(smsdto);
+                    }
+                    if(values[1].contains("{") && !(values[1].equalsIgnoreCase("message"))){
+                        log.info("message format exist");
+                        List<String> result = new ArrayList<>();
+                        String rePattern = "\\{(.*?)}";
+                        Pattern p = Pattern.compile(rePattern);
+                        Matcher m = p.matcher(values[1]);
+                        int i=1;
+                        StringBuilder messase= new StringBuilder("") ;
+                        String formattedString=values[1];
+
+
+                        while (m.find()) {
+                            log.info("getting the result {}",m.group(i));
+                            Integer value=keyValue.get(m.group(i));
+                            log.info("getting the index value {}",value);
+                            log.info("value to be replaced {}",values[value]);
+                            messase= new StringBuilder(formattedString.replace("{"+m.group(i)+"}",values[value]));
+                            formattedString=messase.toString();
+                            log.info("getting the message value {}",formattedString);
+                            // result.add(m.group(i));
+
+                        }
+
+                        log.info("final value {}",messase);
+                        SMSDTO smsdto=new SMSDTO();
+                        RequestDTO requestDTO=new RequestDTO();
+                        requestDTO.setText(formattedString);
+                        requestDTO.setDest(toAddresses);
+                        requestDTO.setSrc(smssource);
+                        smsdto.setSms(requestDTO);
+                        smsService.sendSingleSms(smsdto);
+
+                    }
+
+                }
+
+                String jsonStr = JSONArray.toJSONString(arrayList);
+                SmsTemplate emailTemplate1=broadCastSmsRepository.findBySender("CreditVille");
+                emailTemplate1.setFailedEmail(jsonStr);
+                emailTemplate1.setEnableUnregistered("N");
+                broadCastSmsRepository.save(emailTemplate1);
+
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+
+
+        if(smsTemplate.getEnableBroadcast().equalsIgnoreCase("Y")){
+            List<Client> clients= clientService.fetchClients();
+
+            log.info("getting the braodcast {}");
+            String emailAddress="";
+            // for(Client client:clients){
+            //   emailAddress=client.getEmail();
+            log.info("getting the email address <><>< {}",emailAddress);
+            //  String toAddresses = emailAddress;
+            List<String> toAddressList = new ArrayList<>();
+            toAddressList.add("2348169696443");
+            toAddressList.add("2348169696443");
+//                if(toAddresses.contains(",")) {
+//                    String[] parts = toAddresses.split(",");
+//                    toAddressList = Arrays.stream(parts).collect(Collectors.toList());
+//                }else toAddressList.add(toAddresses);
+
+
+            //    }
+
+            SMSDTO smsdto=new SMSDTO();
+            RequestDTO requestDTO=new RequestDTO();
+            requestDTO.setText(smsTemplate.getTemplateMessage());
+            requestDTO.setDest("2348169696443");
+            requestDTO.setSrc(smssource);
+            smsdto.setSms(requestDTO);
+            smsService.sendSingleSms(smsdto);
+            String jsonStr = JSONArray.toJSONString(arrayList);
+            SmsTemplate emailTemplate1=broadCastSmsRepository.findBySender("CreditVille");
+            emailTemplate1.setFailedEmail(jsonStr);
+            emailTemplate1.setEnableBroadcast("N");
+            broadCastSmsRepository.save(emailTemplate1);
         }
 
     }
@@ -586,6 +772,9 @@ public class NotificationServiceImpl implements NotificationService {
 
             case "nibbs-settlement-transaction":
                 return "email/nibbs-settlement";
+
+            case "flutterwave-settlement-transaction":
+                return "email/flutterwave-settlement";
 
             case "savings-transfer":
                 return "email/savings-transfer";
