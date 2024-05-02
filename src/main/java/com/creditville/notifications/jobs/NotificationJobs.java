@@ -63,10 +63,12 @@ public class NotificationJobs {
      @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
     public void sendAllNotification() {
         try {
+            System.out.println("getting the notification type {}"+NotificationType.DUE_RENTAL_ONE.name());
             NotificationGeneralConfig dueRentalOneConfig = notificationConfigService.getNotificationGeneralConfig(NotificationType.DUE_RENTAL_ONE.name());
-            if(dueRentalOneConfig.getIsEnabled())
+            log.info("getting th due rental {}",dueRentalOneConfig);
+           // if(dueRentalOneConfig.getIsEnabled())
                 dispatcherService.sendAllCient();
-            else
+           // else
                 log.info("Schedule for due rental one has reached it's schedule time but notification is disabled from configuration".toUpperCase());
         }catch (CustomCheckedException cce) {
             cce.printStackTrace();
