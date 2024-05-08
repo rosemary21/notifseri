@@ -493,12 +493,16 @@ public class NotificationServiceImpl implements NotificationService {
                         while (m.find()) {
                             log.info("getting the result {}",m.group(i));
                             Integer value=keyValue.get(m.group(i));
-                            log.info("getting the index value {}",value);
-                            log.info("value to be replaced {}",values[value]);
-                            messase= new StringBuilder(formattedString.replace("{"+m.group(i)+"}",values[value]));
-                            formattedString=messase.toString();
-                            log.info("getting the message value {}",formattedString);
-                            // result.add(m.group(i));
+
+                            if(value!=null){
+                                log.info("getting the index value {}",value);
+                                log.info("value to be replaced {}",values[value]);
+                                messase= new StringBuilder(formattedString.replace("{"+m.group(i)+"}",values[value]));
+                                formattedString=messase.toString();
+                                log.info("getting the message value {}",formattedString);
+                                // result.add(m.group(i));
+                            }
+
 
                         }
 
