@@ -468,7 +468,8 @@ public class NotificationServiceImpl implements NotificationService {
                     String values[]= recipient.split(",");
                     for(int i=2;i<values.length;i++){
                         if(values[1].equalsIgnoreCase("message")){
-                            keyValue.put(values[i],i);
+                            String result1 = values[i].replace("\r", "").replace("\n", "");
+                            keyValue.put(result1,i);
                         }
                     }
 
