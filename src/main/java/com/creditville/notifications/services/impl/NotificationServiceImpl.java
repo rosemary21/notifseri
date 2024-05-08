@@ -18,6 +18,7 @@ import com.creditville.notifications.sms.dto.RequestDTO;
 import com.creditville.notifications.sms.dto.SMSDTO;
 import com.creditville.notifications.sms.services.SmsService;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -131,6 +132,9 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Autowired
     BroadCastSmsRepository broadCastSmsRepository;
+
+    @Autowired
+    ObjectMapper mapper;
 
 
 
@@ -469,6 +473,7 @@ public class NotificationServiceImpl implements NotificationService {
                     }
 
                     String toAddresses = values[0];
+                    //uncustomize message on the excel sheet
                     if(!(values[1].contains("{")) && !(values[1].equalsIgnoreCase("message"))){
                         log.info("no message format");
                         SMSDTO smsdto=new SMSDTO();
@@ -479,6 +484,8 @@ public class NotificationServiceImpl implements NotificationService {
                         smsdto.setSms(requestDTO);
                         smsService.sendSingleSms(smsdto);
                     }
+
+
                     if(values[1].contains("{") && !(values[1].equalsIgnoreCase("message"))){
                         log.info("message format exist");
                         List<String> result = new ArrayList<>();
@@ -492,6 +499,7 @@ public class NotificationServiceImpl implements NotificationService {
 
                         while (m.find()) {
                             log.info("getting the result {}",m.group(i));
+                            log.info("getting the key value {}",mapper.writeValueAsString(keyValue));
                             Integer value=keyValue.get(m.group(i));
 
                             if(value!=null){
@@ -502,10 +510,7 @@ public class NotificationServiceImpl implements NotificationService {
                                 log.info("getting the message value {}",formattedString);
                                 // result.add(m.group(i));
                             }
-
-
                         }
-
                         log.info("final value {}",messase);
                         SMSDTO smsdto=new SMSDTO();
                         RequestDTO requestDTO=new RequestDTO();
@@ -518,7 +523,6 @@ public class NotificationServiceImpl implements NotificationService {
                     }
 
                 }
-
                 String jsonStr = JSONArray.toJSONString(arrayList);
                 SmsTemplate emailTemplate1=broadCastSmsRepository.findBySender("CreditVille");
                 emailTemplate1.setFailedEmail(jsonStr);
