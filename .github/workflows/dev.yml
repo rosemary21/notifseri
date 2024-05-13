@@ -1,0 +1,87 @@
+name: Dev Environment - CI Pipeline
+
+env:
+  APP_NAME: "CV Notifications API"
+  # RELEASE_PATH: /opt/tomcat/core/
+  RELEASE_PATH: /opt/tomcat/notifications/ROOT/
+  WORK_PATH: /home/ubuntu/.m2/repository/com/creditville/target/notifications/
+  # /com/example/userservice/0.0.1-SNAPSHOT/
+  # \.m2\repository\com\creditville\notifications\1.0-SNAPSHOT\notifications-1.0-SNAPSHOT.pom
+  # .m2\repository\com\creditville\notifications\1.0-SNAPSHOT\notifications-1.0-SNAPSHOT.war
+
+
+on:
+  push:
+    branches:
+      - dev
+  pull_request:
+    branches:
+      - dev
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, linux, development, notification]
+
+    steps:
+      #check out repository and clone repository to the self-hosted server
+      - name: Checkout the develop branch
+        uses: actions/checkout@v2
+
+      #set up Java on the server
+      - name: Set up JDK 11
+        uses: actions/setup-java@v1
+        with:
+          java-version: "11"
+
+
+      - name: Build Application
+        # run: mvn compiler:compile
+        # run:   mvn spring-boot:run
+        run: |
+          mvn clean
+          mvn install -DskipTests
+          pwd
+          cd ${{ env.WORK_PATH }}
+          ls -al
+          
+
+      # - name: Deploy to EC2 Server
+      #   run: |
+      #     pwd
+      #     cd ~
+      #     cd ${{ env.RELEASE_PATH }}
+      #     if [ -f ${{ env.RELEASE_PATH }}userservice.war ]; then
+      #       mv ${{ env.RELEASE_PATH }}userservice.war ${{ env.RELEASE_PATH }}userservice.warbackup
+      #     fi
+      #     sleep 10s; mv ${{ env.WORK_PATH }}userservice-0.0.1-SNAPSHOT.war ${{ env.RELEASE_PATH }}userservice.war
+      #     sleep 10; ls -al
+      #     cd ${{ env.RELEASE_PATH }}userservice/WEB-INF/classes/
+      #     ls -al
+      #     rm logback-spring.xml || true
+      #     sudo systemctl restart tomcat
+
+
+
+  # deploy:
+  #   runs-on: ubuntu-latest
+  #   needs: [build]
+
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v2
+
+  #     - name: Deploy to EC2
+  #       run: |
+  #         pwd
+  #         cd ~
+  #         rm ${{ env.RELEASE_PATH }}userservice.warbackup || true
+  #         if [ -f ${{ env.RELEASE_PATH }}userservice.war ]; then
+  #           mv ${{ env.RELEASE_PATH }}userservice.war ${{ env.RELEASE_PATH }}userservice.warbackup
+  #         fi
+  #         sleep 10s; mv ${{ env.WORK_PATH }}userservice-0.0.1-SNAPSHOT.war ${{ env.RELEASE_PATH }}userservice.war
+  #         ls -al
+  #         cd .
+  #         cd ${{ env.RELEASE_PATH }}userservice/WEB-INF/classes/
+  #         rm logback-spring.xml || true
+  #         sudo systemctl restart tomcat
+
