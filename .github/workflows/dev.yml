@@ -46,9 +46,9 @@ jobs:
 
       - name: Backup Existing WEB-INF Directory in the Server
         run: |
-        cd ~
-        cd ${{ env.RELEASE_PATH }}
-        ls -al
+          cd ~
+          cd ${{ env.RELEASE_PATH }}
+          ls -al
 
 
       # - name: Copy WEB-INF Directory to Notifications Directory in the Server
