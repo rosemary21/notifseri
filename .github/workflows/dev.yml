@@ -5,7 +5,6 @@ env:
   # RELEASE_PATH: /opt/tomcat/core/
   RELEASE_PATH: /opt/tomcat/notifications/ROOT/
   WORK_PATH: /home/ubuntu/.m2/repository/com/creditville/target/notifications/
-  # /home/ubuntu/.m2/repository/com/creditville/notifications
   # /home/ubuntu/notifications-runner/_work/CreditVille-Notifications_API/CreditVille-Notifications_API
 
 
@@ -37,7 +36,7 @@ jobs:
         # run: mvn compiler:compile
         # run:   mvn spring-boot:run
         # cd ${{ env.WORK_PATH }}
-        #   cd /home/ubuntu/.m2/repository/com/creditville/notifications
+        #   cd /home/ubuntu/notifications-runner/_work/CreditVille-Notifications_API/CreditVille-Notifications_API
         run: |
           mvn clean
           mvn install -DskipTests
@@ -45,8 +44,33 @@ jobs:
           cd target/notifications/
           ls -al
 
+      - name: Backup Existing WEB-INF Directory in the Server
+        run: |
+        cd ${{ env.RELEASE_PATH }}
+        ls -al
 
-      # - name: Deploy to EC2 Server
+
+      # - name: Copy WEB-INF Directory to Notifications Directory in the Server
+      #   run: |
+      #     pwd
+      #     cd ~
+      #     cd ${{ env.RELEASE_PATH }}
+      #     if [ -f ${{ env.RELEASE_PATH }}userservice.war ]; then
+      #       mv ${{ env.RELEASE_PATH }}userservice.war ${{ env.RELEASE_PATH }}userservice.warbackup
+      #     fi
+
+
+      #     sleep 10s; mv ${{ env.WORK_PATH }}userservice-0.0.1-SNAPSHOT.war ${{ env.RELEASE_PATH }}userservice.war
+      #     sleep 10; ls -al
+      #     cd ${{ env.RELEASE_PATH }}userservice/WEB-INF/classes/
+      #     ls -al
+      #     rm logback-spring.xml || true
+      #     sudo systemctl restart tomcat
+
+
+
+
+      # - name: Copy WEB-INF to EC2 Server
       #   run: |
       #     pwd
       #     cd ~
@@ -60,8 +84,6 @@ jobs:
       #     ls -al
       #     rm logback-spring.xml || true
       #     sudo systemctl restart tomcat
-
-
 
   # deploy:
   #   runs-on: ubuntu-latest
