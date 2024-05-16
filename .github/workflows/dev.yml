@@ -48,7 +48,10 @@ jobs:
           pwd
           cd ~
           cd ${{ env.RELEASE_PATH }}
-          
+          current_date=$(%m-%d-%y)
+          if [ -d ${{ env.RELEASE_PATH }}WEB-INFBackup ]; then
+            mv ${{ env.RELEASE_PATH }}WEB-INFBackup ${{ env.RELEASE_PATH }}WEB-INFBackup${current_date}
+          fi
           ls -al
 
 
