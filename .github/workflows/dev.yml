@@ -38,12 +38,13 @@ jobs:
         # run: mvn compiler:compile
         # run:   mvn spring-boot:run
         # cd ${{ env.WORK_PATH }}
+        #   cd /home/ubuntu/.m2/repository/com/creditville/notifications
         run: |
           mvn clean
           mvn install -DskipTests
           pwd
-          cd /home/ubuntu/.m2/repository/com/creditville/notifications
           ls -al
+        
           
 
       # - name: Deploy to EC2 Server
