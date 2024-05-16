@@ -43,14 +43,25 @@ jobs:
           cd target/notifications/
           ls -al
 
+      # - name: Rename Existing WEB-INFBackup Directory Using Current Date
+      #   run: |
+      #     pwd
+      #     cd ~
+      #     cd ${{ env.RELEASE_PATH }}
+      #     current_date=$(%m-%d-%y)
+      #     if [ -d ${{ env.RELEASE_PATH }}WEB-INFBackup ]; then
+      #       mv ${{ env.RELEASE_PATH }}WEB-INFBackup ${{ env.RELEASE_PATH }}WEB-INFBackup${current_date}
+      #     fi
+      #     ls -al
+
       - name: Rename Existing WEB-INFBackup Directory Using Current Date
         run: |
-          pwd
-          cd ~
           cd ${{ env.RELEASE_PATH }}
+          # Get the current date in the desired format
           current_date=$(%m-%d-%y)
-          if [ -d ${{ env.RELEASE_PATH }}WEB-INFBackup ]; then
-            mv ${{ env.RELEASE_PATH }}WEB-INFBackup ${{ env.RELEASE_PATH }}WEB-INFBackup${current_date}
+          # Check if WEB-INFBackup exists and rename it if it does
+          if [ -d "WEB-INFBackup" ]; then
+            mv WEB-INFBackup WEB-INFBackup${current_date}
           fi
           ls -al
 
