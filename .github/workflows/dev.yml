@@ -45,14 +45,10 @@ jobs:
 
       - name: Rename Existing WEB-INFBackup Directory Using Current Date
         run: |
+          pwd
           cd ~
           cd ${{ env.RELEASE_PATH }}
-          # Get the current date in the desired format
-          current_date=$(%m-%d-%y)
-          # Check if WEB-INFBackup exists and rename it if it does
-          if [ -d ${{ env.RELEASE_PATH }}WEB-INFBackup ]; then
-            mv ${{ env.RELEASE_PATH }}WEB-INFBackup ${{ env.RELEASE_PATH }}WEB-INFBackup${current_date}
-          fi
+          
           ls -al
 
 
