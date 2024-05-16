@@ -7,7 +7,7 @@ env:
   WORK_PATH: /home/ubuntu/.m2/repository/com/creditville/target/notifications/
   # /com/example/userservice/0.0.1-SNAPSHOT/
   # \.m2\repository\com\creditville\notifications\1.0-SNAPSHOT\notifications-1.0-SNAPSHOT.pom
-  # .m2\repository\com\creditville\notifications\1.0-SNAPSHOT\notifications-1.0-SNAPSHOT.war
+  # /home/ubuntu/.m2/repository/com/creditville/notifications
 
 
 on:
@@ -37,11 +37,12 @@ jobs:
       - name: Build Application
         # run: mvn compiler:compile
         # run:   mvn spring-boot:run
+        # cd ${{ env.WORK_PATH }}
         run: |
           mvn clean
           mvn install -DskipTests
           pwd
-          cd ${{ env.WORK_PATH }}
+          cd /home/ubuntu/.m2/repository/com/creditville/notifications
           ls -al
           
 
