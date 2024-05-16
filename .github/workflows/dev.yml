@@ -5,9 +5,8 @@ env:
   # RELEASE_PATH: /opt/tomcat/core/
   RELEASE_PATH: /opt/tomcat/notifications/ROOT/
   WORK_PATH: /home/ubuntu/.m2/repository/com/creditville/target/notifications/
-  # /com/example/userservice/0.0.1-SNAPSHOT/
-  # \.m2\repository\com\creditville\notifications\1.0-SNAPSHOT\notifications-1.0-SNAPSHOT.pom
   # /home/ubuntu/.m2/repository/com/creditville/notifications
+  # /home/ubuntu/notifications-runner/_work/CreditVille-Notifications_API/CreditVille-Notifications_API
 
 
 on:
@@ -43,9 +42,9 @@ jobs:
           mvn clean
           mvn install -DskipTests
           pwd
+          cd target/notifications/
           ls -al
-        
-          
+
 
       # - name: Deploy to EC2 Server
       #   run: |
