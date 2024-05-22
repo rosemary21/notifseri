@@ -798,6 +798,10 @@ public class NotificationServiceImpl implements NotificationService {
             case "bulk-approval":
                 return "email/bulk-approval";
 
+
+            case "bulk-rejection":
+                return "email/bulk-rejection";
+
             case "website-contact-us":
                 return "email/contact-us-email";
 
