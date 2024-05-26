@@ -486,8 +486,13 @@ public class NotificationServiceImpl implements NotificationService {
                         Matcher m = p.matcher(values[1]);
                         int i=1;
                         StringBuilder messase= new StringBuilder("") ;
-                        String formattedString=values[1];
 
+                        String formattedString=values[1];
+                        if(values[1].contains("comma")){
+                            messase= new StringBuilder(formattedString.replace("comma",","));
+                            formattedString=messase.toString();
+
+                        }
 
                         while (m.find()) {
                             log.info("getting the result {}",m.group(i));
@@ -495,6 +500,7 @@ public class NotificationServiceImpl implements NotificationService {
                             log.info("getting the index value {}",value);
                             log.info("value to be replaced {}",values[value]);
                              messase= new StringBuilder(formattedString.replace("{"+m.group(i)+"}",values[value]));
+
                             formattedString=messase.toString();
                              log.info("getting the message value {}",formattedString);
                            // result.add(m.group(i));
