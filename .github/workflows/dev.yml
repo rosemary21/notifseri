@@ -58,7 +58,9 @@ jobs:
         run: |
           cd ${{ env.RELEASE_PATH }}
           ls -la
-        
+          current_date=$(%m-%d-%y)
+          echo "current_date"
+         
 
 
       # - name: Backup Existing WEB-INF Directory
