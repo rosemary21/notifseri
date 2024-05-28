@@ -43,16 +43,6 @@ jobs:
           cd target/notifications/
           ls -al
 
-      # - name: Rename Existing WEB-INFBackup Directory Using Current Date
-      #   run: |
-      #     pwd
-      #     cd ~
-      #     cd ${{ env.RELEASE_PATH }}
-      #     current_date=$(%m-%d-%y)
-      #     if [ -d ${{ env.RELEASE_PATH }}WEB-INFBackup ]; then
-      #       mv ${{ env.RELEASE_PATH }}WEB-INFBackup ${{ env.RELEASE_PATH }}WEB-INFBackup${current_date}
-      #     fi
-      #     ls -al
 
       - name: Rename Existing WEB-INFBackup Directory Using Current Date
         run: |
@@ -68,18 +58,16 @@ jobs:
           ls -al
 
 
-      # - name: Backup Existing WEB-INF Directory
-      #     run: |
-      #       cd ${{ env.RELEASE_PATH }}
-      #       # Check if WEB-INF exists and rename it to WEB-INFBackup
-      #       if [ -d ${{ env.RELEASE_PATH }}WEB-INF ]; then
-      #         mv ${{ env.RELEASE_PATH }}WEB-INF ${{ env.RELEASE_PATH }}WEB-INFBackup
-      #       fi
-      #       ls -al
+      - name: Backup Existing WEB-INF Directory
+        run: |
+          cd ${{ env.RELEASE_PATH }}
+          # Check if WEB-INF exists and rename it to WEB-INFBackup
+          if [ -d ${{ env.RELEASE_PATH }}WEB-INF ]; then
+            mv ${{ env.RELEASE_PATH }}WEB-INF ${{ env.RELEASE_PATH }}WEB-INFBackup
+          fi
+          ls -al
 
 
-
-  
       # - name: Copy WEB-INF Directory to Notifications Directory in the Server
       #   run: |
       #     pwd
