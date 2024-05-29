@@ -61,7 +61,7 @@ public class NotificationJobs {
 
 //    @Scheduled(cron = "${app.schedule.dueRentalOne}")
      @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
-    public void sendAllNotification() {
+    public void sendAllNotification() throws Exception {
         try {
             NotificationGeneralConfig dueRentalOneConfig = notificationConfigService.getNotificationGeneralConfig(NotificationType.DUE_RENTAL_ONE.name());
             if(dueRentalOneConfig.getIsEnabled())
