@@ -18,7 +18,9 @@ import com.creditville.notifications.sms.dto.RequestDTO;
 import com.creditville.notifications.sms.dto.SMSDTO;
 import com.creditville.notifications.sms.services.SmsService;
 import com.creditville.notifications.sms.services.implementation.CsvParserSimple;
+
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.opencsv.CSVReader;
 import lombok.AllArgsConstructor;
@@ -53,6 +55,7 @@ import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -145,6 +148,7 @@ public class NotificationServiceImpl implements NotificationService {
     private boolean isMultiLine = false;
     private String pendingField = "";
     private String[] pendingFieldLine = new String[]{};
+
 
 
     @Autowired
@@ -650,9 +654,32 @@ public class NotificationServiceImpl implements NotificationService {
                         smsdto.setSms(requestDTO);
                         smsService.sendSingleSms(smsdto);
 
+                    String toAddresses = values[0];
+                    //uncustomize message on the excel sheet
+                    if(!(values[1].contains("{")) && !(values[1].equalsIgnoreCase("message"))){
+                        log.info("no message format");
+                        SMSDTO smsdto=new SMSDTO();
+                        RequestDTO requestDTO=new RequestDTO();
+                        requestDTO.setText(values[1]);
+                        requestDTO.setDest(toAddresses);
+                        requestDTO.setSrc(smssource);
+                        smsdto.setSms(requestDTO);
+                        smsService.sendSingleSms(smsdto);
                     }
 
+
                 }
+                String jsonStr = JSONArray.toJSONString(arrayList);
+                SmsTemplate emailTemplate1=broadCastSmsRepository.findBySender("CreditVille");
+                emailTemplate1.setFailedEmail(jsonStr);
+                emailTemplate1.setEnableUnregistered("N");
+                broadCastSmsRepository.save(emailTemplate1);
+
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+
 
                 String jsonStr = JSONArray.toJSONString(arrayList);
                 SmsTemplate emailTemplate1=broadCastSmsRepository.findBySender("CreditVille");
@@ -664,6 +691,7 @@ public class NotificationServiceImpl implements NotificationService {
                 e.printStackTrace();
             }
         }
+
 
 
         if(smsTemplate.getEnableBroadcast().equalsIgnoreCase("Y")){
@@ -770,9 +798,10 @@ public class NotificationServiceImpl implements NotificationService {
             //    }
             String jsonStr = JSONArray.toJSONString(arrayList);
             EmailTemplate emailTemplate1=broadCastRepository.findBySender("CreditVille");
+
             emailTemplate1.setFailedEmail(jsonStr);
             emailTemplate1.setEnableBroadcast("N");
-            broadCastRepository.save(emailTemplate1);
+            broadCastSmsRepository.save(emailTemplate1);
         }
 
         if(emailTemplate.getEnableUnregistered().equalsIgnoreCase("Y")){
@@ -1211,6 +1240,9 @@ public class NotificationServiceImpl implements NotificationService {
             case "nibbs-settlement-transaction":
                 return "email/nibbs-settlement";
 
+            case "flutterwave-settlement-transaction":
+                return "email/flutterwave-settlement";
+
             case "savings-transfer":
                 return "email/savings-transfer";
 
@@ -1223,6 +1255,10 @@ public class NotificationServiceImpl implements NotificationService {
 
             case "bulk-approval":
                 return "email/bulk-approval";
+
+
+            case "bulk-rejection":
+                return "email/bulk-rejection";
 
             case "website-contact-us":
                 return "email/contact-us-email";
