@@ -3,7 +3,8 @@ name: Dev Environment - CI Pipeline
 env:
   APP_NAME: "CV Notifications API"
   RELEASE_PATH: /opt/tomcat/notifications/ROOT/
-  WORK_PATH: /home/ubuntu/.m2/repository/com/creditville/target/notifications/
+  WORK_PATH: /home/ubuntu/notifications-runner/_work/CreditVille-Notifications_API/CreditVille-Notifications_API/
+  # WORK_PATH: /home/ubuntu/.m2/repository/com/creditville/target/notifications/
   # /home/ubuntu/notifications-runner/_work/CreditVille-Notifications_API/CreditVille-Notifications_API
 
 
@@ -68,15 +69,15 @@ jobs:
           ls -al
 
 
-      # - name: Copy WEB-INF Directory to Notifications Directory in the Server
-      #   run: |
-      #     pwd
-      #     cd ~
-      #     cd ${{ env.RELEASE_PATH }}
-      #     if [ -f ${{ env.RELEASE_PATH }}userservice.war ]; then
-      #       mv ${{ env.RELEASE_PATH }}userservice.war ${{ env.RELEASE_PATH }}userservice.warbackup
-      #     fi
-
+      - name: Copy WEB-INF Directory to Notifications Directory in the Server
+        run: |
+          pwd
+          cd ~
+          cd target/notifications/
+          scp WEB-INF ${{ env.RELEASE_PATH }}
+          sleep 10; ls -al
+          sudo systemctl restart tomcat
+          
 
       #     sleep 10s; mv ${{ env.WORK_PATH }}userservice-0.0.1-SNAPSHOT.war ${{ env.RELEASE_PATH }}userservice.war
       #     sleep 10; ls -al
