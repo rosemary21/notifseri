@@ -525,7 +525,7 @@ public class DispatcherServiceImpl implements DispatcherService {
 
 
     @Override
-    public void sendAllCient() throws CustomCheckedException{
+    public void sendAllCient() throws Exception{
         notificationService.sendAllCientEmail();
     }
 
