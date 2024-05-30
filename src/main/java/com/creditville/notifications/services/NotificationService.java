@@ -22,6 +22,7 @@ public interface NotificationService {
 
     void sendEmailBroadcastNotification(SendEmailRequest sendEmailRequest) throws CustomCheckedException;
 
+    NotificationServiceImpl.NotificationStatistics getCurrentNotificationStatistics();
 
     List<ExcludedEmail> getMailExceptionList();
 
