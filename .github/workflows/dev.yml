@@ -74,17 +74,10 @@ jobs:
           pwd
           cd ~
           cd target/notifications/
-          scp WEB-INF ${{ env.RELEASE_PATH }}
+          scp -r WEB-INF ${{ env.RELEASE_PATH }}
           sleep 10; ls -al
           sudo systemctl restart tomcat
           
-
-      #     sleep 10s; mv ${{ env.WORK_PATH }}userservice-0.0.1-SNAPSHOT.war ${{ env.RELEASE_PATH }}userservice.war
-      #     sleep 10; ls -al
-      #     cd ${{ env.RELEASE_PATH }}userservice/WEB-INF/classes/
-      #     ls -al
-      #     rm logback-spring.xml || true
-      #     sudo systemctl restart tomcat
 
 
 
