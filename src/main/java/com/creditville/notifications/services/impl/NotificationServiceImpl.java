@@ -18,9 +18,7 @@ import com.creditville.notifications.sms.dto.RequestDTO;
 import com.creditville.notifications.sms.dto.SMSDTO;
 import com.creditville.notifications.sms.services.SmsService;
 import com.creditville.notifications.sms.services.implementation.CsvParserSimple;
-
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.opencsv.CSVReader;
 import lombok.AllArgsConstructor;
@@ -55,7 +53,6 @@ import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -148,7 +145,6 @@ public class NotificationServiceImpl implements NotificationService {
     private boolean isMultiLine = false;
     private String pendingField = "";
     private String[] pendingFieldLine = new String[]{};
-
 
 
     @Autowired
@@ -301,7 +297,7 @@ public class NotificationServiceImpl implements NotificationService {
                             .withSMTPServerUsername(mailUser)
                             .withSMTPServerPassword(mailPass)
                             .withTransportStrategy(TransportStrategy.SMTP_TLS).buildMailer();
-                             mailer.sendMail(email, async);
+                    mailer.sendMail(email, async);
                     //mailer.sendMail(email, async);
 
                     emailService.auditSuccessfulEmail(notificationData, subject);
@@ -383,10 +379,10 @@ public class NotificationServiceImpl implements NotificationService {
         String SenderEmailValue=senderEmail;
         if(sendEmailRequest.getMailTemplate().equalsIgnoreCase("broadcastredwood")){
             log.info("getting the broadcast email information");
-             senderNameValue=redWoodSenderName;
-             SenderEmailValue=redWoodSenderEmail;
+            senderNameValue=redWoodSenderName;
+            SenderEmailValue=redWoodSenderEmail;
         }
-            EmailPopulatingBuilder emailPopulatingBuilder = EmailBuilder.startingBlank()
+        EmailPopulatingBuilder emailPopulatingBuilder = EmailBuilder.startingBlank()
                 .from(senderNameValue, SenderEmailValue)
                 .to(null, toAddressList)
                 .cc(null, ccAddressList)
@@ -395,7 +391,7 @@ public class NotificationServiceImpl implements NotificationService {
                 .withHTMLText(content);
         Email email =null;
         if(mailTemplate.equals("investmentCertificate")){
-             email = emailPopulatingBuilder
+            email = emailPopulatingBuilder
                     .withAttachment("investment-certificate.pdf", new FileDataSource(sendEmailRequest.getMailData().get("attachmentLocation").textValue()))
                     .buildEmail() ;
         }else if(mailTemplate.equals("accountStatement")){
@@ -418,22 +414,22 @@ public class NotificationServiceImpl implements NotificationService {
 
         if(notificationsEnabled) {
             try {
-                 if(!(sendEmailRequest.getMailTemplate().equalsIgnoreCase("broadcastredwood"))) {
-                     if (!emailService.isEmailExcluded(mailData.get("toAddress").textValue())) {
-                         log.info("Getting the creditville information details {} ",email);
+                if(!(sendEmailRequest.getMailTemplate().equalsIgnoreCase("broadcastredwood"))) {
+                    if (!emailService.isEmailExcluded(mailData.get("toAddress").textValue())) {
+                        log.info("Getting the creditville information details {} ",email);
 
-                         Mailer mailer = MailerBuilder.withSMTPServerHost(mailUrl)
-                                 .withSMTPServerPort(mailPort)
-                                 .withSMTPServerUsername(mailUser)
-                                 .withSMTPServerPassword(mailPass)
-                                 .withTransportStrategy(TransportStrategy.SMTP_TLS).buildMailer();
-                         mailer.sendMail(email, async);
-                         log.info("THE EMAIL BROADCAST HAS BEEN SUCCESSFULLY SENT TO CUSTOMER"+toAddresses);
+                        Mailer mailer = MailerBuilder.withSMTPServerHost(mailUrl)
+                                .withSMTPServerPort(mailPort)
+                                .withSMTPServerUsername(mailUser)
+                                .withSMTPServerPassword(mailPass)
+                                .withTransportStrategy(TransportStrategy.SMTP_TLS).buildMailer();
+                        mailer.sendMail(email, async);
+                        log.info("THE EMAIL BROADCAST HAS BEEN SUCCESSFULLY SENT TO CUSTOMER"+toAddresses);
 
 
-                         emailService.auditSuccessfulEmail(mailData, sendEmailRequest.getMailSubject());
-                     }
-                 }
+                        emailService.auditSuccessfulEmail(mailData, sendEmailRequest.getMailSubject());
+                    }
+                }
             }catch (Exception ex) {
                 ex.printStackTrace();
                 emailService.saveFailedEmail(mailData, sendEmailRequest.getMailSubject(), email.getHTMLText(), ex.getMessage());
@@ -598,7 +594,7 @@ public class NotificationServiceImpl implements NotificationService {
 
                 for (String recipient : recipients) {
                     log.info("getting the recipient {}",recipient);
-                     String values[]= recipient.split(",");
+                    String values[]= recipient.split(",");
                     for(int i=2;i<values.length;i++){
                         if(values[1].equalsIgnoreCase("message")){
                             keyValue.put(values[i],i);
@@ -637,11 +633,11 @@ public class NotificationServiceImpl implements NotificationService {
                             Integer value=keyValue.get(m.group(i));
                             log.info("getting the index value {}",value);
                             log.info("value to be replaced {}",values[value]);
-                             messase= new StringBuilder(formattedString.replace("{"+m.group(i)+"}",values[value]));
+                            messase= new StringBuilder(formattedString.replace("{"+m.group(i)+"}",values[value]));
 
                             formattedString=messase.toString();
-                             log.info("getting the message value {}",formattedString);
-                           // result.add(m.group(i));
+                            log.info("getting the message value {}",formattedString);
+                            // result.add(m.group(i));
 
                         }
 
@@ -654,32 +650,9 @@ public class NotificationServiceImpl implements NotificationService {
                         smsdto.setSms(requestDTO);
                         smsService.sendSingleSms(smsdto);
 
-                    String toAddresses = values[0];
-                    //uncustomize message on the excel sheet
-                    if(!(values[1].contains("{")) && !(values[1].equalsIgnoreCase("message"))){
-                        log.info("no message format");
-                        SMSDTO smsdto=new SMSDTO();
-                        RequestDTO requestDTO=new RequestDTO();
-                        requestDTO.setText(values[1]);
-                        requestDTO.setDest(toAddresses);
-                        requestDTO.setSrc(smssource);
-                        smsdto.setSms(requestDTO);
-                        smsService.sendSingleSms(smsdto);
                     }
 
-
                 }
-                String jsonStr = JSONArray.toJSONString(arrayList);
-                SmsTemplate emailTemplate1=broadCastSmsRepository.findBySender("CreditVille");
-                emailTemplate1.setFailedEmail(jsonStr);
-                emailTemplate1.setEnableUnregistered("N");
-                broadCastSmsRepository.save(emailTemplate1);
-
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-        }
-
 
                 String jsonStr = JSONArray.toJSONString(arrayList);
                 SmsTemplate emailTemplate1=broadCastSmsRepository.findBySender("CreditVille");
@@ -691,7 +664,6 @@ public class NotificationServiceImpl implements NotificationService {
                 e.printStackTrace();
             }
         }
-
 
 
         if(smsTemplate.getEnableBroadcast().equalsIgnoreCase("Y")){
@@ -798,10 +770,9 @@ public class NotificationServiceImpl implements NotificationService {
             //    }
             String jsonStr = JSONArray.toJSONString(arrayList);
             EmailTemplate emailTemplate1=broadCastRepository.findBySender("CreditVille");
-
             emailTemplate1.setFailedEmail(jsonStr);
             emailTemplate1.setEnableBroadcast("N");
-            broadCastSmsRepository.save(emailTemplate1);
+            broadCastRepository.save(emailTemplate1);
         }
 
         if(emailTemplate.getEnableUnregistered().equalsIgnoreCase("Y")){
@@ -898,7 +869,7 @@ public class NotificationServiceImpl implements NotificationService {
                 e.printStackTrace();
             }
 //          String fileName = "c:\\Users\\Chioma Chukelu\\Downloads\\uploadcc.csv";
-             String fileName = "/home/ubuntu/uploadcc.xlsx";
+            String fileName = "/home/ubuntu/uploadcc.xlsx";
             Map<String, Integer> keyValues = new HashMap<>();
 
 
@@ -931,7 +902,7 @@ public class NotificationServiceImpl implements NotificationService {
                         requestDTO.setDest(toAddresses);
                         requestDTO.setSrc(smssource);
                         smsdto.setSms(requestDTO);
-                       // smsService.sendSingleSms(smsdto);
+                        // smsService.sendSingleSms(smsdto);
 
                     }
                     if (arrays[1].contains("{") && !(arrays[1].equalsIgnoreCase("message"))) {
@@ -965,7 +936,7 @@ public class NotificationServiceImpl implements NotificationService {
                         requestDTO.setDest(toAddresses);
                         requestDTO.setSrc(smssource);
                         smsdto.setSms(requestDTO);
-                       //
+                        //
 
 
                     }
@@ -1062,12 +1033,12 @@ public class NotificationServiceImpl implements NotificationService {
                                 .withSMTPServerUsername(mailUser)
                                 .withSMTPServerPassword(mailPass)
                                 .withTransportStrategy(TransportStrategy.SMTP_TLS).buildMailer();
-                                 mailer.sendMail(email, async);
-                               // mailer.sendMail(email, async);
-                      //  emailService.auditSuccessfulEmail(mailData, sendEmailRequest.getMailSubject());
+                        mailer.sendMail(email, async);
+                        // mailer.sendMail(email, async);
+                        //  emailService.auditSuccessfulEmail(mailData, sendEmailRequest.getMailSubject());
                     }
                 }catch (Exception ex) {
-                  //  emailService.saveFailedEmail(mailData, sendEmailRequest.getMailSubject(), email.getHTMLText(), ex.getMessage());
+                    //  emailService.saveFailedEmail(mailData, sendEmailRequest.getMailSubject(), email.getHTMLText(), ex.getMessage());
                     log.info("Email sending failed: "+ ex.getMessage());
                     throw new CustomCheckedException("Email sending failed");
                 }
@@ -1114,8 +1085,8 @@ public class NotificationServiceImpl implements NotificationService {
                                 .withSMTPServerUsername(mailUser)
                                 .withSMTPServerPassword(mailPass)
                                 .withTransportStrategy(TransportStrategy.SMTP_TLS).buildMailer();
-                                mailer.sendMail(email, async);
-                      //  mailer.sendMail(email, async);
+                        mailer.sendMail(email, async);
+                        //  mailer.sendMail(email, async);
                         emailService.auditSuccessfulEmail(mailData, sendEmailRequest.getMailSubject());
                     }
                 }catch (Exception ex) {
@@ -1128,6 +1099,18 @@ public class NotificationServiceImpl implements NotificationService {
         }
     }
 
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    public class NotificationStatistics {
+        private Long failedCount;
+        private Long successfulCount;
+    }
+
+    @Override
+    public NotificationStatistics getCurrentNotificationStatistics() {
+        return new NotificationStatistics(failedEmailRepository.count(), emailAuditRepository.count());
+    }
 
     @Override
     public List<ExcludedEmail> getMailExceptionList() {
@@ -1228,9 +1211,6 @@ public class NotificationServiceImpl implements NotificationService {
             case "nibbs-settlement-transaction":
                 return "email/nibbs-settlement";
 
-            case "flutterwave-settlement-transaction":
-                return "email/flutterwave-settlement";
-
             case "savings-transfer":
                 return "email/savings-transfer";
 
@@ -1243,10 +1223,6 @@ public class NotificationServiceImpl implements NotificationService {
 
             case "bulk-approval":
                 return "email/bulk-approval";
-
-
-            case "bulk-rejection":
-                return "email/bulk-rejection";
 
             case "website-contact-us":
                 return "email/contact-us-email";
@@ -1278,7 +1254,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     private List<Recipient> toRecipient(List<To> tos){
         return tos.stream().map(to ->
-                new Recipient(to.getName(), to.getEmail(), Message.RecipientType.TO))
+                        new Recipient(to.getName(), to.getEmail(), Message.RecipientType.TO))
                 .collect(Collectors.toList());
     }
 
