@@ -1128,18 +1128,6 @@ public class NotificationServiceImpl implements NotificationService {
         }
     }
 
-    @Getter
-    @Setter
-    @AllArgsConstructor
-    public class NotificationStatistics {
-        private Long failedCount;
-        private Long successfulCount;
-    }
-
-    @Override
-    public NotificationStatistics getCurrentNotificationStatistics() {
-        return new NotificationStatistics(failedEmailRepository.count(), emailAuditRepository.count());
-    }
 
     @Override
     public List<ExcludedEmail> getMailExceptionList() {
