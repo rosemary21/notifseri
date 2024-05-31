@@ -11,9 +11,9 @@ on:
   push:
     branches:
       - dev
-  pull_request:
-    branches:
-      - dev
+  # pull_request:
+  #   branches:
+  #     - dev
 
 jobs:
   deploy:
@@ -32,10 +32,6 @@ jobs:
 
 
       - name: Build Application
-        # run: mvn compiler:compile
-        # run:   mvn spring-boot:run
-        # cd ${{ env.WORK_PATH }}
-        #   cd /home/ubuntu/notifications-runner/_work/CreditVille-Notifications_API/CreditVille-Notifications_API
         run: |
           mvn clean
           mvn install -DskipTests
@@ -44,6 +40,17 @@ jobs:
           ls -al
 
 
+      # - name: Rename Existing WEB-INFBackup Directory Using Current Date
+      #   run: |
+      #     cd ${{ env.RELEASE_PATH }}
+      #     ls -la
+      #     current_date=$(date +%m-%d-%Y)
+      #     echo "Current date is: $current_date"
+      #     if [ -d "WEB-INFBackup" ]; then
+      #       mv WEB-INFBackup WEB-INFBackup${current_date}
+      #     fi
+      #     ls -al
+
       - name: Rename Existing WEB-INFBackup Directory Using Current Date
         run: |
           cd ${{ env.RELEASE_PATH }}
@@ -51,6 +58,10 @@ jobs:
           current_date=$(date +%m-%d-%Y)
           echo "Current date is: $current_date"
           if [ -d "WEB-INFBackup" ]; then
+            if [ -d "WEB-INFBackup${current_date}" ]; then
+              echo "Removing existing WEB-INFBackup${current_date} directory"
+              rm -rf WEB-INFBackup${current_date}
+            fi
             mv WEB-INFBackup WEB-INFBackup${current_date}
           fi
           ls -al
