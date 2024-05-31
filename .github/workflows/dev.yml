@@ -4,8 +4,7 @@ env:
   APP_NAME: "CV Notifications API"
   RELEASE_PATH: /opt/tomcat/notifications/ROOT/
   WORK_PATH: /home/ubuntu/notifications-runner/_work/CreditVille-Notifications_API/CreditVille-Notifications_API/target/notifications/
-  # WORK_PATH: /home/ubuntu/.m2/repository/com/creditville/target/notifications/
-  # /home/ubuntu/notifications-runner/_work/CreditVille-Notifications_API/CreditVille-Notifications_API
+  # WORK_PATH: /home/ubuntu/notifications-runner/_work/CreditVille-Notifications_API/CreditVille-Notifications_API/
 
 
 on:
@@ -74,7 +73,9 @@ jobs:
           pwd
           cd ~
           cd ${{ env.WORK_PATH }}
-          ls -al
+          scp -r WEB-INF ${{ env.RELEASE_PATH }}
+          sleep 10; ls -al
+          sudo systemctl restart tomcat
           
 
 
