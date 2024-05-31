@@ -73,10 +73,8 @@ jobs:
         run: |
           pwd
           cd ~
-          cd target/notifications/
-          scp -r WEB-INF ${{ env.RELEASE_PATH }}
-          sleep 10; ls -al
-          sudo systemctl restart tomcat
+          cd ${{ env.WORK_PATH }}
+          ls -al
           
 
 
