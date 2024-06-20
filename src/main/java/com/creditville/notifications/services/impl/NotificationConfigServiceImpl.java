@@ -64,6 +64,7 @@ public class NotificationConfigServiceImpl implements NotificationConfigService 
     @Override
     public NotificationGeneralConfig getNotificationGeneralConfig(String type) throws CustomCheckedException {
         NotificationType notificationType = this.getNotificationType(type);
+
         return notificationGeneralConfigRepository.findByNotificationType(notificationType);
     }
 
