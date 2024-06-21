@@ -16,7 +16,7 @@ public interface DispatcherService {
 
     void performArrearsOperation();
 
-    void sendAllCient() throws CustomCheckedException;
+    void sendAllCient() throws Exception;
 
     void performPostMaturityOperation();
 
