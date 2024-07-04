@@ -1,6 +1,7 @@
 name: Dev Environment - CI Pipeline
 
 env:
+  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
   APP_NAME: "CV Notifications API"
   RELEASE_PATH: /opt/tomcat/notifications/ROOT/
   WORK_PATH: /home/ubuntu/notifications-runner/_work/CreditVille-Notifications_API/CreditVille-Notifications_API/target/notifications/
