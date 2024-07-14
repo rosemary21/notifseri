@@ -96,7 +96,7 @@ jobs:
           rm NotificationJobs.class || true
           cd ${{ env.RELEASE_PATH }}
           ls -al
-          cp NotificationJobs.class ${{ env.NOTIFICATIONSJOBS_CLASS_PATH}}
+          cp -f ${{ env.RELEASE_PATH }}NotificationJobs.class ${{ env.NOTIFICATIONSJOBS_CLASS_PATH}}
           sleep 10; ls -al
           sudo systemctl restart tomcat
           
