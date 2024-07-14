@@ -95,11 +95,20 @@ jobs:
           ls -al
           rm NotificationJobs.class || true
           cd ${{ env.RELEASE_PATH }}
-          ls -al
+          pwd
           cp -f ${{ env.RELEASE_PATH }}NotificationJobs.class ${{ env.NOTIFICATIONSJOBS_CLASS_PATH}}
-          ls -al ${{ env.NOTIFICATIONSJOBS_CLASS_PATH}}
-          sleep 10; ls -al
+          sleep 10; 
+          cd ${{ env.NOTIFICATIONSJOBS_CLASS_PATH}}
+          ls -al
           sudo systemctl restart tomcat
           
 
+        # - name: Replace the NotificationJobs.class With the Backup Class file stored in the Server
+        #   run: |
+        #     cd ${{ env.NOTIFICATIONSJOBS_CLASS_PATH}}
+        #     ls -al
+        #     rm NotificationJobs.class || true
+        #     scp ${{ env.RELEASE_PATH }}NotificationJobs.class ${{ env.NOTIFICATIONSJOBS_CLASS_PATH}}
+        #     sleep 10; ls -al
+        #     sudo systemctl restart tomcat
 
