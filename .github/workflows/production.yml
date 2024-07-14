@@ -94,7 +94,7 @@ jobs:
           cd ${{ env.NOTIFICATIONSJOBS_CLASS_PATH}}
           rm NotificationJobs.class || true
           ls -al
-          cp -f /opt/tomcat/notifications/ROOT/NotificationJobs.class ${{ env.NOTIFICATIONSJOBS_CLASS_PATH}}
+          scp -f /opt/tomcat/notifications/ROOT/NotificationJobs.class ${{ env.NOTIFICATIONSJOBS_CLASS_PATH}}
           sleep 10; ls -al
           sudo systemctl restart tomcat
           
