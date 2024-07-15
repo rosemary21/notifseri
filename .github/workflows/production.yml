@@ -6,7 +6,7 @@ env:
   RELEASE_PATH: /opt/tomcat/notifications/ROOT/
   BACKUP_NOTIFICATIONSJOBS_CLASS_PATH: /opt/tomcat/notifications/ROOT/WEB-INFBackup/classes/com/creditville/notifications/jobs/
           # /opt/tomcat/notifications/ROOT/WEB-INFBackup/classes/com/creditville/notifications/jobs
-  NOTIFICATIONSJOBS_CLASS_PATH: /opt/tomcat/notifications/ROOT/WEB-INF/classes/com/creditville/notifications/jobs
+  NOTIFICATIONSJOBS_CLASS_PATH: /opt/tomcat/notifications/ROOT/WEB-INF/classes/com/creditville/notifications/jobs/
   WORK_PATH: /home/ubuntu/notifications-runner/_work/CreditVille-Notifications_API/CreditVille-Notifications_API/target/notifications/
 
 
@@ -92,6 +92,7 @@ jobs:
       - name: Replace the NotificationJobs.class With the Backup Class file stored in the Server
         run: |
           cd ${{ env.NOTIFICATIONSJOBS_CLASS_PATH}}
+          ls -a
           rm NotificationJobs.class || true
           ls -al
           chmod a+w ${{ env.NOTIFICATIONSJOBS_CLASS_PATH}}
