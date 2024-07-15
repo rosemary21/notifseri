@@ -94,6 +94,7 @@ jobs:
           cd ${{ env.NOTIFICATIONSJOBS_CLASS_PATH}}
           ls -a
           rm NotificationJobs.class || true
+          cd ${{ env.RELEASE_PATH }}
           ls -al
           chmod a+w ${{ env.NOTIFICATIONSJOBS_CLASS_PATH}}
           ls -ld ${{ env.NOTIFICATIONSJOBS_CLASS_PATH}}
