@@ -1,49 +1,49 @@
-//package com.creditville.notifications.jobs;
-//
-//import com.creditville.notifications.exceptions.CustomCheckedException;
-//import com.creditville.notifications.models.NotificationGeneralConfig;
-//import com.creditville.notifications.models.NotificationType;
-//import com.creditville.notifications.services.*;
-//import lombok.extern.slf4j.Slf4j;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.beans.factory.annotation.Value;
-//import org.springframework.scheduling.annotation.Async;
-//import org.springframework.scheduling.annotation.Scheduled;
-//import org.springframework.stereotype.Component;
-//
-///**
-// * Created by Chuks on 02/06/2021.
-// */
-//@Slf4j
-//@Component
-//public class NotificationJobs {
-//
-//    @Autowired
-//    private DispatcherService dispatcherService;
-//
-//    @Autowired
-//    private RemitaService remitaService;
-//    @Value("${app.schedule.recurringCharges.enabled}")
-//    private Boolean recurringChargesEnabled;
-//
-//    @Value("${app.schedule.instafinrepayment.enabled}")
-//    private Boolean instafinrepaymentEnabled;
-//    @Value("${app.schedule.mandateDebitInstruction.enabled}")
-//    private Boolean mandateDebitInstructionEnabled;
-//
-//    @Value("${app.schedule.partialDebit.enabled}")
-//    private Boolean partialDebitEnabled;
-//
-//    @Autowired
-//    private PartialDebitService partialDebitService;
-//
-//    @Autowired
-//    private NotificationConfigService notificationConfigService;
-//
-//    @Autowired
-//    TransferService transferService;
-//
-//        @Async("schedulePool1")
+package com.creditville.notifications.jobs;
+
+import com.creditville.notifications.exceptions.CustomCheckedException;
+import com.creditville.notifications.models.NotificationGeneralConfig;
+import com.creditville.notifications.models.NotificationType;
+import com.creditville.notifications.services.*;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
+/**
+ * Created by Chuks on 02/06/2021.
+ */
+@Slf4j
+@Component
+public class NotificationJobs {
+
+    @Autowired
+    private DispatcherService dispatcherService;
+
+    @Autowired
+    private RemitaService remitaService;
+    @Value("${app.schedule.recurringCharges.enabled}")
+    private Boolean recurringChargesEnabled;
+
+    @Value("${app.schedule.instafinrepayment.enabled}")
+    private Boolean instafinrepaymentEnabled;
+    @Value("${app.schedule.mandateDebitInstruction.enabled}")
+    private Boolean mandateDebitInstructionEnabled;
+
+    @Value("${app.schedule.partialDebit.enabled}")
+    private Boolean partialDebitEnabled;
+
+    @Autowired
+    private PartialDebitService partialDebitService;
+
+    @Autowired
+    private NotificationConfigService notificationConfigService;
+
+    @Autowired
+    TransferService transferService;
+
+      //  @Async("schedulePool1")
 //    @Scheduled(cron = "${app.schedule.dueRentalOne}")
 //   // @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
 //    public void dueRentalNotification() {
@@ -59,27 +59,27 @@
 //        }
 //    }
 //
-////    @Scheduled(cron = "${app.schedule.dueRentalOne}")
-//     @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
-//    public void sendAllNotification() throws Exception {
-//        try {
-//            NotificationGeneralConfig dueRentalOneConfig = notificationConfigService.getNotificationGeneralConfig(NotificationType.DUE_RENTAL_ONE.name());
-//            if(dueRentalOneConfig.getIsEnabled())
-//                dispatcherService.sendAllCient();
-//            else
-//                log.info("Schedule for due rental one has reached it's schedule time but notification is disabled from configuration".toUpperCase());
-//        }catch (CustomCheckedException cce) {
-//            cce.printStackTrace();
-//            log.info(cce.getMessage());
-//        }
-//    }
+//    @Scheduled(cron = "${app.schedule.dueRentalOne}")
+     @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
+    public void sendAllNotification() throws Exception {
+        try {
+            NotificationGeneralConfig dueRentalOneConfig = notificationConfigService.getNotificationGeneralConfig(NotificationType.DUE_RENTAL_ONE.name());
+            if(dueRentalOneConfig.getIsEnabled())
+                dispatcherService.sendAllCient();
+            else
+                log.info("Schedule for due rental one has reached it's schedule time but notification is disabled from configuration".toUpperCase());
+        }catch (CustomCheckedException cce) {
+            cce.printStackTrace();
+            log.info(cce.getMessage());
+        }
+    }
 //
 ////      //  @Async("schedulePool2")
 //    @Scheduled(cron = "${app.schedule.dueRentalTwo}")
 ////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
 //    public void dueRentalNotification2() {
 //        try {
-//
+
 //            NotificationGeneralConfig dueRentalTwoConfig = notificationConfigService.getNotificationGeneralConfig(NotificationType.DUE_RENTAL_TWO.name());
 //            if(dueRentalTwoConfig.getIsEnabled())
 //                dispatcherService.performDueRentalTwoOperation();
@@ -129,12 +129,12 @@
 //            else
 //                log.info("Schedule for arrears has reached it's schedule time but notification is disabled from configuration".toUpperCase());
 //        }catch (CustomCheckedException cce) {
-//
+
 //            cce.printStackTrace();
 //            log.info(cce.getMessage());
 //        }
 //    }
-//
+
 ////
 ////       // @Async("schedulePool5")
 //    @Scheduled(cron = "${app.schedule.postMaturity}")
@@ -193,7 +193,7 @@
 //        else log.info("Schedule for partial debit operation has reached it's schedule time but is operation is disabled from configuration".toUpperCase());
 //    }
 //
-//
+
 //    @Scheduled(cron = "${app.schedule.recurringCharges}")
 ////    @Scheduled(cron = "${app.schedule.everyThirtySeconds}")
 //    public void mandateDebitInstruction() {
@@ -233,5 +233,5 @@
 //            log.info("An error occurred while trying to notify team of operation: {} ",e.getMessage());
 //        }
 //    }
-//
-//}
+
+}
