@@ -525,7 +525,7 @@ public class DispatcherServiceImpl implements DispatcherService {
 
 
     @Override
-    public void sendAllCient() throws CustomCheckedException{
+    public void sendAllCient() throws Exception{
         notificationService.sendAllCientEmail();
     }
 
@@ -1266,7 +1266,8 @@ public class DispatcherServiceImpl implements DispatcherService {
                                             lookUpLoanAccount.getLoanAccount().getOptionalFields().getModeOfRepayment();
                                     log.info("modeOfRepayment: "+modeOfRepayment);
                                     var excludeCustResp = excludeCustomerRepo.findByLoanId(clientLoan.getId());
-                                    if (modeOfRepayment.equalsIgnoreCase(cardModeOfRepaymentKey) && !excludeCustResp.isExcludedFromDebit()) {
+
+                                    if ((modeOfRepayment.equalsIgnoreCase(cardModeOfRepaymentKey) && excludeCustResp==null) || (modeOfRepayment.equalsIgnoreCase(cardModeOfRepaymentKey) && excludeCustResp!=null && !excludeCustResp.isExcludedFromDebit()) ) {
 //                                    if (modeOfRepayment.equalsIgnoreCase("1007")) {
                                         List<LookUpLoanInstalment> loanInstalments = lookUpLoanAccount.getLoanAccount().getInstalments();
                                         if (!loanInstalments.isEmpty()) {

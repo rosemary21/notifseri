@@ -17,7 +17,7 @@ public interface NotificationService {
 
     void sendEmailNotification(SendEmailRequest sendEmailRequest) throws CustomCheckedException;
 
-   void  sendAllCientEmail()  throws CustomCheckedException;
+   void  sendAllCientEmail()  throws Exception;
     void sendEmailNotification(EmailRequest sendEmailRequest) throws CustomCheckedException;
 
     void sendEmailBroadcastNotification(SendEmailRequest sendEmailRequest) throws CustomCheckedException;
