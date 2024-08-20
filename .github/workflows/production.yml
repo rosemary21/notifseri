@@ -4,10 +4,8 @@ env:
   ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
   APP_NAME: "CV Notifications API"
   RELEASE_PATH: /opt/tomcat/notifications/ROOT/
-  BACKUP_NOTIFICATIONSJOBS_CLASS_PATH: /opt/tomcat/notifications/ROOT/WEB-INFBackup/classes/com/creditville/notifications/jobs/
-          # /opt/tomcat/notifications/ROOT/WEB-INFBackup/classes/com/creditville/notifications/jobs
-  NOTIFICATIONSJOBS_CLASS_PATH: /opt/tomcat/notifications/ROOT/WEB-INF/classes/com/creditville/notifications/jobs/
   WORK_PATH: /home/ubuntu/notifications-runner/_work/CreditVille-Notifications_API/CreditVille-Notifications_API/target/notifications/
+  # WORK_PATH: /home/ubuntu/notifications-runner/_work/CreditVille-Notifications_API/CreditVille-Notifications_API/
 
 
 on:
@@ -87,30 +85,6 @@ jobs:
           cd ${{ env.WORK_PATH }}
           scp -r WEB-INF ${{ env.RELEASE_PATH }}
           sleep 10; ls -al
-
-
-      - name: Replace the NotificationJobs.class With the Backup Class file stored in the Server
-        run: |
-          cd ${{ env.NOTIFICATIONSJOBS_CLASS_PATH}}
-          rm NotificationJobs.class || true
-          ls -al
-          cd ${{ env.RELEASE_PATH }}
-          ls -al
-          chmod a+w ${{ env.NOTIFICATIONSJOBS_CLASS_PATH}}
-          ls -ld ${{ env.NOTIFICATIONSJOBS_CLASS_PATH}}
-          sudo cp -f /opt/tomcat/notifications/ROOT/NotificationJobs.class ${{ env.NOTIFICATIONSJOBS_CLASS_PATH}}
-          sleep 10
-          cd ${{ env.NOTIFICATIONSJOBS_CLASS_PATH}}
-          ls -al
           sudo systemctl restart tomcat
           
-
-        # - name: Replace the NotificationJobs.class With the Backup Class file stored in the Server
-        #   run: |
-        #     cd ${{ env.NOTIFICATIONSJOBS_CLASS_PATH}}
-        #     ls -al
-        #     rm NotificationJobs.class || true
-        #     scp ${{ env.RELEASE_PATH }}NotificationJobs.class ${{ env.NOTIFICATIONSJOBS_CLASS_PATH}}
-        #     sleep 10; ls -al
-        #     sudo systemctl restart tomcat
 
