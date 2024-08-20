@@ -16,13 +16,12 @@ public interface NotificationService {
     void sendEmailNotification(String subject, Map<String, String> notificationData, String templateLocation) throws CustomCheckedException;
 
     void sendEmailNotification(SendEmailRequest sendEmailRequest) throws CustomCheckedException;
-
+    NotificationServiceImpl.NotificationStatistics getCurrentNotificationStatistics();
    void  sendAllCientEmail()  throws Exception;
     void sendEmailNotification(EmailRequest sendEmailRequest) throws CustomCheckedException;
 
     void sendEmailBroadcastNotification(SendEmailRequest sendEmailRequest) throws CustomCheckedException;
 
-    NotificationServiceImpl.NotificationStatistics getCurrentNotificationStatistics();
 
     List<ExcludedEmail> getMailExceptionList();
 
