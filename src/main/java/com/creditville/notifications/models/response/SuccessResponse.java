@@ -1,5 +1,6 @@
 package com.creditville.notifications.models.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -7,8 +8,9 @@ import java.io.Serializable;
 
 @Getter
 @Setter
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class SuccessResponse implements Serializable {
-    private Integer responseCode = 99;
+    private String responseCode = "cv00";
     private String message;
     private Object responseData;
 
