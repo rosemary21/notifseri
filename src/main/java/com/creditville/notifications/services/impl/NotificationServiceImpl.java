@@ -1247,6 +1247,8 @@ public class NotificationServiceImpl implements NotificationService {
                 return "email/debit-fund-transfer";
             case "birthday-wish":
                 return "email/birthday-wish";
+            case "loanSupport":
+                return "email/loanSupport";
             case "leaseSupport":
                 return "email/LeaseSupport";
 
