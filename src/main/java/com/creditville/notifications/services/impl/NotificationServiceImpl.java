@@ -1247,10 +1247,12 @@ public class NotificationServiceImpl implements NotificationService {
                 return "email/debit-fund-transfer";
             case "birthday-wish":
                 return "email/birthday-wish";
-            case "leaseSupport":
-                return "email/LeaseSupport";
             case "loanSupport":
                 return "email/loanSupport";
+            case "leaseSupport":
+                return "email/LeaseSupport";
+            case "AdminLoginNotification":
+                return "email/staff-login";
 
             default:
                 throw new CustomCheckedException("Invalid template name provided");
