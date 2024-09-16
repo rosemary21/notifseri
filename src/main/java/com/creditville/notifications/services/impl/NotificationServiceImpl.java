@@ -1146,6 +1146,8 @@ public class NotificationServiceImpl implements NotificationService {
                 return "email/post_maturity";
             case "investmentCertificate":
                 return "email/investment-certificate";
+            case "failure-notification":
+                return "email/failure-notification";
             case "custom":
                 return "email/custom-message";
             case "activateOtp":
