@@ -56,7 +56,7 @@ public class PushNotificationServiceImpl implements PushNotificationService {
         } catch (FirebaseMessagingException e) {
             e.printStackTrace();
             pushResp.setCode(messageSource.getMessage("service.error.code",null, Locale.ENGLISH));
-            pushResp.setMessage(messageSource.getMessage("push.notification.error",null, Locale.ENGLISH));
+            pushResp.setMessage("An Error occurred while sending push Notification: "+e.getMessage());
             return pushResp;
         }
     }
@@ -83,7 +83,7 @@ public class PushNotificationServiceImpl implements PushNotificationService {
         } catch (FirebaseMessagingException e) {
             e.printStackTrace();
             pushResp.setCode(messageSource.getMessage("service.error.code",null, Locale.ENGLISH));
-            pushResp.setMessage(messageSource.getMessage("push.notification.error",null, Locale.ENGLISH));
+            pushResp.setMessage("An Error occurred while sending push Notification: "+e.getMessage());
             return pushResp;
         }
     }
