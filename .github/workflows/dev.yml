@@ -1,0 +1,131 @@
+name: Dev Environment - CI Pipeline
+
+env:
+  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
+  APP_NAME: "CV Notifications API"
+  RELEASE_PATH: /opt/tomcat/notifications/ROOT/
+  WORK_PATH: /home/ubuntu/notifications-runner/_work/CreditVille-Notifications_API/CreditVille-Notifications_API/target/notifications/
+  # WORK_PATH: /home/ubuntu/notifications-runner/_work/CreditVille-Notifications_API/CreditVille-Notifications_API/
+
+
+on:
+  push:
+    branches:
+      - dev
+  # pull_request:
+  #   branches:
+  #     - dev
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, linux, development, notification]
+
+    steps:
+      #check out repository and clone repository to the self-hosted server
+      - name: Checkout the develop branch
+        uses: actions/checkout@v2
+
+      #set up Java on the server
+      - name: Set up JDK 11
+        uses: actions/setup-java@v1
+        with:
+          java-version: "11"
+
+
+      - name: Build Application
+        run: |
+          mvn clean
+          mvn install -DskipTests
+          pwd
+          cd target/notifications/
+          ls -al
+
+
+      # - name: Rename Existing WEB-INFBackup Directory Using Current Date
+      #   run: |
+      #     cd ${{ env.RELEASE_PATH }}
+      #     ls -la
+      #     current_date=$(date +%m-%d-%Y)
+      #     echo "Current date is: $current_date"
+      #     if [ -d "WEB-INFBackup" ]; then
+      #       mv WEB-INFBackup WEB-INFBackup${current_date}
+      #     fi
+      #     ls -al
+
+      - name: Rename Existing WEB-INFBackup Directory Using Current Date
+        run: |
+          cd ${{ env.RELEASE_PATH }}
+          ls -la
+          current_date=$(date +%m-%d-%Y)
+          echo "Current date is: $current_date"
+          if [ -d "WEB-INFBackup" ]; then
+            if [ -d "WEB-INFBackup${current_date}" ]; then
+              echo "Removing existing WEB-INFBackup${current_date} directory"
+              rm -rf WEB-INFBackup${current_date}
+            fi
+            mv WEB-INFBackup WEB-INFBackup${current_date}
+          fi
+          ls -al
+
+
+      - name: Backup Existing WEB-INF Directory
+        run: |
+          cd ${{ env.RELEASE_PATH }}
+          # Check if WEB-INF exists and rename it to WEB-INFBackup
+          if [ -d ${{ env.RELEASE_PATH }}WEB-INF ]; then
+            mv ${{ env.RELEASE_PATH }}WEB-INF ${{ env.RELEASE_PATH }}WEB-INFBackup
+          fi
+          ls -al
+
+
+      - name: Copy WEB-INF Directory to Notifications Directory in the Server
+        run: |
+          pwd
+          cd ~
+          cd ${{ env.WORK_PATH }}
+          scp -r WEB-INF ${{ env.RELEASE_PATH }}
+          sleep 10; ls -al
+          sudo systemctl restart tomcat
+          
+
+
+
+
+      # - name: Copy WEB-INF to EC2 Server
+      #   run: |
+      #     pwd
+      #     cd ~
+      #     cd ${{ env.RELEASE_PATH }}
+      #     if [ -f ${{ env.RELEASE_PATH }}userservice.war ]; then
+      #       mv ${{ env.RELEASE_PATH }}userservice.war ${{ env.RELEASE_PATH }}userservice.warbackup
+      #     fi
+      #     sleep 10s; mv ${{ env.WORK_PATH }}userservice-0.0.1-SNAPSHOT.war ${{ env.RELEASE_PATH }}userservice.war
+      #     sleep 10; ls -al
+      #     cd ${{ env.RELEASE_PATH }}userservice/WEB-INF/classes/
+      #     ls -al
+      #     rm logback-spring.xml || true
+      #     sudo systemctl restart tomcat
+
+  # deploy:
+  #   runs-on: ubuntu-latest
+  #   needs: [build]
+
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v2
+
+  #     - name: Deploy to EC2
+  #       run: |
+  #         pwd
+  #         cd ~
+  #         rm ${{ env.RELEASE_PATH }}userservice.warbackup || true
+  #         if [ -f ${{ env.RELEASE_PATH }}userservice.war ]; then
+  #           mv ${{ env.RELEASE_PATH }}userservice.war ${{ env.RELEASE_PATH }}userservice.warbackup
+  #         fi
+  #         sleep 10s; mv ${{ env.WORK_PATH }}userservice-0.0.1-SNAPSHOT.war ${{ env.RELEASE_PATH }}userservice.war
+  #         ls -al
+  #         cd .
+  #         cd ${{ env.RELEASE_PATH }}userservice/WEB-INF/classes/
+  #         rm logback-spring.xml || true
+  #         sudo systemctl restart tomcat
+

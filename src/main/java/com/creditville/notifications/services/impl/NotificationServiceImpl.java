@@ -1177,6 +1177,9 @@ public class NotificationServiceImpl implements NotificationService {
             case "mandateActivated":
                 return "email/mandateActivated";
 
+            case "loanrepayment":
+                return "email/loanrepayment";
+
             case "broadcastredwood":
                 return "email/redwoodbroadcast";
 
@@ -1226,6 +1229,10 @@ public class NotificationServiceImpl implements NotificationService {
             case "bulk-approval":
                 return "email/bulk-approval";
 
+
+            case "bulk-rejection":
+                return "email/bulk-rejection";
+
             case "website-contact-us":
                 return "email/contact-us-email";
 
@@ -1238,6 +1245,16 @@ public class NotificationServiceImpl implements NotificationService {
                 return "email/accountStatement";
             case "LoginNotification":
                 return "email/loginEmail";
+            case "debit-fund-transfer":
+                return "email/debit-fund-transfer";
+            case "birthday-wish":
+                return "email/birthday-wish";
+            case "loanSupport":
+                return "email/loanSupport";
+            case "leaseSupport":
+                return "email/LeaseSupport";
+            case "AdminLoginNotification":
+                return "email/staff-login";
 
             default:
                 throw new CustomCheckedException("Invalid template name provided");
